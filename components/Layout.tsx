@@ -26,6 +26,18 @@ interface LayoutProps {
   shell: SiteShellData;
 }
 
+const hasKeyIdentifier = (event: KeyboardEvent): boolean =>
+  typeof event.key === 'string' && event.key.length > 0;
+
+const isModifierPressed = (event: KeyboardEvent): boolean =>
+  event.ctrlKey || event.metaKey;
+
+const isTypingTarget = (target: EventTarget | null): boolean =>
+  target instanceof Element &&
+  Boolean(target.closest('input, textarea, select, [contenteditable="true"]'));
+
+const isChordStartKey = (key: string): boolean => key === 'g' || key === 'k';
+
 const Layout = ({ children, shell }: LayoutProps) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -70,9 +82,9 @@ const Layout = ({ children, shell }: LayoutProps) => {
 
       // Browser extensions and synthetic events can dispatch `keydown` without
       // the KeyboardEvent `key` field. Ignore those events instead of crashing.
-      if (typeof e.key !== 'string' || !e.key) return;
+      if (!hasKeyIdentifier(e)) return;
 
-      if ((e.ctrlKey || e.metaKey) && e.key === '`') {
+      if (isModifierPressed(e) && e.key === '`') {
         e.preventDefault();
         toggleTerminal();
         return;
@@ -80,7 +92,7 @@ const Layout = ({ children, shell }: LayoutProps) => {
 
       const key = e.key.toLowerCase();
 
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && key === 'p') {
+      if (isModifierPressed(e) && e.shiftKey && key === 'p') {
         e.preventDefault();
         openCommandPalette();
         return;
@@ -100,11 +112,7 @@ const Layout = ({ children, shell }: LayoutProps) => {
         return;
       }
 
-      const isTyping =
-        e.target instanceof Element &&
-        Boolean(e.target.closest('input, textarea, select, [contenteditable="true"]'));
-
-      if ((key === 'g' || key === 'k') && !isTyping) {
+      if (isChordStartKey(key) && !isTypingTarget(e.target)) {
         e.preventDefault();
         setChordKey(key);
         if (chordTimerRef.current) clearTimeout(chordTimerRef.current);

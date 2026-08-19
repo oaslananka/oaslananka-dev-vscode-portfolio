@@ -141,6 +141,94 @@ function deleteKnownAnalyticsCookies(): void {
   });
 }
 
+function AnalyticsScripts({
+  gtmId,
+  gaId,
+  metaPixelId,
+}: ConsentManagerProps) {
+  return (
+    <>
+      {gtmId ? <GoogleTagManager gtmId={gtmId} /> : null}
+      {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
+      {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
+      <Analytics />
+      <SpeedInsights />
+    </>
+  );
+}
+
+function PrivacyPanel({
+  choice,
+  panelRef,
+  onClose,
+  onChoose,
+}: {
+  choice: ConsentChoice | null;
+  panelRef: React.RefObject<HTMLElement | null>;
+  onClose: () => void;
+  onChoose: (choice: ConsentChoice) => void;
+}) {
+  return (
+    <section
+      aria-labelledby="privacy-consent-title"
+      className={styles.panel}
+      ref={panelRef}
+      tabIndex={-1}
+    >
+      <div className={styles.headingRow}>
+        <VscShield aria-hidden="true" className={styles.shield} size={20} />
+        <div>
+          <h2 className={styles.title} id="privacy-consent-title">
+            Privacy choices
+          </h2>
+          {choice ? (
+            <p className={styles.currentChoice}>
+              <VscCheck aria-hidden="true" size={13} />
+              {choice === 'analytics'
+                ? 'Optional analytics allowed'
+                : 'Essential services only'}
+            </p>
+          ) : null}
+        </div>
+        {choice ? (
+          <button
+            aria-label="Close privacy choices"
+            className={styles.closeButton}
+            onClick={onClose}
+            title="Close privacy choices"
+            type="button"
+          >
+            <VscClose aria-hidden="true" size={18} />
+          </button>
+        ) : null}
+      </div>
+
+      <p className={styles.copy}>
+        Optional analytics help measure which work is useful. They stay off
+        until you allow them; essential security and contact features
+        continue either way. <Link href="/privacy">Read the privacy notice</Link>.
+      </p>
+
+      <div className={styles.actions}>
+        <button
+          className={styles.secondaryButton}
+          onClick={() => onChoose('essential')}
+          type="button"
+        >
+          Essential only
+        </button>
+        <button
+          className={styles.primaryButton}
+          onClick={() => onChoose('analytics')}
+          type="button"
+        >
+          Allow analytics
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export default function ConsentManager({
   gaId,
   gtmId,
@@ -238,73 +326,16 @@ export default function ConsentManager({
   return (
     <>
       {analyticsAllowed ? (
-        <>
-          {gtmId ? <GoogleTagManager gtmId={gtmId} /> : null}
-          {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
-          {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
-          <Analytics />
-          <SpeedInsights />
-        </>
+        <AnalyticsScripts gaId={gaId} gtmId={gtmId} metaPixelId={metaPixelId} />
       ) : null}
 
       {panelOpen ? (
-        <section
-          aria-labelledby="privacy-consent-title"
-          className={styles.panel}
-          ref={panelRef}
-          tabIndex={-1}
-        >
-          <div className={styles.headingRow}>
-            <VscShield aria-hidden="true" className={styles.shield} size={20} />
-            <div>
-              <h2 className={styles.title} id="privacy-consent-title">
-                Privacy choices
-              </h2>
-              {choice ? (
-                <p className={styles.currentChoice}>
-                  <VscCheck aria-hidden="true" size={13} />
-                  {choice === 'analytics'
-                    ? 'Optional analytics allowed'
-                    : 'Essential services only'}
-                </p>
-              ) : null}
-            </div>
-            {choice ? (
-              <button
-                aria-label="Close privacy choices"
-                className={styles.closeButton}
-                onClick={closeSettings}
-                title="Close privacy choices"
-                type="button"
-              >
-                <VscClose aria-hidden="true" size={18} />
-              </button>
-            ) : null}
-          </div>
-
-          <p className={styles.copy}>
-            Optional analytics help measure which work is useful. They stay off
-            until you allow them; essential security and contact features
-            continue either way. <Link href="/privacy">Read the privacy notice</Link>.
-          </p>
-
-          <div className={styles.actions}>
-            <button
-              className={styles.secondaryButton}
-              onClick={() => choose('essential')}
-              type="button"
-            >
-              Essential only
-            </button>
-            <button
-              className={styles.primaryButton}
-              onClick={() => choose('analytics')}
-              type="button"
-            >
-              Allow analytics
-            </button>
-          </div>
-        </section>
+        <PrivacyPanel
+          choice={choice}
+          onChoose={choose}
+          onClose={closeSettings}
+          panelRef={panelRef}
+        />
       ) : privacyControlSlot ? (
         createPortal(
           <button

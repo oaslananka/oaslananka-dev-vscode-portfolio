@@ -48,6 +48,26 @@ interface CommandPaletteProps {
 
 const optionId = (id: string) => `command-palette-option-${id}`;
 
+const NAVIGATION_KEYS = ['ArrowDown', 'ArrowUp', 'Home', 'End'] as const;
+
+const computeNavigationIndex = (
+  key: (typeof NAVIGATION_KEYS)[number],
+  activeIndex: number,
+  resultCount: number,
+): number | null => {
+  if (resultCount === 0) return null;
+  switch (key) {
+    case 'ArrowDown':
+      return (activeIndex + 1) % resultCount;
+    case 'ArrowUp':
+      return (activeIndex - 1 + resultCount) % resultCount;
+    case 'Home':
+      return 0;
+    case 'End':
+      return resultCount - 1;
+  }
+};
+
 const CommandPalette = ({
   isOpen,
   onClose,
@@ -176,16 +196,15 @@ const CommandPalette = ({
     resultCount === 0
       ? -1
       : Math.min(Math.max(selectedIndex, 0), resultCount - 1);
-  const activeOptionId =
-    activeIndex < 0
-      ? undefined
-      : showThemePicker
-        ? filteredThemes[activeIndex]
-          ? optionId(filteredThemes[activeIndex].theme)
-          : undefined
-        : filteredCommands[activeIndex]
-          ? optionId(filteredCommands[activeIndex].id)
-          : undefined;
+  const activeOptionId = (() => {
+    if (activeIndex < 0) return undefined;
+    if (showThemePicker) {
+      const theme = filteredThemes[activeIndex];
+      return theme ? optionId(theme.theme) : undefined;
+    }
+    const command = filteredCommands[activeIndex];
+    return command ? optionId(command.id) : undefined;
+  })();
 
   const returnToCommands = useCallback(() => {
     setShowThemePicker(false);
@@ -257,27 +276,20 @@ const CommandPalette = ({
 
       if (event.target !== inputRef.current) return;
 
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        if (resultCount > 0) {
-          setSelectedIndex((activeIndex + 1) % resultCount);
-        }
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        if (resultCount > 0) {
-          setSelectedIndex(
-            (activeIndex - 1 + resultCount) % resultCount,
-          );
-        }
-      } else if (event.key === 'Home') {
-        event.preventDefault();
-        if (resultCount > 0) setSelectedIndex(0);
-      } else if (event.key === 'End') {
-        event.preventDefault();
-        if (resultCount > 0) setSelectedIndex(resultCount - 1);
-      } else if (event.key === 'Enter') {
+      if (event.key === 'Enter') {
         event.preventDefault();
         if (resultCount > 0) handleSelect(activeIndex);
+        return;
+      }
+
+      if ((NAVIGATION_KEYS as readonly string[]).includes(event.key)) {
+        event.preventDefault();
+        const nextIndex = computeNavigationIndex(
+          event.key as (typeof NAVIGATION_KEYS)[number],
+          activeIndex,
+          resultCount,
+        );
+        if (nextIndex !== null) setSelectedIndex(nextIndex);
       }
     },
     [
