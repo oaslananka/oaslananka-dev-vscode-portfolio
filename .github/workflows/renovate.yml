@@ -1,0 +1,56 @@
+name: Renovate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * 1'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: renovate-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24.11.0
+
+      - name: Validate Renovate configuration
+        run: npx --yes --package renovate@43.272.4 renovate-config-validator renovate.json
+
+      - name: Detect Renovate credential
+        id: credential
+        shell: bash
+        run: |
+          if [[ -n "$RENOVATE_TOKEN" ]]; then
+            echo 'configured=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'configured=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::RENOVATE_TOKEN is not configured; validation passed and the bot run was skipped.'
+          fi
+
+      - name: Run Renovate
+        if: steps.credential.outputs.configured == 'true'
+        uses: renovatebot/github-action@3064367f740a1a91cca218698a63902689cce200 # v46.1.20
+        with:
+          configurationFile: renovate.json
+          token: ${{ secrets.RENOVATE_TOKEN }}
+          renovate-version: 43.272.4
+        env:
+          LOG_LEVEL: info
+          RENOVATE_REPOSITORIES: ${{ github.repository }}

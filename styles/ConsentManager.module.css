@@ -1,0 +1,164 @@
+.panel {
+  position: fixed;
+  z-index: 900;
+  right: max(0.75rem, env(safe-area-inset-right));
+  bottom: calc(25px + 0.75rem + env(safe-area-inset-bottom));
+  width: min(38rem, calc(100vw - 1.5rem));
+  padding: 0.9rem;
+  color: var(--text-primary, var(--text-color));
+  background: var(--surface-overlay, var(--explorer-bg));
+  border: 1px solid var(--border-color, var(--explorer-border));
+  border-radius: 6px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.34);
+  font-family: var(--font-sans);
+}
+
+.headingRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.shield {
+  flex: 0 0 auto;
+  margin-top: 0.05rem;
+  color: var(--accent-color);
+}
+
+.title {
+  font-size: 0.92rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.currentChoice {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.22rem;
+  color: var(--text-muted, #b6bec9);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.copy {
+  margin-top: 0.65rem;
+  color: var(--text-muted, #b6bec9);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.copy a {
+  color: var(--text-primary, var(--text-color));
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+  text-underline-offset: 0.18em;
+}
+
+.copy a:hover {
+  color: var(--accent-color);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.primaryButton,
+.secondaryButton,
+.closeButton,
+.settingsButton {
+  appearance: none;
+  cursor: pointer;
+  border: 0;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.primaryButton {
+  color: var(--button-text);
+  background: var(--button-bg);
+  border: 1px solid var(--button-bg);
+}
+
+.primaryButton:hover {
+  filter: brightness(1.1);
+}
+
+.secondaryButton {
+  color: var(--text-primary, var(--text-color));
+  background: transparent;
+  border: 1px solid var(--border-color, var(--explorer-border));
+}
+
+.secondaryButton:hover {
+  background: var(--surface-hover, var(--sidebar-hover-bg));
+}
+
+.closeButton {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  margin: -0.55rem -0.55rem 0 auto;
+  color: var(--text-muted, #b6bec9);
+  background: transparent;
+  border-radius: 4px;
+}
+
+.closeButton:hover {
+  color: var(--text-primary, var(--text-color));
+  background: var(--surface-hover, var(--sidebar-hover-bg));
+}
+
+.settingsButton {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-primary, var(--text-color));
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+}
+
+.settingsButton:hover {
+  color: var(--accent-color);
+  background: var(--surface-hover, var(--sidebar-hover-bg));
+}
+
+@media screen and (max-width: 600px) {
+  .panel {
+    right: 0.75rem;
+    bottom: calc(48px + 0.75rem + env(safe-area-inset-bottom));
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    min-width: 0;
+    white-space: normal;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}

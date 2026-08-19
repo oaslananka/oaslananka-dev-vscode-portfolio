@@ -1,0 +1,51 @@
+name: SonarQube Cloud (advisory)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 1 * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sonar-advisory-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Explain unavailable advisory token
+        if: env.SONAR_TOKEN == ''
+        run: echo '::notice::SONAR_TOKEN is unavailable; the optional SonarQube advisory scan was skipped.'
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        if: env.SONAR_TOKEN != ''
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Generate unit coverage
+        if: env.SONAR_TOKEN != ''
+        run: |
+          npm ci --ignore-scripts
+          npm run test:coverage
+
+      - name: Run advisory SonarQube analysis
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        with:
+          args: -Dsonar.qualitygate.wait=false
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

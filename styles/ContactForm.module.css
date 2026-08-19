@@ -1,0 +1,126 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.label a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+  text-underline-offset: 2px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  min-height: 44px;
+  background: var(--article-bg, var(--main-bg));
+  border: 1px solid var(--explorer-border, rgba(255, 255, 255, 0.14));
+  border-radius: 8px;
+  padding: 11px 13px;
+  color: var(--text-color);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.2);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.button {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 8px;
+  background: var(--accent-color);
+  color: #0b0b0b;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.05s ease, opacity 0.15s ease;
+}
+
+.button:hover {
+  filter: brightness(1.08);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--status-error-text);
+  font-size: 13px;
+}
+
+.success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--status-success-bg);
+  border: 1px solid var(--status-success-text);
+  color: var(--status-success-text);
+  padding: 16px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  max-width: 520px;
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .input,
+  .textarea {
+    font-size: 16px;
+  }
+}

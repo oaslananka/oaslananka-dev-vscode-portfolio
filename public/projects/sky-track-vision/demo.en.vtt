@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00.000 --> 00:06.000
+Silent screen recording. A simulated drone camera view appears with a target-detection marker and flight telemetry overlay.
+
+00:06.000 --> 00:13.000
+The tracked target moves through the frame while the detection marker follows it and telemetry values update.
+
+00:13.000 --> 00:20.000
+The simulation continues with target tracking, mission status, and position data visible around the camera feed.
+
+00:20.000 --> 00:24.700
+The recording ends on the simulated tracking view with the target marker and flight telemetry still displayed.

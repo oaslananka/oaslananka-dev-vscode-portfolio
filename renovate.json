@@ -1,0 +1,114 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "group:monorepos"
+  ],
+  "timezone": "Europe/Istanbul",
+  "schedule": [
+    "before 06:00 on Monday"
+  ],
+  "labels": [
+    "dependencies",
+    "size/XS"
+  ],
+  "dependencyDashboardLabels": [
+    "dependencies"
+  ],
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
+  "osvVulnerabilityAlerts": true,
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "minimumReleaseAge": "7 days",
+  "rebaseWhen": "behind-base-branch",
+  "postUpdateOptions": [
+    "npmDedupe"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 06:00 on Monday"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Require dashboard approval for breaking upgrades.",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true,
+      "labels": [
+        "dependencies",
+        "breaking-change",
+        "size/M"
+      ],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Keep the Next.js and React runtime aligned.",
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom",
+        "@next/third-parties",
+        "eslint-config-next"
+      ],
+      "groupName": "Next.js and React ecosystem",
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Keep the Drizzle runtime and migration CLI together for compatibility review.",
+      "matchPackageNames": [
+        "drizzle-orm",
+        "drizzle-kit"
+      ],
+      "groupName": "Drizzle toolchain",
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Group Sentry packages that share release compatibility.",
+      "matchPackageNames": [
+        "@sentry/nextjs",
+        "@sentry/cli"
+      ],
+      "groupName": "Sentry",
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Pin GitHub Actions to immutable commit digests.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "pinDigests": true,
+      "groupName": "GitHub Actions",
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Automerge low-risk development-only maintenance after all branch protections pass.",
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Never automerge production dependency updates.",
+      "matchDepTypes": [
+        "dependencies"
+      ],
+      "automerge": false,
+      "minimumReleaseAge": "7 days"
+    }
+  ]
+}

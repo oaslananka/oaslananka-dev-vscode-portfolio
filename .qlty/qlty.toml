@@ -1,0 +1,41 @@
+# Security-focused Qlty configuration shared by Qlty CLI and Qlty Cloud.
+config_version = "0"
+
+exclude_patterns = [
+  "**/.next/**",
+  "**/node_modules/**",
+  "**/playwright-report/**",
+  "**/test-results/**",
+]
+
+[[source]]
+name = "default"
+default = true
+
+[[plugin]]
+name = "actionlint"
+
+[[plugin]]
+name = "osv-scanner"
+
+[[plugin]]
+name = "shellcheck"
+
+[[plugin]]
+name = "trufflehog"
+
+[[plugin]]
+name = "zizmor"
+
+# drizzle-kit 0.31.10 (the latest stable release) transitively pins
+# esbuild 0.18.20 through @esbuild-kit/core-utils. The advisory concerns
+# esbuild's development server; this project uses the package only as a local
+# migration CLI and never invokes esbuild serve. drizzle-kit 1.0.0-rc.4 removes
+# the dependency but is incompatible with the current stable drizzle-orm API.
+# Keep this exception scoped to one advisory in one lockfile and remove it when
+# a compatible stable drizzle-kit release is available.
+[[triage]]
+match.plugins = ["osv-scanner"]
+match.rules = ["osv-scanner:GHSA-67mh-4wv8-2f99"]
+match.file_patterns = ["package-lock.json"]
+set.ignored = true

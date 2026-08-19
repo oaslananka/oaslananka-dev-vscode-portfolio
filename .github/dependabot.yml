@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "05:00"
+      timezone: "Europe/Istanbul"
+    # Renovate owns routine version updates. A zero limit disables those PRs
+    # while Dependabot security updates remain enabled and are not counted here.
+    open-pull-requests-limit: 0
+    cooldown:
+      default-days: 7
+    labels:
+      - "dependencies"
+      - "security"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"

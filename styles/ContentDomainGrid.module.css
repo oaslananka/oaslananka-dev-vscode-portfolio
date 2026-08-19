@@ -1,0 +1,146 @@
+.section {
+  margin-bottom: 64px;
+  padding-bottom: 56px;
+  border-bottom: 1px solid var(--border-color, var(--explorer-border));
+  scroll-margin-top: 24px;
+}
+
+.header {
+  max-width: 760px;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent-color);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--text-primary, var(--text-color));
+  font-family: var(--font-sans);
+  font-size: 28px;
+  line-height: 1.3;
+}
+
+.header > p:last-child {
+  margin: 12px 0 0;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.66));
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.card {
+  min-width: 0;
+  padding: 24px;
+  background: var(--surface-raised, rgba(255, 255, 255, 0.035));
+  border: 1px solid var(--border-color, var(--explorer-border));
+  border-radius: 8px;
+  scroll-margin-top: 24px;
+}
+
+.card h3 {
+  margin: 0;
+  color: var(--text-primary, var(--text-color));
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.description {
+  margin: 10px 0 0;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.62));
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.group {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, var(--explorer-border));
+}
+
+.groupLabel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 9px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.groupLabel svg {
+  color: var(--accent-color);
+}
+
+.group ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary, var(--text-color));
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.group a svg {
+  color: var(--text-muted, rgba(255, 255, 255, 0.45));
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.group a:hover,
+.group a:focus-visible {
+  color: var(--accent-color);
+}
+
+.group a:hover svg,
+.group a:focus-visible svg {
+  color: var(--accent-color);
+  transform: translateX(2px);
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    margin-bottom: 48px;
+    padding-bottom: 40px;
+  }
+
+  .header h2 {
+    font-size: 24px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+}

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">ADXL355 cross-platform driver architecture</title>
+  <desc id="desc">A shared ADXL355 register specification feeds consistent driver packages for C, C++, Python, Rust, Node.js, and Go.</desc>
+  <rect width="1600" height="900" fill="#11151b"/>
+  <rect x="72" y="72" width="1456" height="756" rx="20" fill="#171c24" stroke="#343d49" stroke-width="2"/>
+  <text x="120" y="145" fill="#f2f5f7" font-family="ui-monospace, monospace" font-size="40" font-weight="700">ADXL355 driver family</text>
+  <text x="120" y="190" fill="#9da8b5" font-family="ui-monospace, monospace" font-size="22">One register model. Six language surfaces. Hardware-free tests.</text>
+  <rect x="520" y="288" width="560" height="210" rx="16" fill="#202833" stroke="#f0755b" stroke-width="3"/>
+  <text x="800" y="356" text-anchor="middle" fill="#f7a18e" font-family="ui-monospace, monospace" font-size="25">SHARED REGISTER SPECIFICATION</text>
+  <text x="800" y="405" text-anchor="middle" fill="#f2f5f7" font-family="ui-monospace, monospace" font-size="32" font-weight="700">20-bit decoding + transport contract</text>
+  <text x="800" y="454" text-anchor="middle" fill="#9da8b5" font-family="ui-monospace, monospace" font-size="21">SPI / I2C abstraction • FIFO • calibration • self-test</text>
+  <g fill="#1b222c" stroke="#566273" stroke-width="2" font-family="ui-monospace, monospace" font-size="27" text-anchor="middle">
+    <rect x="125" y="300" width="245" height="100" rx="12"/><text x="248" y="361" fill="#f2f5f7">C</text>
+    <rect x="125" y="440" width="245" height="100" rx="12"/><text x="248" y="501" fill="#f2f5f7">C++</text>
+    <rect x="125" y="580" width="245" height="100" rx="12"/><text x="248" y="641" fill="#f2f5f7">Python</text>
+    <rect x="1230" y="300" width="245" height="100" rx="12"/><text x="1353" y="361" fill="#f2f5f7">Rust</text>
+    <rect x="1230" y="440" width="245" height="100" rx="12"/><text x="1353" y="501" fill="#f2f5f7">Node.js</text>
+    <rect x="1230" y="580" width="245" height="100" rx="12"/><text x="1353" y="641" fill="#f2f5f7">Go</text>
+  </g>
+  <g stroke="#5cc8a1" stroke-width="4" fill="none">
+    <path d="M370 350H470L520 365"/><path d="M370 490H520"/><path d="M370 630H470L520 470"/>
+    <path d="M1080 365L1130 350H1230"/><path d="M1080 490H1230"/><path d="M1080 470L1130 630H1230"/>
+  </g>
+  <rect x="520" y="610" width="560" height="100" rx="12" fill="#162b26" stroke="#5cc8a1" stroke-width="2"/>
+  <text x="800" y="652" text-anchor="middle" fill="#8ee3c4" font-family="ui-monospace, monospace" font-size="22">GOLDEN VECTORS + MOCK TRANSPORTS</text>
+  <text x="800" y="686" text-anchor="middle" fill="#c6d0d9" font-family="ui-monospace, monospace" font-size="20">Consistent behavior without physical hardware</text>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">IoT Cloud Monitor backend architecture</title>
+  <desc id="desc">A staging-ready Express REST API authenticates users and manages owned devices and numeric telemetry stored in MongoDB.</desc>
+  <rect width="1600" height="900" fill="#11151b"/>
+  <rect x="70" y="70" width="1460" height="760" rx="20" fill="#171c24" stroke="#343d49" stroke-width="2"/>
+  <text x="120" y="150" fill="#f2f5f7" font-family="ui-monospace, monospace" font-size="40" font-weight="700">IoT Cloud Monitor</text>
+  <text x="120" y="198" fill="#9da8b5" font-family="ui-monospace, monospace" font-size="22">Current scope: tested REST backend, not a production dashboard</text>
+  <g font-family="ui-monospace, monospace" text-anchor="middle">
+    <rect x="110" y="350" width="300" height="150" rx="14" fill="#202833" stroke="#5f7085" stroke-width="2"/>
+    <text x="260" y="416" fill="#f2f5f7" font-size="28" font-weight="700">API CLIENT</text>
+    <text x="260" y="458" fill="#9da8b5" font-size="20">HTTPS + JSON</text>
+    <rect x="545" y="285" width="510" height="280" rx="16" fill="#202833" stroke="#f0755b" stroke-width="3"/>
+    <text x="800" y="347" fill="#f7a18e" font-size="25">NODE.JS 24 + EXPRESS</text>
+    <rect x="595" y="385" width="130" height="92" rx="10" fill="#171c24" stroke="#566273"/><text x="660" y="439" fill="#f2f5f7" font-size="19">AUTH</text>
+    <rect x="735" y="385" width="130" height="92" rx="10" fill="#171c24" stroke="#566273"/><text x="800" y="439" fill="#f2f5f7" font-size="19">DEVICES</text>
+    <rect x="875" y="385" width="130" height="92" rx="10" fill="#171c24" stroke="#566273"/><text x="940" y="439" fill="#f2f5f7" font-size="17">TELEMETRY</text>
+    <rect x="1190" y="350" width="300" height="150" rx="14" fill="#162b26" stroke="#5cc8a1" stroke-width="2"/>
+    <text x="1340" y="416" fill="#8ee3c4" font-size="28" font-weight="700">MONGODB</text>
+    <text x="1340" y="458" fill="#c6d0d9" font-size="20">Owner-scoped records</text>
+  </g>
+  <g stroke="#5cc8a1" stroke-width="5" fill="none"><path d="M410 425H545"/><path d="M1055 425H1190"/></g>
+  <g font-family="ui-monospace, monospace" font-size="20" fill="#9da8b5">
+    <text x="120" y="690">Verified: authentication • device ownership • numeric telemetry • automated tests</text>
+    <text x="120" y="735">Not claimed: MQTT • alerts • dashboard • production deployment automation</text>
+  </g>
+</svg>

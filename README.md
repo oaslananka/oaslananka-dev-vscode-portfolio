@@ -147,6 +147,10 @@ Renovate handles routine dependency updates with grouped compatibility updates, 
 
 The E2E suite uses local dummy authentication values and never uses Doppler production secrets. GitHub Actions provisions a fresh PostgreSQL 16 service, applies versioned migrations, and runs full project, post, profile, settings, and contact-message CRUD coverage. Contact messages expire after 12 months; abuse-prevention records contain HMAC identities rather than raw IP addresses and expire after 24 hours. Production continues to use the Neon HTTP driver; the `node-postgres` driver is enabled only when `DATABASE_DRIVER=node-postgres` is explicitly set by CI or the disposable local test script.
 
+## Credits
+
+Forked from [itsnitinr/vscode-portfolio](https://github.com/itsnitinr/vscode-portfolio) by Nitin Ranganath, then substantially extended (admin panel, database-backed content, security hardening, SEO/AI discovery, observability).
+
 ## License
 
 [MIT](./LICENSE)

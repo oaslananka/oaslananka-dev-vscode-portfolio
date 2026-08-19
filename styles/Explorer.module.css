@@ -1,0 +1,71 @@
+.explorer {
+  background: var(--explorer-bg);
+  flex: 0 0 clamp(220px, 18vw, 300px);
+  width: clamp(220px, 18vw, 300px);
+  min-width: 0;
+  color: var(--text-primary, var(--text-color));
+  font-family: var(--font-sans);
+  border-right: 1px solid var(--explorer-border);
+  overflow-y: auto;
+}
+
+.title {
+  padding: 0.5rem 0.75rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  margin-bottom: 0.75rem;
+}
+
+.heading {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.45rem 0.5rem;
+  text-align: left;
+}
+
+.files {
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.file {
+  padding: 0.35rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.875rem;
+  color: var(--text-primary, var(--text-color));
+  text-decoration: none;
+}
+
+.file:hover,
+.file:focus-visible,
+.heading:hover,
+.heading:focus-visible {
+  background: var(--explorer-hover-bg);
+}
+
+.chevron {
+  transition: transform 0.2s;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+@media screen and (max-width: 900px) {
+  .explorer {
+    display: none;
+  }
+}

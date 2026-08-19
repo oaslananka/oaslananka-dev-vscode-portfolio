@@ -1,0 +1,169 @@
+.titlebar {
+  background: var(--titlebar-bg);
+  position: relative;
+  flex: 0 0 30px;
+  height: 30px;
+  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary, #fff);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border-color, #191d20);
+}
+
+.icon {
+  flex: 0 0 auto;
+}
+
+.items {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+  margin-left: 0.5rem;
+}
+
+.title {
+  position: absolute;
+  left: 50%;
+  max-width: 40vw;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.items > * {
+  padding: 0 0.5rem;
+}
+
+.menuItem {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  min-height: 28px;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  outline: none;
+}
+
+.windowButtons {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.privacySlot {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.paletteIcon {
+  display: none;
+}
+
+.windowButtons * {
+  margin-left: 0.5rem;
+  height: 13px;
+  width: 13px;
+  border-radius: 50%;
+}
+
+.minimize {
+  background: #f1fa8c;
+  margin-left: auto;
+}
+
+.maximize {
+  background: #50fa7b;
+}
+
+.close {
+  background: #ff5555;
+}
+
+@media screen and (max-width: 900px) {
+  .titlebar {
+    flex-basis: 44px;
+    height: 44px;
+  }
+
+  .items {
+    flex: 0 0 auto;
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .items > span {
+    display: none;
+  }
+
+  .title {
+    max-width: calc(100vw - 164px);
+  }
+
+  .windowButtons {
+    display: none;
+  }
+
+  .paletteLabel {
+    display: none;
+  }
+
+  .paletteIcon {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+
+  .menuItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .privacySlot {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .titlebar {
+    flex-basis: calc(44px + env(safe-area-inset-top));
+    height: calc(44px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 0.5rem 0;
+  }
+
+  .title {
+    max-width: calc(100vw - 112px);
+    font-weight: 600;
+  }
+
+  .editorName {
+    display: none;
+  }
+
+  .menuItem {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
