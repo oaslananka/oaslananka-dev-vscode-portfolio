@@ -75,6 +75,15 @@ test('server-only SITE_URL takes precedence over the legacy public value', () =>
   assert.equal(resolveSiteUrl(environment), 'https://canonical.example.com');
 });
 
+test('server-only SITE_URL validation identifies the server-only key', () => {
+  const environment = {
+    SITE_URL: 'not a URL',
+    NODE_ENV: 'production',
+  };
+
+  assert.throws(() => resolveSiteUrl(environment), /^Error: SITE_URL must be an HTTPS origin/);
+});
+
 test('development, tests, and previews keep safe fallbacks', () => {
   assert.equal(
     resolveSiteUrl({ NODE_ENV: 'development' }),
