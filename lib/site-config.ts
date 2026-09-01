@@ -69,6 +69,8 @@ export function resolveSiteUrl(
     return normalizeSiteUrl('SITE_URL', env.SITE_URL, deployment.isProduction);
   }
 
+  // Temporary compatibility path for deployments that still expose the
+  // canonical origin through the historical public-prefixed variable.
   if (env.NEXT_PUBLIC_SITE_URL) {
     return normalizeSiteUrl(
       'NEXT_PUBLIC_SITE_URL',
@@ -79,7 +81,7 @@ export function resolveSiteUrl(
 
   if (deployment.isProduction) {
     throw new Error(
-      'NEXT_PUBLIC_SITE_URL must be set to the canonical HTTPS origin for a production deployment.',
+      'SITE_URL (or legacy NEXT_PUBLIC_SITE_URL) must be set to the canonical HTTPS origin for a production deployment.',
     );
   }
 
