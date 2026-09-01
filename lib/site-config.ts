@@ -27,7 +27,11 @@ function isLoopbackHostname(hostname: string): boolean {
   );
 }
 
-function normalizeSiteUrl(value: string, productionDeployment: boolean): string {
+function normalizeSiteUrl(
+  key: string,
+  value: string,
+  productionDeployment: boolean,
+): string {
   const requirement = productionDeployment
     ? 'an HTTPS origin (HTTP is allowed only for a loopback host)'
     : 'an HTTP(S) origin';
@@ -36,7 +40,7 @@ function normalizeSiteUrl(value: string, productionDeployment: boolean): string 
   try {
     url = new URL(value);
   } catch {
-    throw new Error(`NEXT_PUBLIC_SITE_URL must be ${requirement}.`);
+    throw new Error(`${key} must be ${requirement}.`);
   }
 
   const isHttp = url.protocol === 'https:' || url.protocol === 'http:';
@@ -49,7 +53,7 @@ function normalizeSiteUrl(value: string, productionDeployment: boolean): string 
 
   if (!isHttp || !isOriginOnly || !isRequiredProtocol) {
     throw new Error(
-      `NEXT_PUBLIC_SITE_URL must be ${requirement} without a path, query, credentials, or hash.`,
+      `${key} must be ${requirement} without a path, query, credentials, or hash.`,
     );
   }
 
@@ -62,11 +66,15 @@ export function resolveSiteUrl(
   const deployment = resolveDeploymentEnvironment(env);
 
   if (env.SITE_URL) {
-    return normalizeSiteUrl(env.SITE_URL, deployment.isProduction);
+    return normalizeSiteUrl('SITE_URL', env.SITE_URL, deployment.isProduction);
   }
 
   if (env.NEXT_PUBLIC_SITE_URL) {
-    return normalizeSiteUrl(env.NEXT_PUBLIC_SITE_URL, deployment.isProduction);
+    return normalizeSiteUrl(
+      'NEXT_PUBLIC_SITE_URL',
+      env.NEXT_PUBLIC_SITE_URL,
+      deployment.isProduction,
+    );
   }
 
   if (deployment.isProduction) {
@@ -79,6 +87,7 @@ export function resolveSiteUrl(
   // noindex, while local development and tests retain the localhost fallback.
   if (deployment.isPreview && env.VERCEL_PROJECT_PRODUCTION_URL) {
     return normalizeSiteUrl(
+      'VERCEL_PROJECT_PRODUCTION_URL',
       `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`,
       false,
     );
