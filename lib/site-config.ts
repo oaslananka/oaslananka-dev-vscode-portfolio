@@ -13,6 +13,7 @@ import {
 
 interface SiteEnvironment extends DeploymentEnvironmentVariables {
   CI?: string;
+  SITE_URL?: string;
   NEXT_PUBLIC_SITE_URL?: string;
   VERCEL_PROJECT_PRODUCTION_URL?: string;
 }
@@ -59,6 +60,10 @@ export function resolveSiteUrl(
   env: SiteEnvironment = process.env,
 ): string {
   const deployment = resolveDeploymentEnvironment(env);
+
+  if (env.SITE_URL) {
+    return normalizeSiteUrl(env.SITE_URL, deployment.isProduction);
+  }
 
   if (env.NEXT_PUBLIC_SITE_URL) {
     return normalizeSiteUrl(env.NEXT_PUBLIC_SITE_URL, deployment.isProduction);
