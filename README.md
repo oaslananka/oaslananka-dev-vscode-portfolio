@@ -47,10 +47,10 @@ The required application variables are:
 - **`AUTH_SECRET`** — random secret used to sign admin sessions.
 - **`RATE_LIMIT_HMAC_SECRET`** — a separate random secret used to pseudonymize abuse-prevention identities.
 - **`CRON_SECRET`** — bearer secret protecting retention cleanup and contact-notification redrive endpoints.
-- **`NEXT_PUBLIC_SITE_URL`** — production URL.
+- **`SITE_URL`** — canonical production origin used for metadata, sitemap, robots, and absolute URLs.
 - **`NEXT_PUBLIC_GITHUB_USERNAME`** — GitHub handle.
 
-Optional variables include `ALLOW_DEFAULT_CONTENT` (local/test only), `INDEXNOW_DISABLED`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`, `GITHUB_TOKEN`, `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`. `CRON_SECRET` is required on Vercel so the scheduled retention cleanup and durable contact-notification redrive jobs in `vercel.json` can run.
+`NEXT_PUBLIC_SITE_URL` remains a temporary compatibility fallback for existing deployments; new configuration must use the server-only `SITE_URL` key. Optional variables include `ALLOW_DEFAULT_CONTENT` (local/test only), `INDEXNOW_DISABLED`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`, `GITHUB_TOKEN`, `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`. `CRON_SECRET` is required on Vercel so the scheduled retention cleanup and durable contact-notification redrive jobs in `vercel.json` can run.
 
 ### 3. Set up the database
 
@@ -97,10 +97,10 @@ Remote content images must be local `/public` paths or use a hostname listed in 
 1. Push the repository to GitHub and import it into Vercel.
 2. In Doppler, create a Vercel Config Sync from config `prod` to the Vercel **Production** environment.
 3. Sync a separate `preview` config to Vercel **Preview**. Keep its database, auth and external-service credentials isolated from production.
-4. Use **Sensitive** as the Vercel environment-variable type and never set `ALLOW_DEFAULT_CONTENT=true` in Production.
-5. Manage values in Doppler only; do not edit synchronized variables manually in Vercel.
+4. Use **Sensitive** for server-only values such as `SITE_URL` and secrets. Never set `ALLOW_DEFAULT_CONTENT=true` in Production.
+5. Manage synchronized values in Doppler only; do not edit them manually in Vercel.
 6. Apply migrations and run the read-only database preflight before redeploying production.
-7. Redeploy production after a secret changes so the new deployment receives the updated environment snapshot.
+7. Redeploy production after synchronized configuration changes so the new deployment receives the updated environment snapshot.
 
 ```bash
 doppler run --project oaslananka-dev-vscode-portfolio --config prod -- npm run db:migrate
