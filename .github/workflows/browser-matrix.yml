@@ -20,7 +20,7 @@ jobs:
       VERCEL_ENV: development
       ALLOW_DEFAULT_CONTENT: 'true'
       E2E_GITHUB_FIXTURE: 'true'
-      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+      SITE_URL: http://127.0.0.1:3100
       NEXT_PUBLIC_GITHUB_USERNAME: oaslananka
 
     steps:
