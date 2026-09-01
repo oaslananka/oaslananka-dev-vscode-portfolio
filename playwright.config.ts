@@ -78,7 +78,7 @@ export default defineConfig({
       RATE_LIMIT_HMAC_SECRET: 'ci-e2e-rate-limit-secret-not-used-in-production',
       CRON_SECRET: E2E_CRON_SECRET,
       ADMIN_PASSWORD_HASH: hashSync(E2E_ADMIN_PASSWORD, 4),
-      NEXT_PUBLIC_SITE_URL: baseURL,
+      SITE_URL: baseURL,
     },
   },
 });
