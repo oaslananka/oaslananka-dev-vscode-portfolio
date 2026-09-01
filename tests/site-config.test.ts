@@ -65,6 +65,25 @@ test('production requires an explicit canonical HTTPS origin', () => {
   );
 });
 
+test('server-only SITE_URL takes precedence over the legacy public value', () => {
+  const environment = {
+    SITE_URL: 'https://canonical.example.com',
+    NEXT_PUBLIC_SITE_URL: 'https://legacy.example.com',
+    NODE_ENV: 'production',
+  };
+
+  assert.equal(resolveSiteUrl(environment), 'https://canonical.example.com');
+});
+
+test('server-only SITE_URL validation identifies the server-only key', () => {
+  const environment = {
+    SITE_URL: 'not a URL',
+    NODE_ENV: 'production',
+  };
+
+  assert.throws(() => resolveSiteUrl(environment), /^Error: SITE_URL must be an HTTPS origin/);
+});
+
 test('development, tests, and previews keep safe fallbacks', () => {
   assert.equal(
     resolveSiteUrl({ NODE_ENV: 'development' }),

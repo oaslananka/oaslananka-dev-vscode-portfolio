@@ -57,7 +57,7 @@ jobs:
       RATE_LIMIT_TEST_DATABASE_URL: postgresql://portfolio:portfolio@127.0.0.1:5432/portfolio_test
       DB_PREFLIGHT_TEST_DATABASE_URL: postgresql://portfolio:portfolio@127.0.0.1:5432/portfolio_test
       AUTH_SECRET: ci-e2e-auth-secret-not-used-in-production
-      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+      SITE_URL: http://127.0.0.1:3100
       E2E_GITHUB_FIXTURE: 'true'
 
     steps:
@@ -117,7 +117,7 @@ jobs:
     env:
       VERCEL_ENV: development
       ALLOW_DEFAULT_CONTENT: 'true'
-      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+      SITE_URL: http://127.0.0.1:3100
       NEXT_PUBLIC_GITHUB_USERNAME: oaslananka
 
     steps:
