@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run test:agent-evals",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -24,13 +25,15 @@
     "build:next": "next build",
     "db:preflight": "tsx scripts/db-preflight.ts",
     "bundle:github": "node scripts/report-github-bundle.mjs",
-    "test:coverage": "rm -rf coverage && c8 --reporter=lcovonly --reporter=text --all --include='public/theme-init.v1.js' --include='lib/admin-access.ts' --include='lib/admin/validation.ts' --include='lib/admin/limits.ts' --include='lib/build-policy.ts' --include='lib/agent-discovery.ts' --include='lib/content-relations.ts' --include='lib/db/content-authority.ts' --include='lib/discovery.ts' --include='lib/homepage-content.ts' --include='lib/page-markdown.ts' --include='lib/person-identity.ts' --include='lib/site-shell.ts' --include='lib/ui-icons.ts' --include='lib/static-assets.ts' npm test",
+    "test:coverage": "rm -rf coverage && c8 --check-coverage --lines=95 --branches=80 --functions=95 --statements=95 --reporter=lcovonly --reporter=text --all --include='public/theme-init.v1.js' --include='lib/admin-access.ts' --include='lib/admin/validation.ts' --include='lib/admin/limits.ts' --include='lib/build-policy.ts' --include='lib/agent-discovery.ts' --include='lib/content-relations.ts' --include='lib/db/content-authority.ts' --include='lib/discovery.ts' --include='lib/homepage-content.ts' --include='lib/page-markdown.ts' --include='lib/person-identity.ts' --include='lib/site-shell.ts' --include='lib/ui-icons.ts' --include='lib/static-assets.ts' npm test",
     "icons:generate": "tsx scripts/generate-ui-icons.ts",
     "report:html-density": "node scripts/report-html-density.mjs",
     "test:homepage-density": "node scripts/assert-homepage-density.mjs",
     "test:e2e:matrix": "playwright test --project=firefox-smoke --project=webkit-smoke",
     "test:e2e:visual": "playwright test --project=chromium-visual",
-    "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts"
+    "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts",
+    "test:agent-evals": "node scripts/validate-agent-evals.mjs",
+    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -39,6 +42,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.3",
+    "drizzle-orm": "1.0.0-rc.4",
     "jose": "^6.2.3",
     "next": "^16.2.12",
     "pg": "^8.22.0",
@@ -50,8 +54,7 @@
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "^6.17.2",
-    "zod": "^4.4.3",
-    "drizzle-orm": "1.0.0-rc.4"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
@@ -69,7 +72,7 @@
   },
   "overrides": {
     "postcss": "^8.5.26",
-    "fast-uri": "^3.1.5",
+    "fast-uri": "^3.1.7",
     "sharp": "0.35.3"
   },
   "packageManager": "npm@10.9.8",

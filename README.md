@@ -18,6 +18,10 @@ A Visual Studio Code themed developer portfolio with a **live admin panel**, bui
 
 Next.js 16 (App Router) · React 19 · TypeScript · Drizzle ORM · Neon Postgres · Sentry · CSS Modules.
 
+Architecture, trust boundaries, and executable enforcement are documented in [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
+
+Security and operations governance: [`CONTRIBUTING.md`](./CONTRIBUTING.md), [`SUPPORT.md`](./SUPPORT.md), the [threat model](./docs/operations/threat-model.md), [service-level objectives](./docs/operations/service-level-objectives.md), [architecture decisions](./docs/decisions/0001-single-nextjs-application.md), and the [release process](./docs/operations/release-process.md).
+
 ## Getting started
 
 ### 1. Install
@@ -25,6 +29,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Drizzle ORM · Neon Postgre
 Use Node.js `22.23.1` and npm `10.9.8` as declared in `package.json`, `.nvmrc`, and `.node-version`.
 
 ```bash
+nvm install
 nvm use
 npm ci
 ```
@@ -38,6 +43,8 @@ doppler login
 doppler setup --project oaslananka-dev-vscode-portfolio --config dev
 doppler secrets --only-names
 ```
+
+Local development requires an isolated non-production Doppler config. If `doppler setup` only offers `prod`, stop and provision/populate `dev` before running local database or application commands. A directory-scoped Doppler default is not a safety boundary; every command below selects its config explicitly.
 
 The required application variables are:
 
@@ -68,7 +75,7 @@ Validate the recovery machinery with disposable local PostgreSQL, then run the r
 
 ```bash
 npm run test:restore-drill
-doppler run -- npm run db:restore-drill
+doppler run --project oaslananka-dev-vscode-portfolio --config prod -- npm run db:restore-drill
 ```
 
 See the [Neon recovery runbook](./docs/operations/neon-recovery.md) before running or responding to a database incident.
@@ -121,27 +128,30 @@ Agent-facing Markdown endpoints, content negotiation, and privacy boundaries are
 
 ## Dependency and security automation
 
-Renovate handles routine dependency updates with grouped compatibility updates, a Dependency Dashboard, immutable GitHub Action digests, and guarded automerge for low-risk development updates. Dependabot handles security updates only; routine Dependabot version PRs are disabled. The free required quality gate uses `build`, CodeQL, `restore-drill`, `production-audit`, `pre-commit`, Semgrep, and `visual-regression`. SonarQube Cloud is advisory only and is not a required status check. See [the free quality gate](./docs/operations/quality-gate.md) and [dependency automation and static analysis](./docs/operations/dependency-and-static-analysis.md).
+Renovate handles routine dependency updates with grouped compatibility updates, a Dependency Dashboard, immutable GitHub Action digests, and guarded automerge for low-risk development updates. Dependabot handles security updates only; routine Dependabot version PRs are disabled. The free required quality gate uses `build`, CodeQL, `restore-drill`, `production-audit`, `pre-commit`, Semgrep, OSV Scanner, `sbom`, and `visual-regression`. SonarQube Cloud is advisory only and is not a required status check. See [the free quality gate](./docs/operations/quality-gate.md) and [dependency automation and static analysis](./docs/operations/dependency-and-static-analysis.md).
 
 ## Scripts
 
 | Script | Description |
 | --- | --- |
-| `doppler run -- npm run dev` | Start the dev server with Doppler secrets |
-| `doppler run -- npm run build` | Read-only database preflight followed by the production build |
-| `doppler run -- npm run db:preflight` | Verify connectivity, schema, migrations, and canonical content without modifying the database |
+| `doppler run --config dev -- npm run dev` | Start the dev server with Doppler secrets |
+| `doppler run --config dev -- npm run build` | Run the local build with the isolated dev config; production-only database preflight is not implied |
+| `doppler run --config dev -- npm run db:preflight` | Verify connectivity, schema, migrations, and canonical content without modifying the database |
 | `npm run lint` | Lint; no runtime secrets required |
 | `npm run typecheck` | Type check; no runtime secrets required |
+| `npm run verify` | Run typecheck, lint, unit/policy tests, and static agent-eval corpus validation |
 | `pre-commit run --all-files` | Run repository-local hygiene and ESLint hooks |
 | `npm run test` | Run security and application tests |
+| `npm run test:agent-evals` | Validate the static agent task/evidence corpus; this does not execute or score an agent |
+| `npm run sbom` | Generate a local CycloneDX SBOM artifact (ignored by Git) |
 | `npm run test:e2e` | Run browser/WCAG tests; DB-backed admin CRUD is skipped without a disposable DB |
 | `npm run test:e2e:db` | Start a disposable local PostgreSQL container, migrate it, run all E2E tests, then remove it |
 | `npm run test:restore-drill` | Validate the dump/restore machinery using disposable source and target PostgreSQL containers |
-| `doppler run -- npm run db:generate` | Generate a migration from schema changes |
-| `doppler run -- npm run db:migrate` | Apply migrations using the direct Neon URL |
-| `doppler run -- npm run db:seed` | Seed missing placeholder content |
-| `doppler run -- npm run db:studio` | Open Drizzle Studio |
-| `doppler run -- npm run db:restore-drill` | Dump production read-only, restore into disposable PostgreSQL, compare manifests, and remove all artifacts |
+| `doppler run --config dev -- npm run db:generate` | Generate a migration from schema changes |
+| `doppler run --config dev -- npm run db:migrate` | Apply migrations using the direct Neon URL |
+| `doppler run --config dev -- npm run db:seed` | Seed missing placeholder content |
+| `doppler run --config dev -- npm run db:studio` | Open Drizzle Studio |
+| `doppler run --project oaslananka-dev-vscode-portfolio --config prod -- npm run db:restore-drill` | Dump production read-only, restore into disposable PostgreSQL, compare manifests, and remove all artifacts |
 | `npm run admin:hash "<password>"` | Generate an admin password hash locally |
 | `npm run seo:indexnow` | Submit every canonical sitemap URL to IndexNow |
 
