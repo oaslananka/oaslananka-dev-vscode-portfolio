@@ -1,2 +1,5 @@
-pre-commit==4.6.0
-semgrep==1.170.0
+pre-commit==4.6.2
+semgrep==1.176.0
+filelock==3.32.5
+idna==3.19
+python-multipart==0.0.32
