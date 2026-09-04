@@ -1,5 +1,5 @@
 default_install_hook_types: [pre-commit, pre-push]
-minimum_pre_commit_version: '4.6.0'
+minimum_pre_commit_version: '4.6.2'
 
 exclude: ^(lib/db/migrations/meta/|public/logos/)
 
@@ -41,6 +41,6 @@ repos:
         name: Semgrep security scan
         entry: semgrep scan --config p/javascript --config p/typescript --config p/nextjs --config p/owasp-top-ten --error --metrics=off
         language: python
-        additional_dependencies: [semgrep==1.170.0]
+        additional_dependencies: [semgrep==1.176.0, idna==3.19, python-multipart==0.0.32]
         pass_filenames: false
         stages: [pre-push]
