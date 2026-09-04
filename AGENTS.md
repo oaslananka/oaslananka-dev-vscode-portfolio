@@ -2,11 +2,14 @@
 
 These instructions apply to the complete repository and public portfolio.
 
+Architecture, trust boundaries, and executable enforcement are documented in [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
+
 ## Installation
 
 Use the pinned JavaScript toolchain and the lockfile-only installation path:
 
 ```bash
+nvm install
 nvm use
 npm ci
 python -m pip install --requirement requirements-security.txt
@@ -22,6 +25,8 @@ doppler secrets --only-names
 doppler run --config dev -- npm run db:migrate
 doppler run --config dev -- npm run db:preflight
 ```
+
+Local development requires the isolated `dev` config. If Doppler only offers `prod`, do not use production services for local work; provision/populate `dev` first. Always pass `--config` explicitly instead of relying on directory-scoped Doppler state.
 
 Production content is database-backed and fails closed. Never enable bundled default content in production. Apply migrations only with an explicitly selected Doppler configuration.
 
@@ -43,9 +48,7 @@ Content is managed through `/admin`; public pages must not expose admin, message
 Before proposing a change, run the checks that match the modified surface:
 
 ```bash
-npm run typecheck
-npm run lint
-npm run test
+npm run verify
 pre-commit run --all-files
 npm run build
 ```
