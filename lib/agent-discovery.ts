@@ -227,24 +227,15 @@ export function buildLlmsFullText(data: AgentDiscoveryData): string {
       `Period: ${escapeMarkdownText(experience.period)}`,
       '',
     );
-    if (experience.description) {
-      lines.push(escapeMarkdownText(experience.description), '');
-    }
-    experience.points.forEach((point) => {
-      lines.push(`- ${escapeMarkdownText(point)}`);
-    });
+    if (experience.description) lines.push(escapeMarkdownText(experience.description), '');
+    experience.points.forEach((point) => lines.push(`- ${escapeMarkdownText(point)}`));
     lines.push('');
   });
 
   if (profile.education.length) {
     lines.push('## Education', '');
     profile.education.forEach((item) => {
-      lines.push(
-        `### ${escapeMarkdownText(item.institution)}`,
-        '',
-        escapeMarkdownText(item.qualification),
-        '',
-      );
+      lines.push(`### ${escapeMarkdownText(item.institution)}`, '', escapeMarkdownText(item.qualification), '');
       if (item.details) lines.push(escapeMarkdownText(item.details), '');
     });
   }
@@ -274,9 +265,7 @@ export function buildLlmsFullText(data: AgentDiscoveryData): string {
     );
     if (project.outcomes.length) {
       lines.push('Outcomes:', '');
-      project.outcomes.forEach((outcome) => {
-        lines.push(`- ${escapeMarkdownText(outcome)}`);
-      });
+      project.outcomes.forEach((outcome) => lines.push(`- ${escapeMarkdownText(outcome)}`));
       lines.push('');
     }
     lines.push('Details:', '', quotedMarkdown(project.longDescription), '');
