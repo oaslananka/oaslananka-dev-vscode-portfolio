@@ -1,0 +1,12 @@
+# Default owner for repository changes.
+* @oaslananka
+
+# Security, CI, deployment, and database boundaries name the responsible owner; merge enforcement remains in branch protection.
+/.github/ @oaslananka
+/lib/admin-access.ts @oaslananka
+/lib/auth.ts @oaslananka
+/lib/auth-edge.ts @oaslananka
+/lib/content-security-policy.ts @oaslananka
+/lib/db/ @oaslananka
+/proxy.ts @oaslananka
+/docs/operations/ @oaslananka
