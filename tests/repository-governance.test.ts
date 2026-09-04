@@ -20,11 +20,6 @@ test('README and dependency runbook document Renovate and Dependabot ownership a
   }
 });
 
-
-
-
-
-
 test('Sonar source scope excludes CI metadata and binary assets', () => {
   const properties = read('sonar-project.properties');
   assert.match(properties, /sonar\.exclusions=.*\.github\/\*\*/);
@@ -33,7 +28,6 @@ test('Sonar source scope excludes CI metadata and binary assets', () => {
   assert.match(properties, /sonar\.exclusions=.*\*\*\/\*\.mp4/);
   assert.match(properties, /sonar\.exclusions=.*\*\*\/\*\.ico/);
 });
-
 
 test('Sonar is advisory and never runs automatically for pushes or pull requests', () => {
   const workflow = read('.github/workflows/sonarcloud.yml');
@@ -62,41 +56,23 @@ test('free required quality checks are documented without Sonar dependency', () 
 });
 
 test('repository exposes one-command deterministic local verification', () => {
-  const pkg = JSON.parse(read('package.json')) as {
-    scripts?: Record<string, string>;
-  };
+  const pkg = JSON.parse(read('package.json')) as { scripts?: Record<string, string> };
   assert.equal(pkg.scripts?.verify, 'npm run typecheck && npm run lint && npm run test && npm run test:agent-evals');
-
-  for (const content of [
-    read('README.md'),
-    read('AGENTS.md'),
-    read('docs/operations/quality-gate.md'),
-  ]) {
+  for (const content of [read('README.md'), read('AGENTS.md'), read('docs/operations/quality-gate.md')]) {
     assert.match(content, /npm run verify/);
   }
 });
 
 test('Doppler documentation never relies on an implicit directory-scoped config', () => {
-  for (const [path, content] of [
-    ['README.md', read('README.md')],
-    ['AGENTS.md', read('AGENTS.md')],
-  ] as const) {
-    assert.doesNotMatch(
-      content,
-      /doppler run -- npm run/,
-      `${path} must select a Doppler config explicitly`,
-    );
+  for (const [path, content] of [['README.md', read('README.md')], ['AGENTS.md', read('AGENTS.md')]] as const) {
+    assert.doesNotMatch(content, /doppler run -- npm run/, `${path} must select a Doppler config explicitly`);
   }
-
   const safetyText = `${read('README.md')}\n${read('AGENTS.md')}`;
   assert.match(safetyText, /local[^\n]*must not use production services/i);
 });
 
 test('fresh-clone bootstrap installs the pinned Node version before use', () => {
-  for (const [path, content] of [
-    ['README.md', read('README.md')],
-    ['AGENTS.md', read('AGENTS.md')],
-  ] as const) {
+  for (const [path, content] of [['README.md', read('README.md')], ['AGENTS.md', read('AGENTS.md')]] as const) {
     assert.match(content, /nvm install/, `${path} must handle a missing pinned Node version`);
   }
 });
@@ -106,7 +82,6 @@ test('CI uses the exact pinned Node toolchain and enforces critical-module cover
   assert.doesNotMatch(ci, /node-version: 22\s*$/m);
   assert.match(ci, /node-version-file: \.node-version/);
   assert.match(ci, /npm run test:coverage/);
-
   const pkg = JSON.parse(read('package.json')) as { scripts?: Record<string, string> };
   const coverage = pkg.scripts?.['test:coverage'] ?? '';
   assert.match(coverage, /--check-coverage/);
@@ -124,18 +99,15 @@ test('security workflow publishes a CycloneDX SBOM and isolates main-only attest
   assert.match(workflow, /npm run sbom/);
   assert.match(workflow, /sbom\.cdx\.json/);
   assert.match(workflow, /actions\/upload-artifact@/);
-
   const sbomStart = workflow.indexOf('  sbom:\n');
   const attestStart = workflow.indexOf('  sbom-attestation:\n');
   const preCommitStart = workflow.indexOf('  pre-commit:\n');
   assert.ok(sbomStart >= 0 && attestStart > sbomStart && preCommitStart > attestStart);
-
   const sbomJob = workflow.slice(sbomStart, attestStart);
   assert.doesNotMatch(sbomJob, /id-token: write/);
   assert.doesNotMatch(sbomJob, /attestations: write/);
   assert.doesNotMatch(sbomJob, /artifact-metadata: write/);
   assert.doesNotMatch(sbomJob, /actions\/attest@/);
-
   const attestJob = workflow.slice(attestStart, preCommitStart);
   assert.match(attestJob, /needs: sbom/);
   assert.match(attestJob, /github\.event_name == 'push'/);
@@ -148,19 +120,9 @@ test('security workflow publishes a CycloneDX SBOM and isolates main-only attest
 });
 
 test('repository governance and operations system-of-record files are present and linked', () => {
-  for (const path of [
-    'CONTRIBUTING.md',
-    'SUPPORT.md',
-    '.github/CODEOWNERS',
-    'docs/operations/threat-model.md',
-    'docs/operations/service-level-objectives.md',
-    'docs/decisions/0001-single-nextjs-application.md',
-    'docs/operations/release-process.md',
-    'evals/agent-tasks.json',
-  ]) {
+  for (const path of ['CONTRIBUTING.md','SUPPORT.md','.github/CODEOWNERS','docs/operations/threat-model.md','docs/operations/service-level-objectives.md','docs/decisions/0001-single-nextjs-application.md','docs/operations/release-process.md','evals/agent-tasks.json']) {
     assert.doesNotThrow(() => read(path), `${path} must exist`);
   }
-
   const readme = read('README.md');
   assert.match(readme, /CONTRIBUTING\.md/);
   assert.match(readme, /threat-model\.md/);
@@ -168,7 +130,6 @@ test('repository governance and operations system-of-record files are present an
   const pkg = JSON.parse(read('package.json')) as { scripts?: Record<string, string> };
   assert.equal(pkg.scripts?.['test:agent-evals'], 'node scripts/validate-agent-evals.mjs');
 });
-
 
 test('package and lockfile versions stay synchronized for release provenance', () => {
   const pkg = JSON.parse(read('package.json')) as { version: string };
