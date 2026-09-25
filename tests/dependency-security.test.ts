@@ -17,14 +17,14 @@ const securityWorkflow = readFileSync(
 );
 
 test('production dependency floors remain on patched releases', () => {
-  assert.equal(manifest.dependencies.next, '^16.2.12');
+  assert.equal(manifest.dependencies.next, '^16.3.3');
   assert.equal(manifest.dependencies['@next/third-parties'], '^16.2.12');
   assert.equal(manifest.dependencies.react, '^19.2.8');
   assert.equal(manifest.dependencies['react-dom'], '^19.2.8');
   assert.equal(manifest.devDependencies['eslint-config-next'], '^16.2.12');
   assert.equal(manifest.overrides?.postcss, '^8.5.26');
-  assert.equal(manifest.overrides?.['fast-uri'], '^3.1.5');
-  assert.equal(manifest.overrides?.sharp, '0.35.3');
+  assert.equal(manifest.overrides?.['fast-uri'], '^3.1.7');
+  assert.equal(manifest.overrides?.sharp, '0.35.4');
 });
 
 test('security workflow blocks high-severity production dependency findings', () => {
