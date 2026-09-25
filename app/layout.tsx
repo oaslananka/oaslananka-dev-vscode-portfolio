@@ -56,6 +56,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="describedby" href="/llms.txt" />
         <Script src="/theme-init.v1.js" strategy="beforeInteractive" />
         <JsonLd data={personJsonLd(profile)} />
         <JsonLd data={websiteJsonLd(settings, profile)} />
