@@ -7,3 +7,12 @@ queue_rules:
     batch_size: 1
     max_checks_retries: 0
     merge_method: squash
+
+pull_request_rules:
+  - name: queue ready main pull requests
+    conditions:
+      - base = main
+      - -draft
+    actions:
+      queue:
+        name: default
