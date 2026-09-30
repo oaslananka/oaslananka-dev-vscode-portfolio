@@ -8,7 +8,7 @@ The repository supports Node.js `22.23.1` and npm `10.9.8`. The versions are dec
 
 `renovate.json` is the source of truth for routine dependency automation. Dependabot is configured separately for security updates only; its routine version PRs are disabled with `open-pull-requests-limit: 0`, while security-update PRs remain enabled.
 
-Renovate validates its configuration every Monday and on manual dispatch. A scheduled bot run additionally requires a fine-grained `RENOVATE_TOKEN` repository secret with read/write access to repository contents, pull requests, and issues. The Mend-hosted Renovate GitHub App can be used instead; when it is installed, it reads the same `renovate.json` file.
+Renovate validates its configuration every Monday and on manual dispatch. A scheduled bot run additionally requires a fine-grained `RENOVATE_TOKEN` repository secret with read/write access to repository contents, pull requests, and issues. The workflow deliberately allows configuration validation to succeed when that secret is absent, so verify that the `Run Renovate` step actually executed before treating a green run as proof that routine updates are active. The Mend-hosted Renovate GitHub App can be used instead; when it is installed, it reads the same `renovate.json` file.
 
 The policy groups compatibility-sensitive packages, pins GitHub Actions by digest, requires dashboard approval for major and Drizzle updates, delays normal releases for seven days, and only automerges patch/pin/digest updates to development dependencies after branch protections pass.
 
