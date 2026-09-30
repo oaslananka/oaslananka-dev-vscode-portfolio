@@ -23,6 +23,12 @@ test('terminal focus uses a native control instead of a clickable container', ()
   assert.doesNotMatch(source, /className=\{styles\.body\}[\s\S]{0,160}onClick=/);
 });
 
+test('terminal whoami identifies the canonical portfolio domain', () => {
+  const source = read('components/Terminal.tsx');
+  assert.match(source, /whoami: \(\) => \['visitor@oaslananka\.dev ~ engineering portfolio'\]/);
+  assert.doesNotMatch(source, /exploring awesome projects/);
+});
+
 test('site error boundary does not shadow the global Error constructor', () => {
   const source = read('app/(site)/error.tsx');
   assert.match(source, /export default function SiteError\(/);
