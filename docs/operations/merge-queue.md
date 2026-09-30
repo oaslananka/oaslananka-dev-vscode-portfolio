@@ -20,6 +20,8 @@ Non-draft pull requests targeting `main` are submitted to the `default` queue au
 
 Mergify reads the active GitHub branch protections and rulesets and applies those requirements to queue processing. Required check names are intentionally not duplicated in `.mergify.yml`, which avoids configuration drift between GitHub and Mergify.
 
+Human-authored pull requests targeting `main` are auto-queued once GitHub's required gates pass. Dependabot pull requests are deliberately excluded from the auto-queue rule: they remain open after CI and require an explicit human `@Mergifyio queue` command before entering the merge queue. This prevents a green dependency PR—especially a major update—from merging solely because repository rules require zero approving reviews.
+
 ## Protection policy
 
 Do not weaken branch protection to make the queue progress.
