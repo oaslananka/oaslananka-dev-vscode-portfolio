@@ -1,10 +1,11 @@
 export const authorityProfileRefresh = {
   heroDescription:
-    'I build connected physical systems across sensing, embedded software, edge AI and secure backend services, with verification and operating constraints visible from the start.',
+    'I build dependable systems where AI meets engineering—from embedded sensing and edge vision to MCP-powered design tools, backend services, and verified hardware workflows.',
   bio: [
-    'I am a software and embedded systems engineer working across physical sensing, edge devices, backend services and engineering tools. My civil and structural engineering background helps me connect sensor data and software behavior to the physical systems being monitored.',
-    'Over a decade building connected and embedded systems, including recent edge-AI and computer-vision products. I am strongest where hardware constraints, device software, cloud integration and operational ownership meet.',
-    'My open-source work applies the same discipline to AI-assisted engineering: automation can inspect, propose and execute bounded operations, while native validators and qualified reviewers remain responsible for engineering approval.',
+    "I'm a software and embedded systems engineer with more than a decade of experience building connected systems. My work spans sensing hardware, embedded software, edge AI, computer vision, backend services, and the operational challenges of making these systems reliable.",
+    "My background in civil and structural engineering shapes how I approach software development. Physical measurements, hardware limitations, system behavior, and verification matter just as much as code. I've applied this perspective to sensor-driven monitoring, IoT systems, device-to-cloud integrations, and edge computing.",
+    'I also develop AI-assisted engineering tools, including KiCad MCP Pro, EasyEDA MCP Pro, and BoardReadyOps. These projects explore how AI agents can interact with established engineering software through controlled operations, native validation, and reviewable workflows. My goal is to make engineering automation more useful without treating AI-generated outputs as a substitute for technical verification.',
+    "I'm interested in AI engineering, agent infrastructure, backend development, embedded systems, and engineering automation, including selected contract collaborations.",
   ],
   writing: [
     {
@@ -32,7 +33,7 @@ export const authorityProfileRefresh = {
 
 export const authoritySettingsRefresh = {
   siteDescription:
-    'Osman Aslan designs production-focused edge AI, embedded, computer-vision and device-to-cloud systems, plus safe AI-assisted engineering tools.',
+    'Osman Aslan designs production-focused edge AI, embedded systems, computer vision, device-to-cloud platforms, and safe AI-assisted engineering tools.',
   keywords: [
     'Osman Aslan',
     'edge ai engineer',
