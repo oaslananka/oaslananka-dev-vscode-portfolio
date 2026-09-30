@@ -3,19 +3,60 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
       time: "05:00"
       timezone: "Europe/Istanbul"
-    # Renovate owns routine version updates. A zero limit disables those PRs
-    # while Dependabot security updates remain enabled and are not counted here.
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 5
     cooldown:
       default-days: 7
     labels:
       - "dependencies"
-      - "security"
+      - "size/XS"
     groups:
+      nextjs-react:
+        applies-to: version-updates
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@next/third-parties"
+          - "eslint-config-next"
+      drizzle-toolchain:
+        applies-to: version-updates
+        patterns:
+          - "drizzle-orm"
+          - "drizzle-kit"
+      sentry:
+        applies-to: version-updates
+        patterns:
+          - "@sentry/nextjs"
+          - "@sentry/cli"
+      development-patch:
+        applies-to: version-updates
+        dependency-type: "development"
+        update-types:
+          - "patch"
       security-updates:
         applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:30"
+      timezone: "Europe/Istanbul"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    labels:
+      - "dependencies"
+      - "size/XS"
+    groups:
+      github-actions:
+        applies-to: version-updates
         patterns:
           - "*"
