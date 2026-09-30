@@ -8,7 +8,7 @@ All notable changes to this project are documented in this file.
 
 - Reconciled bundled portfolio defaults with the production CMS copy so fresh databases do not restore superseded wording.
 - Tightened homepage engineering and delivery copy, normalized public terminology, and refreshed repository contribution templates.
-- Replaced promotional SEO wording with precise feature descriptions and documented the Renovate credential requirement so validation-only runs are not mistaken for active dependency automation.
+- Replaced promotional SEO wording with precise feature descriptions and removed the false-green dependency-automation state.
 
 ### Repository hardening and governance
 
@@ -24,6 +24,7 @@ All notable changes to this project are documented in this file.
 - Added a repository-wide OSV Scanner gate with SARIF upload and remediated vulnerable Python security-tool transitives with explicit safety floors.
 - Moved SBOM artifact provenance to the current immutable `actions/attest` v4 action.
 - Raised the `fast-uri` override to the patched 3.1.7 line as a dependency security update.
+- Replaced credential-dependent Renovate automation with native Dependabot for routine npm, GitHub Actions, and security updates, including a seven-day routine-update cooldown and compatibility-aware grouping.
 
 ## [3.2.0] - 2026-07-27
 

@@ -128,7 +128,7 @@ Agent-facing Markdown endpoints, content negotiation, and privacy boundaries are
 
 ## Dependency and security automation
 
-Routine dependency policy is defined in `renovate.json`. The self-hosted Renovate workflow requires the repository secret `RENOVATE_TOKEN` to execute the bot; configuration validation can still pass when that credential is absent, so a green validation-only run is not evidence that routine updates are active. Dependabot handles security updates only; routine Dependabot version PRs are disabled. The required quality gate uses `build`, CodeQL, `restore-drill`, `production-audit`, `pre-commit`, Semgrep, OSV Scanner, `sbom`, and `visual-regression`. SonarQube Cloud is advisory only and is not a required status check. See [the quality gate](./docs/operations/quality-gate.md) and [dependency automation and static analysis](./docs/operations/dependency-and-static-analysis.md).
+Dependabot owns routine and security dependency updates. Routine npm and GitHub Actions updates run weekly with a seven-day cooldown; compatibility-sensitive npm packages are grouped for review, while major and production dependency changes still pass through the normal protected pull-request path. GitHub Actions remain pinned to immutable commit SHAs and Dependabot updates those references and their same-line version comments. The required quality gate uses `build`, CodeQL, `restore-drill`, `production-audit`, `pre-commit`, Semgrep, OSV Scanner, `sbom`, and `visual-regression`. SonarQube Cloud is advisory only and is not a required status check. See [the quality gate](./docs/operations/quality-gate.md) and [dependency automation and static analysis](./docs/operations/dependency-and-static-analysis.md).
 
 ## Scripts
 
