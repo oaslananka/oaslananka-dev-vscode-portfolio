@@ -106,7 +106,7 @@ jobs:
       - name: Install project and hook dependencies
         run: |
           npm ci --ignore-scripts
-          python -m pip install --only-binary=:all: --requirement requirements-security.txt
+          python -m pip install --only-binary=:all: --require-hashes --requirement requirements-security.txt
 
       - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure
