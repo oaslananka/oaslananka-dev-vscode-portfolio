@@ -61,7 +61,7 @@ const buildCommands = (
       'Use "theme <name>" to change theme.',
     ],
     date: () => [new Date().toString()],
-    whoami: () => ['visitor@portfolio ~ exploring awesome projects'],
+    whoami: () => ['visitor@oaslananka.dev ~ engineering portfolio'],
     ls: () => ['about/', 'projects/', 'skills/', 'contact/', 'README.md'],
     pwd: () => ['/home/visitor/portfolio'],
   };
