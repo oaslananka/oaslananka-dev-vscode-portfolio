@@ -16,15 +16,18 @@ function sourceFiles(directory: string): string[] {
   });
 }
 
-function hasUseClientDirective(path: string): boolean {
-  const sourceFile = ts.createSourceFile(
+function parseSourceFile(path: string): ts.SourceFile {
+  return ts.createSourceFile(
     path,
     read(path),
     ts.ScriptTarget.Latest,
     true,
     path.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
-  return sourceFile.statements.some(
+}
+
+function hasUseClientDirective(path: string): boolean {
+  return parseSourceFile(path).statements.some(
     (statement) =>
       ts.isExpressionStatement(statement) &&
       ts.isStringLiteral(statement.expression) &&
@@ -33,26 +36,27 @@ function hasUseClientDirective(path: string): boolean {
 }
 
 function runtimeImportSpecifiers(path: string): string[] {
-  const sourceFile = ts.createSourceFile(
-    path,
-    read(path),
-    ts.ScriptTarget.Latest,
-    true,
-    path.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-  );
-
   const specifiers: string[] = [];
-  for (const statement of sourceFile.statements) {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+  for (const statement of parseSourceFile(path).statements) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
+      continue;
+    }
 
     const clause = statement.importClause;
     if (clause?.isTypeOnly) continue;
 
     let hasRuntimeBinding = clause === undefined;
     if (clause?.name) hasRuntimeBinding = true;
-    if (clause?.namedBindings && ts.isNamespaceImport(clause.namedBindings)) hasRuntimeBinding = true;
+    if (clause?.namedBindings && ts.isNamespaceImport(clause.namedBindings)) {
+      hasRuntimeBinding = true;
+    }
     if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
-      hasRuntimeBinding ||= clause.namedBindings.elements.some((element) => !element.isTypeOnly);
+      hasRuntimeBinding ||= clause.namedBindings.elements.some(
+        (element) => !element.isTypeOnly,
+      );
     }
 
     if (hasRuntimeBinding) specifiers.push(statement.moduleSpecifier.text);
@@ -60,12 +64,27 @@ function runtimeImportSpecifiers(path: string): string[] {
   return specifiers;
 }
 
-function assertNoServerImports(path: string, options: { allowAuthEdge?: boolean } = {}): void {
+function assertNoServerImports(
+  path: string,
+  options: { allowAuthEdge?: boolean } = {},
+): void {
   for (const specifier of runtimeImportSpecifiers(path)) {
-    assert.doesNotMatch(specifier, /^@\/lib\/db(?:\/|$)/, `${path} runtime-imports database code`);
-    assert.notEqual(specifier, '@/lib/auth', `${path} runtime-imports server auth code`);
+    assert.doesNotMatch(
+      specifier,
+      /^@\/lib\/db(?:\/|$)/,
+      `${path} runtime-imports database code`,
+    );
+    assert.doesNotMatch(
+      specifier,
+      /^@\/lib\/auth(?:\/|$)/,
+      `${path} runtime-imports server auth code`,
+    );
     if (!options.allowAuthEdge) {
-      assert.notEqual(specifier, '@/lib/auth-edge', `${path} runtime-imports edge auth code`);
+      assert.doesNotMatch(
+        specifier,
+        /^@\/lib\/auth-edge(?:\/|$)/,
+        `${path} runtime-imports edge auth code`,
+      );
     }
     assert.notEqual(specifier, 'server-only', `${path} imports server-only`);
     assert.notEqual(specifier, 'next/headers', `${path} imports next/headers`);

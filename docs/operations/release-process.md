@@ -18,7 +18,7 @@ After the release PR is merged:
 2. Create an annotated `v<version>` tag on that exact merge commit.
 3. Push the tag without force.
 4. Publish a GitHub Release from the immutable tag using the matching changelog section.
-5. Record the merge SHA, tag, release URL, required-check evidence, SBOM/attestation evidence, and production deployment verification in `docs/ops/checkpoints/`.
+5. Record the merge SHA, tag, release URL, required-check evidence, SBOM/attestation evidence, and production deployment verification in `docs/operations/checkpoints/`.
 
 ## Supply-chain evidence
 

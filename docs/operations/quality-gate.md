@@ -10,7 +10,7 @@ The protected `main` branch requires these free checks:
 - `Analyze JavaScript / TypeScript`: GitHub CodeQL with the `security-extended` query suite.
 - `restore-drill`: the Neon restore procedure contract.
 - `production-audit`: high-severity production dependency audit.
-- `osv-scanner`: OSV Scanner database scan across the repository dependency manifests, with SARIF upload.
+- `osv-scanner / osv-scan`: OSV Scanner database scan across the repository dependency manifests, with SARIF upload.
 - `pre-commit`: repository-wide pre-commit policy checks.
 - `semgrep`: Semgrep Community Edition with JavaScript, TypeScript, Next.js, and OWASP rules.
 - `sbom`: lockfile-derived CycloneDX SBOM generation and JSON validation; pushes to `main` additionally attest the SBOM provenance.
@@ -33,7 +33,7 @@ npm run verify
 npm audit --omit=dev --audit-level=high
 osv-scanner scan source -r .
 pre-commit run --all-files --show-diff-on-failure
-semgrep scan --config p/javascript --config p/typescript --config p/nextjs --config p/owasp-top-ten --error --metrics=off
+docker run --rm --entrypoint semgrep --volume "$PWD:/src" --workdir /src semgrep/semgrep@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b scan --config p/javascript --config p/typescript --config p/nextjs --config p/owasp-top-ten --error --metrics=off
 ```
 
 Browser-facing changes also require:

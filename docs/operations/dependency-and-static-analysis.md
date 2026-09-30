@@ -17,16 +17,16 @@ The policy groups compatibility-sensitive packages, pins GitHub Actions by diges
 Install and enable the repository hooks:
 
 ```bash
-python -m pip install --requirement requirements-security.txt
+python -m pip install --only-binary=:all: --require-hashes --requirement requirements-security.txt
 pre-commit install --install-hooks
 pre-commit install --hook-type pre-push
 ```
 
-Pre-commit runs deterministic file hygiene and ESLint. Pre-push adds TypeScript, unit-policy tests, and Semgrep. CI runs the pre-commit stage over the entire repository, so local hook installation is helpful but not a trust boundary.
+Pre-commit runs deterministic file hygiene and ESLint. Pre-push adds TypeScript and unit-policy tests. Semgrep runs separately in CI from an immutable official container image, so local hook installation is helpful but not a trust boundary.
 
 ## Semgrep
 
-The `Security checks` workflow runs Semgrep Community Edition against the JavaScript, TypeScript, Next.js, and OWASP rulesets. Findings are uploaded as SARIF to GitHub code scanning. The workflow is tokenless and active for pull requests, pushes to `main`, manual runs, and a weekly schedule.
+The `Security checks` workflow runs Semgrep Community Edition from the official `semgrep/semgrep` container pinned by OCI digest against the JavaScript, TypeScript, Next.js, and OWASP rulesets. Findings are uploaded as SARIF to GitHub code scanning. The workflow is tokenless and active for pull requests, pushes to `main`, manual runs, and a weekly schedule.
 
 ## SonarQube Cloud
 
@@ -40,7 +40,7 @@ CodeQL, OSV Scanner, Semgrep Community Edition, npm audit, branch protection, an
 
 `osv-scanner scan source -r .` scans the npm lockfile and Python security-tool requirements against the OSV database. The `Security checks` workflow runs the same repository-wide scan from the official OSV Scanner action pinned to an immutable commit and uploads SARIF to GitHub code scanning. Findings fail the job; do not suppress a finding merely to make CI green.
 
-The Python security-tool requirements pin Semgrep and pre-commit plus explicit safety floors for transitives that have had known vulnerabilities. Update those floors only after both pip resolution and OSV Scanner are clean.
+The Python security-tool requirements fully lock the pre-commit toolchain by exact version and wheel SHA-256. CI installs it with `--require-hashes --only-binary=:all:`. Semgrep is intentionally isolated from this Python manifest and runs from its pinned container. Refresh the lock only after pip resolution and OSV Scanner are clean.
 
 ## SBOM
 

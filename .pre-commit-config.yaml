@@ -37,10 +37,3 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
-      - id: semgrep
-        name: Semgrep security scan
-        entry: semgrep scan --config p/javascript --config p/typescript --config p/nextjs --config p/owasp-top-ten --error --metrics=off
-        language: python
-        additional_dependencies: [semgrep==1.176.0, idna==3.19, python-multipart==0.0.32]
-        pass_filenames: false
-        stages: [pre-push]

@@ -12,7 +12,7 @@ Use the pinned JavaScript toolchain and the lockfile-only installation path:
 nvm install
 nvm use
 npm ci
-python -m pip install --requirement requirements-security.txt
+python -m pip install --only-binary=:all: --require-hashes --requirement requirements-security.txt
 ```
 
 ## Configuration
