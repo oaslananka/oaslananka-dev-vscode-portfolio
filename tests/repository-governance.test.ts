@@ -41,6 +41,11 @@ test('credential-dependent Renovate automation is retired', () => {
   }
 });
 
+test('Dependabot pull requests require explicit Mergify queueing', () => {
+  const config = read('.mergify.yml');
+  assert.match(config, /author != dependabot\[bot\]/);
+});
+
 test('Sonar source scope excludes CI metadata and binary assets', () => {
   const properties = read('sonar-project.properties');
   assert.match(properties, /sonar\.exclusions=.*\.github\/\*\*/);
