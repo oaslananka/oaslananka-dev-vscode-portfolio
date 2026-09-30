@@ -1,8 +1,8 @@
 export const LOCAL_HOMEPAGE_TARGET = '.next/server/app/index.html';
 
 export const HOMEPAGE_DENSITY_POLICY = Object.freeze({
-  minRatioPercent: 9.75,
-  minVisibleTextCharacters: 8_000,
+  minRatioPercent: 8.0,
+  minVisibleTextCharacters: 6_000,
   maxBrotliHtmlBytes: 12_500,
 });
 

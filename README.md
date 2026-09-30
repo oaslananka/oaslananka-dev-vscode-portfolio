@@ -1,6 +1,6 @@
 # VS Code Portfolio
 
-A Visual Studio Code themed developer portfolio with a **live admin panel**, built with Next.js 16, React 19 and a Neon Postgres database. Deploys on Vercel.
+A Visual Studio Code–themed developer portfolio with a **live admin panel**, built with Next.js 16, React 19, Neon Postgres, and Vercel.
 
 ## Features
 
@@ -8,11 +8,11 @@ A Visual Studio Code themed developer portfolio with a **live admin panel**, bui
 - 🛠️ **Dynamic admin panel** (`/admin`) — edit your profile, projects, blog posts and SEO settings live. Changes appear on the site immediately (no redeploy) thanks to on-demand revalidation.
 - 🗄️ **Database-backed content** — Neon Postgres via Drizzle ORM. Production fails closed when content storage is unavailable; bundled defaults require an explicit local/test opt-in.
 - 📝 **Built-in blog** — write posts in Markdown with a live preview, rendered server-side for SEO.
-- 🔍 **Best-in-class SEO** — server-rendered content, per-page metadata, dynamic `sitemap.xml`, `robots.txt`, JSON-LD (Person, WebSite, BreadcrumbList, BlogPosting), dynamic OpenGraph images, a web manifest and dynamic icons.
+- 🔍 **SEO and social metadata** — server-rendered content, per-page metadata, dynamic `sitemap.xml`, `robots.txt`, JSON-LD (Person, WebSite, BreadcrumbList, BlogPosting), dynamic OpenGraph images, a web manifest and dynamic icons.
 - 🤖 **AI discovery** — Markdown negotiation, `/index.md`, `/sitemap.md`, `/llms.txt`, `/llms-full.txt`, `/AGENTS.md` and a public glossary for agents and crawlers.
 - 📊 **Analytics** — Google Analytics 4, Vercel Analytics and Speed Insights.
 - 🐛 **Error monitoring** — consent-safe Sentry error reporting for client, server and edge runtimes.
-- 🔒 **Simple, secure admin auth** — single password gate (bcrypt + signed JWT cookie), enforced by proxy/middleware.
+- 🔒 **Protected admin auth** — single-password access using bcrypt and a signed JWT cookie, enforced by proxy/middleware.
 
 ## Tech stack
 
@@ -128,7 +128,7 @@ Agent-facing Markdown endpoints, content negotiation, and privacy boundaries are
 
 ## Dependency and security automation
 
-Renovate handles routine dependency updates with grouped compatibility updates, a Dependency Dashboard, immutable GitHub Action digests, and guarded automerge for low-risk development updates. Dependabot handles security updates only; routine Dependabot version PRs are disabled. The free required quality gate uses `build`, CodeQL, `restore-drill`, `production-audit`, `pre-commit`, Semgrep, OSV Scanner, `sbom`, and `visual-regression`. SonarQube Cloud is advisory only and is not a required status check. See [the free quality gate](./docs/operations/quality-gate.md) and [dependency automation and static analysis](./docs/operations/dependency-and-static-analysis.md).
+Routine dependency policy is defined in `renovate.json`. The self-hosted Renovate workflow requires the repository secret `RENOVATE_TOKEN` to execute the bot; configuration validation can still pass when that credential is absent, so a green validation-only run is not evidence that routine updates are active. Dependabot handles security updates only; routine Dependabot version PRs are disabled. The required quality gate uses `build`, CodeQL, `restore-drill`, `production-audit`, `pre-commit`, Semgrep, OSV Scanner, `sbom`, and `visual-regression`. SonarQube Cloud is advisory only and is not a required status check. See [the quality gate](./docs/operations/quality-gate.md) and [dependency automation and static analysis](./docs/operations/dependency-and-static-analysis.md).
 
 ## Scripts
 

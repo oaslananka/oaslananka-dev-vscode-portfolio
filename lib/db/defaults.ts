@@ -42,7 +42,7 @@ export const defaultProfile: DefaultProfile = {
   name: 'Osman Aslan',
   role: 'Edge AI & Embedded Systems Engineer',
   tagline:
-    'I build edge-AI, computer-vision and IoT systems that work reliably in the real world.',
+    'I build edge AI, computer vision, and IoT systems that work reliably in the real world.',
   greeting: "Hello, I'm",
   heroDescription: authorityProfileRefresh.heroDescription,
   location: 'İzmir, Türkiye',
@@ -166,7 +166,7 @@ const baseDefaultProjects: DefaultProject[] = [
     slug: 'sismo-smart',
     title: 'Sismo Smart',
     description:
-      'A privacy-safe case study of an earthquake early-warning and structural-health-monitoring platform spanning sensing hardware, edge processing, secure telemetry and operator alerts.',
+      'A public case study of an earthquake early-warning and structural-health-monitoring platform spanning sensing, edge processing, secure telemetry, and operator alerts.',
     longDescription: `## The engineering problem
 
 Earthquake early warning and structural health monitoring depend on a complete physical-to-digital chain. Sensor quality, timing, device health, connectivity and alert delivery all affect whether a signal can become useful operational information. The engineering problem is therefore wider than a classifier or dashboard: the system must preserve trustworthy measurements, make degraded behavior visible and keep safety-sensitive claims inside the evidence actually available.
@@ -189,7 +189,7 @@ This case study explains architecture, ownership and verification discipline. It
 
 ## Outcome
 
-Sismo Smart connects my civil and structural engineering background with embedded systems, device-to-cloud software and recent edge-AI work. The public value of the case study is the complete system boundary and the discipline used to keep operational claims reviewable.`,
+Sismo Smart connects my civil and structural engineering background with embedded systems, device-to-cloud software and recent edge AI work. The public value of the case study is the complete system boundary and the discipline used to keep operational claims reviewable.`,
     role: 'Founder & Lead Engineer',
     logo: '',
     coverImage: '',
@@ -620,14 +620,14 @@ const baseDefaultPosts: DefaultPost[] = [
     slug: 'production-first-edge-ai',
     title: 'Production-First Edge AI: Lessons from the Field',
     excerpt:
-      'Building connected and embedded systems, including recent edge-AI products, taught me that the model is the easy part. Here is what makes field deployments survive.',
+      'Lessons from connected and embedded systems, including recent edge AI work, on observability, failure handling, deployment, and recovery beyond the model.',
     coverImage: '/projects/sky-track-vision/poster.webp',
     tags: ['Edge AI', 'IoT', 'Embedded'],
     published: true,
     body: [
       '# Production-First Edge AI: Lessons from the Field',
       '',
-      'Most edge-AI demos work beautifully on a bench and fall apart in the field. After years of delivering device-to-cloud systems — from structural and seismic monitoring to industrial and agricultural deployments — I have come to treat the model as the *easy* part. The hard part is everything around it.',
+      'Most edge AI demos work beautifully on a bench and fall apart in the field. After years of delivering device-to-cloud systems — from structural and seismic monitoring to industrial and agricultural deployments — I have come to treat the model as the *easy* part. The hard part is everything around it.',
       '',
       '## Offline is normal',
       '',

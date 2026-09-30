@@ -38,7 +38,7 @@ test('authority content is complete, evidence-led, and free of placeholder claim
   assert.equal(defaultSettings.siteDescription, authoritySettingsRefresh.siteDescription);
 });
 
-test('Sismo Smart case study is featured and privacy-safe', () => {
+test('Sismo Smart case study is featured and preserves public evidence boundaries', () => {
   const project = defaultProjects.find((item) => item.slug === 'sismo-smart');
   assert.ok(project);
   assert.equal(project.featured, true);
@@ -69,9 +69,9 @@ test('canonical profile uses approved companies and precise tenure wording', () 
   ].join(' ');
   assert.match(
     authoredProfile,
-    /Over a decade building connected and embedded systems, including recent edge-AI and computer-vision products\./,
+    /more than a decade of experience building connected systems/,
   );
-  assert.doesNotMatch(authoredProfile, /shipping IoT and edge-AI/i);
+  assert.doesNotMatch(authoredProfile, /shipping IoT|edge-AI|computer-vision/i);
 });
 
 test('content migration covers every canonical project and published article exactly once', async () => {
@@ -137,7 +137,10 @@ test('portfolio revision migration matches canonical profile and Sismo data', as
   assert.match(migration, /Ege University/);
   assert.match(migration, /Middle East Technical University/);
   assert.match(migration, /UPDATE "posts"/);
-  assert.match(migration, new RegExp(productionFirstArticle.excerpt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(
+    migration,
+    /WHERE "slug" = \$portfolio\$production-first-edge-ai\$portfolio\$/,
+  );
   assert.doesNotMatch(migration, /shipping IoT and edge-AI/i);
   assert.doesNotMatch(migration, /dev\.to\/oaslananka/);
   assert.doesNotMatch(migration, /resume_url\s*=/);

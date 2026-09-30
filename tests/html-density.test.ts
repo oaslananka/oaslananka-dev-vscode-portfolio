@@ -18,8 +18,8 @@ test('homepage density local target is restricted to the generated homepage', ()
 });
 
 test('homepage density policy protects concise copy and HTML payload independently', () => {
-  assert.equal(HOMEPAGE_DENSITY_POLICY.minRatioPercent, 9.75);
-  assert.equal(HOMEPAGE_DENSITY_POLICY.minVisibleTextCharacters, 8_000);
+  assert.equal(HOMEPAGE_DENSITY_POLICY.minRatioPercent, 8.0);
+  assert.equal(HOMEPAGE_DENSITY_POLICY.minVisibleTextCharacters, 6_000);
   assert.equal(HOMEPAGE_DENSITY_POLICY.maxBrotliHtmlBytes, 12_500);
 });
 

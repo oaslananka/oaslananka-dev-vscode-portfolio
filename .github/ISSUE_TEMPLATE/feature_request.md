@@ -1,20 +1,28 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Propose a focused improvement
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Problem
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+What user or engineering problem would this solve?
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## Proposed outcome
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+Describe the behavior or capability you want, without prescribing implementation unless the constraint matters.
+
+## Alternatives and constraints
+
+What alternatives have you considered? Note compatibility, security, accessibility, operational, or cost constraints when relevant.
+
+## Evidence or use case
+
+Add a concrete workflow, example, screenshot, or reference that helps evaluate the request.
+
+## Scope
+
+Call out anything that is explicitly out of scope. Do not include secrets, personal data, or private production details.

@@ -1,38 +1,45 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a reproducible problem
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Summary
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Describe the problem and its impact.
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Affected surface
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+- Route, component, or feature:
+- Commit or deployment, if known:
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## Reproduction
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+1.
+2.
+3.
 
-**Additional context**
-Add any other context about the problem here.
+## Expected behavior
+
+What should have happened?
+
+## Actual behavior
+
+What happened instead?
+
+## Environment
+
+- Browser or runtime:
+- OS and device:
+- Relevant configuration (do not include secrets):
+
+## Evidence
+
+Add screenshots, logs, or a minimal reproduction when useful. Remove credentials, tokens, private contact content, and other sensitive data.
+
+## Security and privacy
+
+If this report contains a vulnerability, exploit details, credentials, personal data, or production secrets, do not submit it publicly. Follow `SECURITY.md` and use GitHub private vulnerability reporting.

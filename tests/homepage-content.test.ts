@@ -13,17 +13,12 @@ const words = (value: string) =>
 test('homepage production principles are substantial, bounded, and evidence-led', () => {
   assert.equal(HOMEPAGE_ENGINEERING_PRINCIPLES.length, 3);
 
-  const totalWords = HOMEPAGE_ENGINEERING_PRINCIPLES.reduce(
-    (total, principle) => total + words(principle.body).length,
-    0,
-  );
-  assert.ok(totalWords >= 260, `expected at least 260 words, received ${totalWords}`);
-  assert.ok(totalWords <= 330, `expected at most 330 words, received ${totalWords}`);
-
   const titles = new Set<string>();
   for (const principle of HOMEPAGE_ENGINEERING_PRINCIPLES) {
     assert.ok(principle.title.trim());
-    assert.ok(principle.body.trim());
+    const bodyWords = words(principle.body).length;
+    assert.ok(bodyWords >= 45, `${principle.title} should contain at least 45 words`);
+    assert.ok(bodyWords <= 80, `${principle.title} should stay under 80 words`);
     assert.ok(principle.linkLabel.trim());
     assert.match(principle.href, /^\/(?:projects|articles)\/[a-z0-9-]+$/);
     assert.equal(titles.has(principle.title), false);
@@ -43,13 +38,14 @@ test('homepage production principles are substantial, bounded, and evidence-led'
 
 test('homepage delivery path explains a bounded prototype-to-release workflow', () => {
   assert.equal(HOMEPAGE_DELIVERY_STAGES.length, 4);
-  const totalWords = words(HOMEPAGE_DELIVERY_INTRO).length + HOMEPAGE_DELIVERY_STAGES.reduce((total, stage) => total + words(stage.body).length, 0);
-  assert.ok(totalWords >= 340, `expected at least 340 words, received ${totalWords}`);
-  assert.ok(totalWords <= 420, `expected at most 420 words, received ${totalWords}`);
+  const introWords = words(HOMEPAGE_DELIVERY_INTRO).length;
+  assert.ok(introWords >= 20 && introWords <= 45, `delivery intro should contain 20–45 words, received ${introWords}`);
   assert.deepEqual(HOMEPAGE_DELIVERY_STAGES.map((stage) => stage.order), ['01', '02', '03', '04']);
   for (const stage of HOMEPAGE_DELIVERY_STAGES) {
     assert.ok(stage.title.trim());
-    assert.ok(stage.body.trim());
+    const bodyWords = words(stage.body).length;
+    assert.ok(bodyWords >= 35, `${stage.title} should contain at least 35 words`);
+    assert.ok(bodyWords <= 70, `${stage.title} should stay under 70 words`);
   }
 });
 
