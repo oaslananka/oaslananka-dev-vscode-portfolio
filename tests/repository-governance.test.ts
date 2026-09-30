@@ -14,6 +14,8 @@ test('Dependabot owns routine npm, GitHub Actions, and security updates', () => 
   assert.match(config, /open-pull-requests-limit: 5/);
   assert.match(config, /interval: ['"]weekly['"]/);
   assert.match(config, /default-days: 7/);
+  assert.match(config, /dependency-name: ['"]@types\/node['"]/);
+  assert.match(config, /version-update:semver-major/);
   assert.match(config, /applies-to: version-updates/);
   assert.match(config, /dependency-type: ['"]development['"]/);
   assert.match(config, /applies-to: security-updates/);
@@ -37,6 +39,11 @@ test('credential-dependent Renovate automation is retired', () => {
     assert.match(content, /Dependabot/);
     assert.doesNotMatch(content, /RENOVATE_TOKEN/);
   }
+});
+
+test('Dependabot pull requests require explicit Mergify queueing', () => {
+  const config = read('.mergify.yml');
+  assert.match(config, /author != dependabot\[bot\]/);
 });
 
 test('Sonar source scope excludes CI metadata and binary assets', () => {

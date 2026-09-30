@@ -8,7 +8,7 @@ The repository supports Node.js `22.23.1` and npm `10.9.8`. The versions are dec
 
 `.github/dependabot.yml` is the source of truth for routine version updates and security-update pull requests. It does not require a repository PAT or Actions secret.
 
-Routine npm updates run weekly on Monday at 05:00 Europe/Istanbul with a seven-day release cooldown and a five-PR version-update limit. The policy keeps Next.js/React, Drizzle, and Sentry compatibility families together, groups low-risk development patch updates, and leaves other updates individually reviewable. Security updates are grouped separately and are not delayed by the routine version-update cooldown.
+Routine npm updates run weekly on Monday at 05:00 Europe/Istanbul with a seven-day release cooldown and a five-PR version-update limit. The policy keeps Next.js/React, Drizzle, and Sentry compatibility families together, groups low-risk development patch updates, and leaves other updates individually reviewable. Security updates are grouped separately and are not delayed by the routine version-update cooldown. `@types/node` major updates are ignored while the repository runtime remains pinned to Node 22; change that guard only as part of a coordinated Node runtime/toolchain major upgrade.
 
 GitHub Actions are checked separately every Monday at 05:30 Europe/Istanbul, also with a seven-day cooldown. Workflow actions stay pinned to immutable commit SHAs; Dependabot updates supported SHA references and their same-line version comments rather than replacing the repository's pinning policy.
 
