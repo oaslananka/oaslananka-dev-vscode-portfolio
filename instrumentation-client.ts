@@ -1,3 +1,5 @@
+import { SENTRY_DATA_COLLECTION } from './lib/sentry-data-collection';
+
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 const sentryClient = dsn
@@ -6,7 +8,7 @@ const sentryClient = dsn
         dsn,
         enabled: true,
         tracesSampleRate: 0,
-        sendDefaultPii: false,
+        dataCollection: SENTRY_DATA_COLLECTION,
         debug: false,
       });
 

@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-import { withSentryConfig } from '@sentry/nextjs';
+import { withSentryConfig } from '@sentry/nextjs/config';
 
 import { buildPublicContentSecurityPolicy } from './lib/content-security-policy';
 import { ALLOWED_REMOTE_IMAGE_HOSTNAMES } from './lib/image-policy';
