@@ -1,2 +1,2 @@
-pre-commit==4.6.0
-semgrep==1.170.0
+pre-commit==4.6.2
+filelock==3.32.5

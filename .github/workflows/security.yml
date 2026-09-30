@@ -123,18 +123,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: '3.13'
-          cache: pip
-          cache-dependency-path: requirements-security.txt
-
-      - name: Install Semgrep
-        run: python -m pip install semgrep==1.170.0
-
+      # Official semgrep/semgrep:1.178.0 image, pinned to its multi-arch OCI digest.
       - name: Scan JavaScript, TypeScript, Next.js, and OWASP patterns
         run: >-
-          semgrep scan
+          docker run --rm
+          --entrypoint semgrep
+          --volume "${{ github.workspace }}:/src"
+          --workdir /src
+          semgrep/semgrep@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
+          scan
           --config p/javascript
           --config p/typescript
           --config p/nextjs
