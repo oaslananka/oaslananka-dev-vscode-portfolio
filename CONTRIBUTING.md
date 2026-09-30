@@ -16,7 +16,7 @@ Describe the problem, the smallest chosen change, security/operational impact, t
 
 ## Dependencies
 
-Renovate owns routine dependency updates. Dependabot owns security updates. Do not force upgrades around failing checks or weaken security policy to make an update pass.
+Routine dependency updates are managed through Renovate when its repository credential is configured; Dependabot owns security updates. A successful Renovate configuration-validation run is not a maintenance run if the bot step was skipped. Do not force upgrades around failing checks or weaken security policy to make an update pass.
 
 ## Security reports
 
