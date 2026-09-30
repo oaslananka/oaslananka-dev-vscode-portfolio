@@ -30,7 +30,8 @@
     "test:homepage-density": "node scripts/assert-homepage-density.mjs",
     "test:e2e:matrix": "playwright test --project=firefox-smoke --project=webkit-smoke",
     "test:e2e:visual": "playwright test --project=chromium-visual",
-    "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts"
+    "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts",
+    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
