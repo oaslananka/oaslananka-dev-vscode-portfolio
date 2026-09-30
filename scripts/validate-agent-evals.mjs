@@ -1,10 +1,4 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-
-const corpusPath = fileURLToPath(
-  new URL('../evals/agent-tasks.json', import.meta.url),
-);
-const corpus = JSON.parse(readFileSync(corpusPath, 'utf8'));
+import corpus from '../evals/agent-tasks.json' with { type: 'json' };
 
 if (
   corpus.schemaVersion !== 1 ||

@@ -90,7 +90,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-      id-token: write
+      id-token: write # nosemgrep: codacy.yaml.security.hard-coded-tokens -- GitHub OIDC permission, not a credential
       attestations: write
       artifact-metadata: write
 
