@@ -6,7 +6,7 @@ The repository does not depend on a paid static-analysis service for merges.
 
 The protected `main` branch requires these free checks:
 
-- `build`: TypeScript, ESLint, unit tests with critical-module coverage thresholds, database migration/preflight, Next.js build, homepage density, and the Chromium Playwright suite.
+- `build`: TypeScript, ESLint, unit tests with critical-module coverage thresholds, deterministic agent-eval corpus validation, database migration/preflight, Next.js build, homepage density, and the Chromium Playwright suite.
 - `Analyze JavaScript / TypeScript`: GitHub CodeQL with the `security-extended` query suite.
 - `restore-drill`: the Neon restore procedure contract.
 - `production-audit`: high-severity production dependency audit.

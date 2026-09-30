@@ -88,6 +88,9 @@ jobs:
       - name: Test with critical-module coverage thresholds
         run: npm run test:coverage
 
+      - name: Validate agent evaluation corpus
+        run: npm run test:agent-evals
+
       - name: Database preflight
         run: npm run db:preflight
 

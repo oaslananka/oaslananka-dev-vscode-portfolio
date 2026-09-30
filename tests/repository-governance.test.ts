@@ -82,6 +82,7 @@ test('CI uses the exact pinned Node toolchain and enforces critical-module cover
   assert.doesNotMatch(ci, /node-version: 22\s*$/m);
   assert.match(ci, /node-version-file: \.node-version/);
   assert.match(ci, /npm run test:coverage/);
+  assert.match(ci, /npm run test:agent-evals/);
   const pkg = JSON.parse(read('package.json')) as { scripts?: Record<string, string> };
   const coverage = pkg.scripts?.['test:coverage'] ?? '';
   assert.match(coverage, /--check-coverage/);
