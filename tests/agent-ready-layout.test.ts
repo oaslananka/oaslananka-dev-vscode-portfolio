@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
-test('root layout advertises llms.txt through the describedby relation', async () => {
-  const layout = await readFile(new URL('../app/layout.tsx', import.meta.url), 'utf8');
+import AgentDiscoveryLink from '../components/AgentDiscoveryLink';
 
-  assert.match(layout, /<link rel="describedby" href="\/llms\.txt" \/>/);
+test('agent discovery link renders the llms.txt describedby relation', () => {
+  const markup = renderToStaticMarkup(createElement(AgentDiscoveryLink));
+
+  assert.ok(markup.startsWith('<link'));
+  assert.ok(markup.includes('rel="describedby"'));
+  assert.ok(markup.includes('href="/llms.txt"'));
 });
