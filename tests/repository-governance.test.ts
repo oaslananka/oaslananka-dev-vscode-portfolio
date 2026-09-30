@@ -38,6 +38,7 @@ test('credential-dependent Renovate automation is retired', () => {
     assert.doesNotMatch(content, /RENOVATE_TOKEN/);
   }
 });
+
 test('Sonar source scope excludes CI metadata and binary assets', () => {
   const properties = read('sonar-project.properties');
   assert.match(properties, /sonar\.exclusions=.*\.github\/\*\*/);
