@@ -4,13 +4,15 @@
 
 The repository supports Node.js `22.23.1` and npm `10.9.8`. The versions are declared in `package.json`, `.nvmrc`, and `.node-version`. CI installs dependencies only with `npm ci`.
 
-## Renovate
+## Dependabot
 
-`renovate.json` is the source of truth for routine dependency automation. Dependabot is configured separately for security updates only; its routine version PRs are disabled with `open-pull-requests-limit: 0`, while security-update PRs remain enabled.
+`.github/dependabot.yml` is the source of truth for routine version updates and security-update pull requests. It does not require a repository PAT or Actions secret.
 
-Renovate validates its configuration every Monday and on manual dispatch. A scheduled bot run additionally requires a fine-grained `RENOVATE_TOKEN` repository secret with read/write access to repository contents, pull requests, and issues. The workflow deliberately allows configuration validation to succeed when that secret is absent, so verify that the `Run Renovate` step actually executed before treating a green run as proof that routine updates are active. The Mend-hosted Renovate GitHub App can be used instead; when it is installed, it reads the same `renovate.json` file.
+Routine npm updates run weekly on Monday at 05:00 Europe/Istanbul with a seven-day release cooldown and a five-PR version-update limit. The policy keeps Next.js/React, Drizzle, and Sentry compatibility families together, groups low-risk development patch updates, and leaves other updates individually reviewable. Security updates are grouped separately and are not delayed by the routine version-update cooldown.
 
-The policy groups compatibility-sensitive packages, pins GitHub Actions by digest, requires dashboard approval for major and Drizzle updates, delays normal releases for seven days, and only automerges patch/pin/digest updates to development dependencies after branch protections pass.
+GitHub Actions are checked separately every Monday at 05:30 Europe/Istanbul, also with a seven-day cooldown. Workflow actions stay pinned to immutable commit SHAs; Dependabot updates supported SHA references and their same-line version comments rather than replacing the repository's pinning policy.
+
+Every dependency PR follows the normal protected `main` path. GitHub branch protection and repository rulesets require human approval and the same required CI/security checks as other pull requests, so dependency automation has no merge bypass. The retired Renovate-only dashboard approval, standalone lockfile-maintenance job, and dev-only automerge behavior are intentionally not reproduced; lockfile changes are reviewed with the dependency PR that generated them.
 
 ## Local hooks
 
