@@ -63,3 +63,6 @@ yarn-error.log*
 
 # Test coverage
 coverage/
+
+# local supply-chain artifacts
+/sbom.cdx.json

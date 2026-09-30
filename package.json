@@ -24,14 +24,16 @@
     "build:next": "next build",
     "db:preflight": "tsx scripts/db-preflight.ts",
     "bundle:github": "node scripts/report-github-bundle.mjs",
-    "test:coverage": "rm -rf coverage && c8 --reporter=lcovonly --reporter=text --all --include='public/theme-init.v1.js' --include='lib/admin-access.ts' --include='lib/admin/validation.ts' --include='lib/admin/limits.ts' --include='lib/build-policy.ts' --include='lib/agent-discovery.ts' --include='lib/content-relations.ts' --include='lib/db/content-authority.ts' --include='lib/discovery.ts' --include='lib/homepage-content.ts' --include='lib/page-markdown.ts' --include='lib/person-identity.ts' --include='lib/site-shell.ts' --include='lib/ui-icons.ts' --include='lib/static-assets.ts' npm test",
+    "test:coverage": "rm -rf coverage && c8 --check-coverage --lines=95 --branches=80 --functions=95 --statements=95 --reporter=lcovonly --reporter=text --all --include='public/theme-init.v1.js' --include='lib/admin-access.ts' --include='lib/admin/validation.ts' --include='lib/admin/limits.ts' --include='lib/build-policy.ts' --include='lib/agent-discovery.ts' --include='lib/content-relations.ts' --include='lib/db/content-authority.ts' --include='lib/discovery.ts' --include='lib/homepage-content.ts' --include='lib/page-markdown.ts' --include='lib/person-identity.ts' --include='lib/site-shell.ts' --include='lib/ui-icons.ts' --include='lib/static-assets.ts' npm test",
     "icons:generate": "tsx scripts/generate-ui-icons.ts",
     "report:html-density": "node scripts/report-html-density.mjs",
     "test:homepage-density": "node scripts/assert-homepage-density.mjs",
     "test:e2e:matrix": "playwright test --project=firefox-smoke --project=webkit-smoke",
     "test:e2e:visual": "playwright test --project=chromium-visual",
     "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts",
-    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json"
+    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run test:agent-evals",
+    "test:agent-evals": "node scripts/validate-agent-evals.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

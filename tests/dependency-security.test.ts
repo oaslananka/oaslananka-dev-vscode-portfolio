@@ -10,26 +10,22 @@ interface PackageManifest {
 
 type VersionTuple = readonly [number, number, number];
 
-const manifest = JSON.parse(
-  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
-) as PackageManifest;
-const securityWorkflow = readFileSync(
-  new URL('../.github/workflows/security.yml', import.meta.url),
-  'utf8',
-);
+const read = (path: string) =>
+  readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+
+const manifest = JSON.parse(read('package.json')) as PackageManifest;
+const securityWorkflow = read('.github/workflows/security.yml');
 
 function parseDeclaredMinimum(
   range: string | undefined,
   label: string,
 ): VersionTuple {
   assert.ok(range, `${label} must be declared`);
-
   const match = /^(?:\^|~|>=)?(\d+)\.(\d+)\.(\d+)$/.exec(range.trim());
   assert.ok(
     match,
     `${label} must use an exact version or a simple semver floor; received ${range}`,
   );
-
   return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
 
@@ -38,7 +34,6 @@ function compareVersions(left: VersionTuple, right: VersionTuple): number {
     const delta = left[index] - right[index];
     if (delta !== 0) return delta;
   }
-
   return 0;
 }
 
@@ -49,7 +44,6 @@ function assertAtLeast(
 ): void {
   const actual = parseDeclaredMinimum(range, label);
   const floor = parseDeclaredMinimum(minimum, `${label} security floor`);
-
   assert.ok(
     compareVersions(actual, floor) >= 0,
     `${label} ${range} is below the required floor ${minimum}`,
@@ -77,4 +71,62 @@ test('production dependency ranges remain at or above audited floors', () => {
 
 test('security workflow blocks high-severity production dependency findings', () => {
   assert.match(securityWorkflow, /npm audit --omit=dev --audit-level=high/);
+});
+
+test('Python CI tooling is wheel-only and hash locked', () => {
+  const requirements = read('requirements-security.txt');
+  const preCommit = read('.pre-commit-config.yaml');
+
+  assert.match(requirements, /^pre-commit==4\.6\.2\s+\\/m);
+  assert.match(requirements, /^virtualenv==21\.7\.13\s+\\/m);
+  assert.match(requirements, /^filelock==3\.32\.5\s+\\/m);
+  assert.match(requirements, /--hash=sha256:/);
+  assert.match(preCommit, /minimum_pre_commit_version: ['"]4\.6\.2['"]/);
+  assert.doesNotMatch(preCommit, /id: semgrep/);
+  assert.match(
+    securityWorkflow,
+    /python -m pip install --only-binary=:all: --require-hashes --requirement requirements-security\.txt/,
+  );
+});
+
+test('Semgrep runs from an immutable official container image', () => {
+  assert.doesNotMatch(securityWorkflow, /python -m pip install semgrep/);
+  assert.match(
+    securityWorkflow,
+    /semgrep\/semgrep@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b/,
+  );
+  assert.match(securityWorkflow, /--entrypoint semgrep/);
+  assert.match(securityWorkflow, /--sarif/);
+});
+
+test('security workflow runs the official OSV reusable workflow from an immutable revision', () => {
+  assert.match(securityWorkflow, /^  osv-scanner:$/m);
+  assert.match(
+    securityWorkflow,
+    /google\/osv-scanner-action\/\.github\/workflows\/osv-scanner-reusable\.yml@6e4298ebc4db23e847df9b2e2de2939d6f066c67 # v2\.5\.1/,
+  );
+  assert.match(securityWorkflow, /actions: read/);
+  assert.match(securityWorkflow, /security-events: write/);
+  assert.match(securityWorkflow, /--include-git-root/);
+  assert.match(securityWorkflow, /--recursive/);
+  assert.match(securityWorkflow, /results-file-name: osv-scanner\.sarif/);
+});
+
+test('main-only SBOM attestation uses isolated write permissions', () => {
+  const sbomStart = securityWorkflow.indexOf('  sbom:\n');
+  const attestStart = securityWorkflow.indexOf('  sbom-attestation:\n');
+  const preCommitStart = securityWorkflow.indexOf('  pre-commit:\n');
+  assert.ok(sbomStart >= 0 && attestStart > sbomStart && preCommitStart > attestStart);
+
+  const sbomJob = securityWorkflow.slice(sbomStart, attestStart);
+  assert.doesNotMatch(sbomJob, /id-token: write/);
+  assert.doesNotMatch(sbomJob, /attestations: write/);
+
+  const attestJob = securityWorkflow.slice(attestStart, preCommitStart);
+  assert.match(attestJob, /needs: sbom/);
+  assert.match(attestJob, /github\.event_name == 'push'/);
+  assert.match(attestJob, /id-token: write/);
+  assert.match(attestJob, /attestations: write/);
+  assert.match(attestJob, /artifact-metadata: write/);
+  assert.match(attestJob, /subject-path: sbom\.cdx\.json/);
 });

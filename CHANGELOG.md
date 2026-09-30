@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Repository hardening and governance
+
+- Enforced protected `main` quality gates and documented the architecture, threat model, contribution/support workflow, service-level objectives, release process, and ownership boundaries.
+- Added executable client/server architecture boundary tests and a deterministic six-case agent task/evidence corpus validator integrated into `npm run verify`.
+- Made local Doppler guidance explicit and fail-safe when only production configuration is available, and made fresh-clone Node installation deterministic.
+
+### CI and supply chain
+
+- Pinned all main CI jobs to the repository's exact Node.js version instead of the moving Node 22 line.
+- Enforced critical-module coverage thresholds in the required build job.
+- Added CycloneDX SBOM generation, retained CI artifacts, and GitHub artifact attestation for SBOMs generated from `main`.
+- Added a repository-wide OSV Scanner gate with SARIF upload and remediated vulnerable Python security-tool transitives with explicit safety floors.
+- Moved SBOM artifact provenance to the current immutable `actions/attest` v4 action.
+- Raised the `fast-uri` override to the patched 3.1.7 line as a dependency security update.
+
 ## [3.2.0] - 2026-07-27
 
 ### Security and administration

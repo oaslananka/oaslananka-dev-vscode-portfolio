@@ -210,8 +210,12 @@ test('agent instructions contain concrete installation, configuration, and usage
   assert.match(AGENT_INSTRUCTIONS, /## Installation/);
   assert.match(AGENT_INSTRUCTIONS, /## Configuration/);
   assert.match(AGENT_INSTRUCTIONS, /## Usage/);
+  assert.match(AGENT_INSTRUCTIONS, /nvm install/);
   assert.match(AGENT_INSTRUCTIONS, /npm ci/);
+  assert.match(AGENT_INSTRUCTIONS, /npm run verify/);
   assert.match(AGENT_INSTRUCTIONS, /npm run db:preflight/);
+  assert.match(AGENT_INSTRUCTIONS, /doppler run --config dev/);
+  assert.match(AGENT_INSTRUCTIONS, /If Doppler only offers `prod`/);
   assert.match(AGENT_INSTRUCTIONS, /Accept: text\/markdown/);
 });
 
