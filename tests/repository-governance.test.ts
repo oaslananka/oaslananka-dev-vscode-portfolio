@@ -15,8 +15,11 @@ test('Dependabot is configured for security updates without routine version PRs'
 
 test('README and dependency runbook document Renovate and Dependabot ownership accurately', () => {
   for (const content of [read('README.md'), read('docs/operations/dependency-and-static-analysis.md')]) {
-    assert.match(content, /Renovate[^\n]*routine dependency/i);
+    assert.match(content, /Renovate/i);
+    assert.match(content, /routine dependency/i);
+    assert.match(content, /RENOVATE_TOKEN/);
     assert.match(content, /Dependabot[^\n]*security update/i);
+    assert.match(content, /validation[^\n]*(?:not evidence|not.*active|actually executed)/i);
   }
 });
 
