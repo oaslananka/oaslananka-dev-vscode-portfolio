@@ -132,7 +132,7 @@ The practical test is not whether an agent can call many tools. It is whether an
 
   'production-first-edge-ai': `## A field-readiness checklist
 
-Before describing an edge-AI system as production-ready, I look for evidence across the complete operating chain:
+Before describing an edge AI system as production-ready, I look for evidence across the complete operating chain:
 
 - Defined behavior for power loss, network loss, clock drift and partial data.
 - Local buffering with replay-safe identifiers and bounded storage.
