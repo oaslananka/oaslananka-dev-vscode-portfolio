@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Content and presentation
+
+- Reconciled bundled portfolio defaults with the production CMS copy so fresh databases do not restore superseded wording.
+- Tightened homepage engineering and delivery copy, normalized public terminology, and refreshed repository contribution templates.
+- Replaced promotional SEO wording with precise feature descriptions and documented the Renovate credential requirement so validation-only runs are not mistaken for active dependency automation.
+
 ### Repository hardening and governance
 
 - Enforced protected `main` quality gates and documented the architecture, threat model, contribution/support workflow, service-level objectives, release process, and ownership boundaries.
