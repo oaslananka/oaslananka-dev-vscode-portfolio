@@ -13,6 +13,12 @@ updates:
     labels:
       - "dependencies"
       - "size/XS"
+    # Keep Node type definitions aligned with the pinned Node 22 runtime.
+    # Remove this guard only as part of a coordinated runtime/toolchain major upgrade.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
     groups:
       nextjs-react:
         applies-to: version-updates
