@@ -30,7 +30,8 @@
     "test:homepage-density": "node scripts/assert-homepage-density.mjs",
     "test:e2e:matrix": "playwright test --project=firefox-smoke --project=webkit-smoke",
     "test:e2e:visual": "playwright test --project=chromium-visual",
-    "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts"
+    "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts",
+    "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -40,7 +41,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.3",
-    "next": "^16.2.12",
+    "next": "^16.3.3",
     "pg": "^8.22.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -69,8 +70,8 @@
   },
   "overrides": {
     "postcss": "^8.5.26",
-    "fast-uri": "^3.1.5",
-    "sharp": "0.35.3"
+    "fast-uri": "^3.1.7",
+    "sharp": "0.35.4"
   },
   "packageManager": "npm@10.9.8",
   "engines": {

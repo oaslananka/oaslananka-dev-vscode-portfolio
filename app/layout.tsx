@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 
+import AgentDiscoveryLink from '@/components/AgentDiscoveryLink';
 import ConsentManager from '@/components/ConsentManager';
 import JsonLd from '@/components/JsonLd';
 import { getProfile, getSettings } from '@/lib/content';
@@ -56,6 +57,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <AgentDiscoveryLink />
         <Script src="/theme-init.v1.js" strategy="beforeInteractive" />
         <JsonLd data={personJsonLd(profile)} />
         <JsonLd data={websiteJsonLd(settings, profile)} />
