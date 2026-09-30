@@ -1,28 +1,43 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('Dependabot is configured for security updates without routine version PRs', () => {
+test('Dependabot owns routine npm, GitHub Actions, and security updates', () => {
   const config = read('.github/dependabot.yml');
+
   assert.match(config, /package-ecosystem: ['"]npm['"]/);
-  assert.match(config, /open-pull-requests-limit: 0/);
+  assert.match(config, /package-ecosystem: ['"]github-actions['"]/);
+  assert.doesNotMatch(config, /open-pull-requests-limit: 0/);
+  assert.match(config, /open-pull-requests-limit: 5/);
+  assert.match(config, /interval: ['"]weekly['"]/);
   assert.match(config, /default-days: 7/);
+  assert.match(config, /applies-to: version-updates/);
+  assert.match(config, /dependency-type: ['"]development['"]/);
   assert.match(config, /applies-to: security-updates/);
+  assert.match(config, /nextjs-react:/);
+  assert.match(config, /drizzle-toolchain:/);
+  assert.match(config, /github-actions:/);
 });
 
-test('README and dependency runbook document Renovate and Dependabot ownership accurately', () => {
-  for (const content of [read('README.md'), read('docs/operations/dependency-and-static-analysis.md')]) {
-    assert.match(content, /Renovate/i);
-    assert.match(content, /routine dependency/i);
-    assert.match(content, /RENOVATE_TOKEN/);
-    assert.match(content, /Dependabot[^\n]*security update/i);
-    assert.match(content, /validation[^\n]*(?:not evidence|not.*active|actually executed)/i);
+test('credential-dependent Renovate automation is retired', () => {
+  assert.equal(existsSync(new URL('../renovate.json', import.meta.url)), false);
+  assert.equal(
+    existsSync(new URL('../.github/workflows/renovate.yml', import.meta.url)),
+    false,
+  );
+
+  for (const content of [
+    read('README.md'),
+    read('CONTRIBUTING.md'),
+    read('docs/operations/dependency-and-static-analysis.md'),
+  ]) {
+    assert.match(content, /Dependabot/);
+    assert.doesNotMatch(content, /RENOVATE_TOKEN/);
   }
 });
-
 test('Sonar source scope excludes CI metadata and binary assets', () => {
   const properties = read('sonar-project.properties');
   assert.match(properties, /sonar\.exclusions=.*\.github\/\*\*/);
