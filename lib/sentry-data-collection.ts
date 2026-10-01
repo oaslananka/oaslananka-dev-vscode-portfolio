@@ -11,4 +11,4 @@ export const SENTRY_DATA_COLLECTION = {
   databaseQueryData: false,
   queues: false,
   graphQL: { document: false, variables: false },
-} as const;
+};
