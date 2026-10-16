@@ -22,12 +22,10 @@ function GalleryVideo({
   item,
   hasCaption,
   captionId,
-  silent,
 }: {
   readonly item: Extract<ProjectMedia, { type: 'video' }>;
   readonly hasCaption: boolean;
   readonly captionId: string;
-  readonly silent: boolean;
 }) {
   const videoAccessibility = resolveVideoAccessibility(item);
 
@@ -40,7 +38,7 @@ function GalleryVideo({
       preload="none"
       controls
       playsInline
-      muted={silent}
+      muted={videoAccessibility.audio === 'none'}
       aria-label={item.alt}
       aria-describedby={hasCaption ? captionId : undefined}
     >
@@ -91,7 +89,6 @@ function GalleryItem({
             item={item}
             hasCaption={hasCaption}
             captionId={captionId}
-            silent={silent}
           />
         )}
       </div>
