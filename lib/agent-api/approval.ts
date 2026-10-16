@@ -46,7 +46,7 @@ export async function verifyAgentApproval(
   token: string | null,
   subject: AgentApprovalSubject,
 ): Promise<string> {
-  if (!token || token.length > 4_096 || !/^[A-Za-z0-9_.-]+$/.test(token)) {
+  if (!token || token.length > 4_096) {
     throw new AgentWriteInputError(403, 'An explicit administrator approval is required.');
   }
   try {
