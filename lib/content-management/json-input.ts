@@ -81,3 +81,28 @@ export function parseAgentPostInput(input: unknown, current?: PostInput): PostIn
   }
   return parseAgentContent(postInputSchema, Object.keys(postInputSchema.shape), input, current);
 }
+
+/** Creation is a separate, deliberately unpublished operation. */
+export function parseAgentDraftPostInput(input: unknown): PostInput {
+  if (input === null || typeof input !== 'object' || Array.isArray(input)) {
+    throw new AdminValidationError('Draft must be a JSON object.');
+  }
+  const patch = input as Record<string, unknown>;
+  if (Object.hasOwn(patch, 'published') || Object.hasOwn(patch, 'publishedAt')) {
+    throw new AdminValidationError('New articles are always unpublished drafts.');
+  }
+  const values = {
+    excerpt: '',
+    body: '',
+    coverImage: '',
+    tags: [],
+    ...patch,
+    published: false,
+    publishedAt: new Date(),
+  };
+  return parseAgentContent(
+    postInputSchema,
+    Object.keys(postInputSchema.shape),
+    values,
+  );
+}

@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { profile, siteSettings, projects, posts } from '@/lib/db/schema';
 import {
-  parseAgentPostInput, parseAgentProfileInput,
+  parseAgentDraftPostInput, parseAgentPostInput, parseAgentProfileInput,
   parseAgentProjectInput, parseAgentSettingsInput,
 } from '@/lib/content-management/json-input';
 import { isCanonicalSlug } from '@/lib/slug-policy';
@@ -15,12 +15,13 @@ import { AgentNotFoundError } from './response';
 import { AgentWriteInputError } from './write-policy';
 
 export type EditableResource =
-  | { kind: 'profile' | 'settings' }
+  | { kind: 'profile' | 'settings' | 'draftPost' }
   | { kind: 'project' | 'post'; slug: string };
 
 export function parseEditableResource(value: string): EditableResource {
   if (value === '/api/agent/v1/profile') return { kind: 'profile' };
   if (value === '/api/agent/v1/settings') return { kind: 'settings' };
+  if (value === '/api/agent/v1/posts') return { kind: 'draftPost' };
   if (value.length > 320) throw new AgentWriteInputError(400, 'Resource too long.');
   const match = /^\/api\/agent\/v1\/(projects|posts)\/([^/]+)$/.exec(value);
   if (match && isCanonicalSlug(match[2]) && value.length <= 320) {
@@ -43,6 +44,21 @@ function preventPublishedPostEdit(
   }
 }
 
+async function validateNewDraft(
+  database: NonNullable<typeof db>,
+  revision: number,
+  patch: Record<string, unknown>,
+): Promise<{ current: Record<string, unknown> }> {
+  if (revision !== 0) {
+    throw new AgentWriteInputError(428, 'New drafts require the creation precondition.');
+  }
+  const draft = parseAgentDraftPostInput(patch);
+  const [existing] = await database.select({ id: posts.id }).from(posts)
+    .where(eq(posts.slug, draft.slug)).limit(1);
+  if (existing) throw new AgentWriteInputError(409, 'Article slug already exists.');
+  return { current: {} };
+}
+
 /** Validate against current stored content without modifying it. */
 export async function validateProposal(
   resource: string,
@@ -51,6 +67,7 @@ export async function validateProposal(
 ): Promise<{ current: Record<string, unknown> }> {
   if (!db) throw new AgentWriteInputError(503, 'Content unavailable.');
   const parsed = parseEditableResource(resource);
+  if (parsed.kind === 'draftPost') return validateNewDraft(db, revision, patch);
   let current: Record<string, unknown> | undefined;
   switch (parsed.kind) {
     case 'profile': {

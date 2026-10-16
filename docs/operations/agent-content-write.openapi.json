@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "oaslananka.dev explicitly gated content updates",
-    "version": "0.2.0-disabled",
+    "version": "0.3.0-disabled",
     "description": "Human reviewed proposals and revision-safe PATCH; disabled until schema-first rollout and provider connection."
   },
   "security": [
@@ -359,7 +359,7 @@
           {
             "name": "If-Match",
             "in": "header",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -371,6 +371,17 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "*"
+              ]
             }
           }
         ],
@@ -420,7 +431,8 @@
           "503": {
             "description": "Writer disabled"
           }
-        }
+        },
+        "description": "Edits require If-Match. New unpublished article drafts require If-None-Match: * and resource /api/agent/v1/posts. Proposal does not create content."
       }
     },
     "/api/agent/v1/proposals/{requestId}": {
@@ -450,6 +462,106 @@
           },
           "503": {
             "description": "Writer disabled"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/posts": {
+      "post": {
+        "operationId": "createUnpublishedArticleDraft",
+        "summary": "Create an unpublished article only after explicit admin approval",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-None-Match",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "*"
+              ]
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Agent-Approval",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "slug"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "excerpt": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  },
+                  "coverImage": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "maxItems": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Exactly one unpublished draft created or exact request retried"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Approval missing or mismatched"
+          },
+          "409": {
+            "description": "Slug or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid draft"
+          },
+          "428": {
+            "description": "Creation precondition required"
+          },
+          "503": {
+            "description": "Write mode disabled"
           }
         }
       }

@@ -9,6 +9,18 @@ test.skip(!enabled, 'Only against a migrated disposable PostgreSQL with explicit
 
 const agentKey = 'Bearer ' + 'e2e-write-key-' + 'w'.repeat(42);
 
+
+/** These tests must never access a non-local database. */
+async function connectDisposableDatabase(): Promise<Client> {
+  const url = process.env.DATABASE_URL;
+  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
+    throw new Error('Agent write E2E requires a local disposable database.');
+  }
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  return client;
+}
+
 async function loginAndApprove(
   page: Page,
   request: APIRequestContext,
@@ -22,7 +34,7 @@ async function loginAndApprove(
     const sent = await request.post('/api/agent/v1/proposals', {
       headers: {
         Authorization: agentKey,
-        'If-Match': JSON.stringify(String(revision)),
+        ...(revision === 0 ? { 'If-None-Match': '*' } : { 'If-Match': JSON.stringify(String(revision)) }),
         'Idempotency-Key': key,
       },
       data: { resource: path, patch },
@@ -53,12 +65,7 @@ async function loginAndApprove(
 }
 
 test('actor-attributed writes are transactional, idempotent and reject stale revisions', async ({ request, page }) => {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl || !['127.0.0.1', 'localhost'].includes(new URL(databaseUrl).hostname)) {
-    throw new Error('Agent write E2E must never use a remote database.');
-  }
-  const client = new Client({ connectionString: databaseUrl });
-  await client.connect();
+  const client = await connectDisposableDatabase();
 
   const slug = 'agent-writer-' + randomUUID().slice(0, 13);
   let projectId: number | undefined;
@@ -166,12 +173,7 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
 });
 
 test('a published article cannot be proposed through generic PATCH', async ({ request }) => {
-  const url = process.env.DATABASE_URL;
-  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
-    throw new Error('Published article E2E requires an isolated local DB.');
-  }
-  const client = new Client({ connectionString: url });
-  await client.connect();
+  const client = await connectDisposableDatabase();
   const slug = 'agent-published-' + randomUUID().slice(0, 13);
   let id: number | undefined;
   try {
@@ -203,12 +205,7 @@ test('a published article cannot be proposed through generic PATCH', async ({ re
 });
 
 test('a human can reject an agent proposal; rejection grants no token', async ({ request, page }) => {
-  const url = process.env.DATABASE_URL;
-  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
-    throw new Error('Approval E2E requires a disposable database.');
-  }
-  const client = new Client({ connectionString: url });
-  await client.connect();
+  const client = await connectDisposableDatabase();
   const slug = 'agent-rejected-' + randomUUID().slice(0, 13);
   const id = randomUUID();
   const path = '/api/agent/v1/projects/' + slug;
@@ -245,6 +242,91 @@ test('a human can reject an agent proposal; rejection grants no token', async ({
     expect(row.rows[0]).toEqual({ revision: 1, description: 'Original content' });
   } finally {
     if (projectId !== undefined) await client.query('DELETE FROM projects WHERE id=$1', [projectId]);
+    await client.end();
+  }
+});
+
+
+test('a new article requires human approval and remains an unpublished draft', async ({ request, page }) => {
+  const client = await connectDisposableDatabase();
+  const slug = 'agent-new-draft-' + randomUUID().slice(0, 13);
+  const key = randomUUID();
+  const resource = '/api/agent/v1/posts';
+  const draft = {
+    title: 'Human reviewed article',
+    slug,
+    excerpt: 'Draft summary',
+    body: '# Only the owner can publish this',
+    tags: ['agent-test'],
+  };
+  const headers = {
+    Authorization: agentKey,
+    'If-None-Match': '*',
+    'Idempotency-Key': key,
+  };
+
+  try {
+    const unapproved = await request.post(resource, { headers, data: draft });
+    expect(unapproved.status()).toBe(403);
+    const noPremature = await client.query('SELECT id FROM posts WHERE slug = $1', [slug]);
+    expect(noPremature.rowCount).toBe(0);
+
+    const wrongPublished = await request.post('/api/agent/v1/proposals', {
+      headers,
+      data: { resource, patch: { ...draft, published: true } },
+    });
+    expect(wrongPublished.status()).toBe(422);
+
+    const wrongPrecondition = await request.post('/api/agent/v1/proposals', {
+      headers: { Authorization: agentKey, 'If-Match': '"1"', 'Idempotency-Key': randomUUID() },
+      data: { resource, patch: draft },
+    });
+    expect(wrongPrecondition.status()).toBe(428);
+
+    const approve = await loginAndApprove(page, request);
+    const signed = await approve(resource, 0, key, draft);
+    const response = await request.post(resource, {
+      headers: { ...headers, 'X-Agent-Approval': signed },
+      data: draft,
+    });
+    expect(response.status(), await response.text()).toBe(201);
+
+    const again = await request.post(resource, {
+      headers: { ...headers, 'X-Agent-Approval': signed },
+      data: draft,
+    });
+    expect(again.status()).toBe(201);
+
+    const rows = await client.query<{
+      id: number; published: boolean; revision: number; title: string;
+    }>('SELECT id, published, revision, title FROM posts WHERE slug = $1', [slug]);
+    expect(rows.rows).toHaveLength(1);
+    expect(rows.rows[0].published).toBe(false);
+    expect(rows.rows[0].revision).toBe(1);
+    expect(rows.rows[0].title).toBe(draft.title);
+
+    const history = await client.query<{ actor_id: string; request_id: string; revision: number }>(
+      'SELECT actor_id, request_id, revision FROM content_changes WHERE entity_type = $1 AND entity_id = $2',
+      ['posts', rows.rows[0].id],
+    );
+    expect(history.rows).toEqual([{
+      actor_id: 'agent:isolated-e2e',
+      request_id: key,
+      revision: 1,
+    }]);
+    const ledger = await client.query<{ approval_id: string }>(
+      'SELECT approval_id FROM agent_write_requests WHERE request_id = $1', [key],
+    );
+    expect(ledger.rows).toHaveLength(1);
+    expect(ledger.rows[0].approval_id).toMatch(/^[a-z0-9-]{36}$/);
+
+    const secondProposal = await request.post('/api/agent/v1/proposals', {
+      headers: { ...headers, 'Idempotency-Key': randomUUID() },
+      data: { resource, patch: draft },
+    });
+    expect(secondProposal.status()).toBe(409);
+  } finally {
+    await client.query('DELETE FROM posts WHERE slug = $1', [slug]);
     await client.end();
   }
 });
