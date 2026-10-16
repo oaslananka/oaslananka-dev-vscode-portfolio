@@ -103,7 +103,7 @@ const writingSchema = z
   )
   .max(limits.writingCount);
 
-const profileInputSchema = z.object({
+export const profileInputSchema = z.object({
   name: requiredString(limits.shortTextLength),
   role: requiredString(limits.shortTextLength),
   tagline: trimmedString(limits.mediumTextLength),
@@ -124,7 +124,7 @@ const profileInputSchema = z.object({
   writing: writingSchema,
 });
 
-const settingsInputSchema = z.object({
+export const settingsInputSchema = z.object({
   siteTitle: requiredString(limits.shortTextLength),
   siteDescription: trimmedString(limits.mediumTextLength),
   keywords: tagListSchema,
@@ -132,7 +132,7 @@ const settingsInputSchema = z.object({
   ogHeading: trimmedString(limits.shortTextLength),
 });
 
-const projectInputSchema = z
+export const projectInputSchema = z
   .object({
     title: requiredString(limits.shortTextLength),
     slug: requiredString(limits.slugLength).refine(
@@ -184,7 +184,7 @@ const projectInputSchema = z
     });
   });
 
-const postInputSchema = z.object({
+export const postInputSchema = z.object({
   title: requiredString(limits.shortTextLength),
   slug: requiredString(limits.slugLength).refine(
     isCanonicalSlug,
