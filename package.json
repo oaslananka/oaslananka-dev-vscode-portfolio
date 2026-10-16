@@ -37,13 +37,13 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "@next/third-parties": "^16.3.8",
+    "@next/third-parties": "16.3.8",
     "@sentry/nextjs": "^11.0.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.12",
-    "next": "^16.3.8",
+    "next": "16.3.8",
     "pg": "^8.22.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -66,7 +66,7 @@
     "c8": "^12.0.0",
     "drizzle-kit": "1.0.0-rc.4",
     "eslint": "^9.22.0",
-    "eslint-config-next": "^16.3.8",
+    "eslint-config-next": "16.3.8",
     "tsx": "^4.23.15",
     "typescript": "^5.8.2"
   },
@@ -74,7 +74,8 @@
     "postcss": "^8.5.26",
     "fast-uri": "^3.1.7",
     "sharp": "0.35.5",
-    "source-map-js": "^1.2.2"
+    "source-map-js": "^1.2.2",
+    "next": "16.3.8"
   },
   "packageManager": "npm@10.9.8",
   "engines": {
