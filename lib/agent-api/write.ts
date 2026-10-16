@@ -5,13 +5,24 @@ import { verifyAgentApproval } from './approval';
 
 import { verifyAgentBearer } from './auth';
 import { agentJson, AgentNotFoundError } from './response';
-import { readAgentJsonPatch, parseIfMatchRevision, parseAgentIdempotencyKey, requireCreatePrecondition, isAgentWriteConfigured, AgentWriteInputError } from './write-policy';
+import { readAgentJsonPatch, parseAgentRequestRevision, parseAgentIdempotencyKey, isAgentWriteConfigured, AgentWriteInputError } from './write-policy';
 import { db } from '@/lib/db';
 import { consumeRateLimitAttempt, type RateLimitPolicy } from '@/lib/rate-limit';
 import { AdminValidationError } from '@/lib/admin/validation';
 import { ContentRevisionConflictError } from '@/lib/content-management/revision';
 
 const writePolicy: RateLimitPolicy = { scope: 'agent-write', windowMs: 60 * 60 * 1000, maxAttempts: 30 };
+
+function agentWriteError(error: unknown): Response {
+  if (error instanceof AgentWriteInputError) return agentJson({ error: error.message }, error.status);
+  if (error instanceof AdminValidationError) return agentJson({ error: error.message }, 422);
+  if (error instanceof AgentNotFoundError) return agentJson({ error: 'Not found' }, 404);
+  if (error instanceof ContentRevisionConflictError) return agentJson({ error: 'Revision conflict; read the latest version.' }, 409);
+  if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
+    return agentJson({ error: 'Content slug already exists' }, 409);
+  }
+  return agentJson({ error: 'Content unavailable' }, 503);
+}
 
 /** Mutations are entirely disabled unless both an independent key and flag are configured. */
 export async function agentWrite(
@@ -31,13 +42,7 @@ export async function agentWrite(
   if (!db) return agentJson({ error: 'Content unavailable' }, 503);
 
   try {
-    if (options?.createDraft) {
-      requireCreatePrecondition(request.headers.get('if-none-match'), request.headers.get('if-match'));
-    } else if (request.headers.has('if-none-match')) {
-      throw new AgentWriteInputError(400, 'If-None-Match is not allowed for updates.');
-    }
-    const expectedRevision = options?.createDraft
-      ? 0 : parseIfMatchRevision(request.headers.get('if-match'));
+    const expectedRevision = parseAgentRequestRevision(request.headers, options?.createDraft === true);
     const idempotencyKey = parseAgentIdempotencyKey(request.headers.get('idempotency-key'));
     if (!await consumeRateLimitAttempt('agent-editor', writePolicy)) {
       return agentJson({ error: 'Too many requests or rate-limit unavailable' }, 429);
@@ -62,13 +67,6 @@ export async function agentWrite(
     }, async (scope) => change(body, expectedRevision, scope), connectionString);
     return new Response(null, { status: options?.createDraft ? 201 : 204, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
   } catch (error) {
-    if (error instanceof AgentWriteInputError) return agentJson({ error: error.message }, error.status);
-    if (error instanceof AdminValidationError) return agentJson({ error: error.message }, 422);
-    if (error instanceof AgentNotFoundError) return agentJson({ error: 'Not found' }, 404);
-    if (error instanceof ContentRevisionConflictError) return agentJson({ error: 'Revision conflict; read the latest version.' }, 409);
-    if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
-      return agentJson({ error: 'Content slug already exists' }, 409);
-    }
-    return agentJson({ error: 'Content unavailable' }, 503);
+    return agentWriteError(error);
   }
 }
