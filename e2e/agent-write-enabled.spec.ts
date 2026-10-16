@@ -9,6 +9,18 @@ test.skip(!enabled, 'Only against a migrated disposable PostgreSQL with explicit
 
 const agentKey = 'Bearer ' + 'e2e-write-key-' + 'w'.repeat(42);
 
+
+/** These tests must never access a non-local database. */
+async function connectDisposableDatabase(): Promise<Client> {
+  const url = process.env.DATABASE_URL;
+  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
+    throw new Error('Agent write E2E requires a local disposable database.');
+  }
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  return client;
+}
+
 async function loginAndApprove(
   page: Page,
   request: APIRequestContext,
@@ -53,12 +65,7 @@ async function loginAndApprove(
 }
 
 test('actor-attributed writes are transactional, idempotent and reject stale revisions', async ({ request, page }) => {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl || !['127.0.0.1', 'localhost'].includes(new URL(databaseUrl).hostname)) {
-    throw new Error('Agent write E2E must never use a remote database.');
-  }
-  const client = new Client({ connectionString: databaseUrl });
-  await client.connect();
+  const client = await connectDisposableDatabase();
 
   const slug = 'agent-writer-' + randomUUID().slice(0, 13);
   let projectId: number | undefined;
@@ -166,12 +173,7 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
 });
 
 test('a published article cannot be proposed through generic PATCH', async ({ request }) => {
-  const url = process.env.DATABASE_URL;
-  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
-    throw new Error('Published article E2E requires an isolated local DB.');
-  }
-  const client = new Client({ connectionString: url });
-  await client.connect();
+  const client = await connectDisposableDatabase();
   const slug = 'agent-published-' + randomUUID().slice(0, 13);
   let id: number | undefined;
   try {
@@ -203,12 +205,7 @@ test('a published article cannot be proposed through generic PATCH', async ({ re
 });
 
 test('a human can reject an agent proposal; rejection grants no token', async ({ request, page }) => {
-  const url = process.env.DATABASE_URL;
-  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
-    throw new Error('Approval E2E requires a disposable database.');
-  }
-  const client = new Client({ connectionString: url });
-  await client.connect();
+  const client = await connectDisposableDatabase();
   const slug = 'agent-rejected-' + randomUUID().slice(0, 13);
   const id = randomUUID();
   const path = '/api/agent/v1/projects/' + slug;
@@ -251,12 +248,7 @@ test('a human can reject an agent proposal; rejection grants no token', async ({
 
 
 test('a new article requires human approval and remains an unpublished draft', async ({ request, page }) => {
-  const url = process.env.DATABASE_URL;
-  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
-    throw new Error('Creation E2E requires a disposable database.');
-  }
-  const client = new Client({ connectionString: url });
-  await client.connect();
+  const client = await connectDisposableDatabase();
   const slug = 'agent-new-draft-' + randomUUID().slice(0, 13);
   const key = randomUUID();
   const resource = '/api/agent/v1/posts';
