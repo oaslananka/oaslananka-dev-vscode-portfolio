@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "oaslananka.dev explicitly gated content updates",
-    "version": "0.3.0-disabled",
+    "version": "0.4.0-disabled",
     "description": "Human reviewed proposals and revision-safe PATCH; disabled until schema-first rollout and provider connection."
   },
   "security": [
@@ -432,7 +432,7 @@
             "description": "Writer disabled"
           }
         },
-        "description": "Edits require If-Match. New unpublished article drafts require If-None-Match: * and resource /api/agent/v1/posts. Proposal does not create content."
+        "description": "Edits use If-Match; new private article/project drafts use If-None-Match: * and matching collection path. Proposals do not create or publish content."
       }
     },
     "/api/agent/v1/proposals/{requestId}": {
@@ -562,6 +562,160 @@
           },
           "503": {
             "description": "Write mode disabled"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/projects": {
+      "post": {
+        "operationId": "createUnpublishedProjectDraft",
+        "summary": "Create a private project draft after explicit administrator approval",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-None-Match",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "*"
+              ]
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Agent-Approval",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "slug",
+                  "description"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "minLength": 1
+                  },
+                  "slug": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                  },
+                  "longDescription": {
+                    "type": "string",
+                    "maxLength": 100000
+                  },
+                  "role": {
+                    "type": "string",
+                    "maxLength": 160
+                  },
+                  "logo": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "coverImage": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "coverImageAlt": {
+                    "type": "string",
+                    "maxLength": 240
+                  },
+                  "link": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "repo": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "tags": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 80
+                    }
+                  },
+                  "outcomes": {
+                    "type": "array",
+                    "maxItems": 8,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "media": {
+                    "type": "array",
+                    "maxItems": 12,
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "links": {
+                    "type": "array",
+                    "maxItems": 12,
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "sortOrder": {
+                    "type": "integer",
+                    "minimum": -10000,
+                    "maximum": 10000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Private project draft created or exact request retried"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Approval missing or mismatched"
+          },
+          "409": {
+            "description": "Slug or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid project"
+          },
+          "428": {
+            "description": "Create precondition missing"
+          },
+          "503": {
+            "description": "Write API disabled"
           }
         }
       }

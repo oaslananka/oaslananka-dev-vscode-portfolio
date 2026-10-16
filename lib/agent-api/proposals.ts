@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { profile, siteSettings, projects, posts } from '@/lib/db/schema';
 import {
-  parseAgentDraftPostInput, parseAgentPostInput, parseAgentProfileInput,
+  parseAgentDraftPostInput, parseAgentDraftProjectInput, parseAgentPostInput, parseAgentProfileInput,
   parseAgentProjectInput, parseAgentSettingsInput,
 } from '@/lib/content-management/json-input';
 import { isCanonicalSlug } from '@/lib/slug-policy';
@@ -15,13 +15,14 @@ import { AgentNotFoundError } from './response';
 import { AgentWriteInputError } from './write-policy';
 
 export type EditableResource =
-  | { kind: 'profile' | 'settings' | 'draftPost' }
+  | { kind: 'profile' | 'settings' | 'draftPost' | 'draftProject' }
   | { kind: 'project' | 'post'; slug: string };
 
 export function parseEditableResource(value: string): EditableResource {
   if (value === '/api/agent/v1/profile') return { kind: 'profile' };
   if (value === '/api/agent/v1/settings') return { kind: 'settings' };
   if (value === '/api/agent/v1/posts') return { kind: 'draftPost' };
+  if (value === '/api/agent/v1/projects') return { kind: 'draftProject' };
   if (value.length > 320) throw new AgentWriteInputError(400, 'Resource too long.');
   const match = /^\/api\/agent\/v1\/(projects|posts)\/([^/]+)$/.exec(value);
   if (match && isCanonicalSlug(match[2]) && value.length <= 320) {
@@ -59,6 +60,21 @@ async function validateNewDraft(
   return { current: {} };
 }
 
+async function validateNewProjectDraft(
+  database: NonNullable<typeof db>,
+  revision: number,
+  patch: Record<string, unknown>,
+): Promise<{ current: Record<string, unknown> }> {
+  if (revision !== 0) {
+    throw new AgentWriteInputError(428, 'New projects require the creation precondition.');
+  }
+  const project = parseAgentDraftProjectInput(patch);
+  const [existing] = await database.select({ id: projects.id }).from(projects)
+    .where(eq(projects.slug, project.slug)).limit(1);
+  if (existing) throw new AgentWriteInputError(409, 'Project slug already exists.');
+  return { current: {} };
+}
+
 /** Validate against current stored content without modifying it. */
 export async function validateProposal(
   resource: string,
@@ -68,6 +84,7 @@ export async function validateProposal(
   if (!db) throw new AgentWriteInputError(503, 'Content unavailable.');
   const parsed = parseEditableResource(resource);
   if (parsed.kind === 'draftPost') return validateNewDraft(db, revision, patch);
+  if (parsed.kind === 'draftProject') return validateNewProjectDraft(db, revision, patch);
   let current: Record<string, unknown> | undefined;
   switch (parsed.kind) {
     case 'profile': {

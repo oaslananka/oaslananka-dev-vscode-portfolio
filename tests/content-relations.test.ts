@@ -35,6 +35,7 @@ function project(
     media: [],
     links: [],
     featured,
+    published: true,
     sortOrder,
     createdAt: now,
     updatedAt: now,
