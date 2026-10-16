@@ -86,7 +86,7 @@ const processCommand = (input: string, profile: SiteShellData): TerminalLine[] =
 
   if (cmd === 'theme' && args[0]) {
     if (isThemeKey(args[0])) {
-      document.documentElement.setAttribute('data-theme', args[0]);
+      document.documentElement.dataset.theme = args[0];
       localStorage.setItem('theme', args[0]);
       lines.push({ type: 'output', content: `Theme changed to ${args[0]}` });
     } else {
@@ -121,6 +121,12 @@ interface TerminalProps {
   onToggle: () => void;
   shell: SiteShellData;
 }
+
+const getLineTypeClass = (type: TerminalLine['type']) => {
+  if (type === 'error') return styles.error;
+  if (type === 'input') return styles.input;
+  return '';
+};
 
 const Terminal = ({ onToggle, shell }: TerminalProps) => {
   const [lines, setLines] = useState<TerminalLine[]>([
@@ -219,20 +225,18 @@ const Terminal = ({ onToggle, shell }: TerminalProps) => {
       </div>
       <div className={styles.body} ref={terminalRef}>
         <div className={styles.output} aria-live="polite" aria-atomic="false">
-          {lines.map((line, index) => (
-            <div
-              key={index}
-              className={`${styles.line} ${
-                line.type === 'error'
-                  ? styles.error
-                  : line.type === 'input'
-                    ? styles.input
-                    : ''
-              }`}
-            >
-              {line.content}
-            </div>
-          ))}
+          {lines.map((line, index) => {
+            const typeClass = getLineTypeClass(line.type);
+            const lineClass = typeClass ? `${styles.line} ${typeClass}` : styles.line;
+            return (
+              <div
+                key={`${index}-${line.type}-${line.content}`}
+                className={lineClass}
+              >
+                {line.content}
+              </div>
+            );
+          })}
         </div>
         <form onSubmit={handleSubmit} className={styles.inputLine}>
           <span className={styles.prompt}>$</span>

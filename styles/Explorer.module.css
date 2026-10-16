@@ -56,6 +56,12 @@
   background: var(--explorer-hover-bg);
 }
 
+.file.active {
+  background: var(--explorer-hover-bg);
+  border-left: 2px solid var(--accent-color);
+  padding-left: calc(1rem - 2px);
+}
+
 .chevron {
   transition: transform 0.2s;
 }

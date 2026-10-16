@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { VscChevronRight } from '@/components/UiIcons';
 
@@ -42,6 +43,7 @@ const explorerItems = [
 
 const Explorer = () => {
   const [portfolioOpen, setPortfolioOpen] = useState(true);
+  const pathname = usePathname();
 
   return (
     <aside className={styles.explorer} aria-label="File explorer">
@@ -68,17 +70,24 @@ const Explorer = () => {
           aria-label="Portfolio files"
           hidden={!portfolioOpen}
         >
-          {explorerItems.map((item) => (
-            <Link
-              href={item.path}
-              prefetch={item.path === '/github' ? false : undefined}
-              key={item.name}
-              className={styles.file}
-            >
-              <Image src={item.icon} alt="" height={18} width={18} />
-              <span>{item.name}</span>
-            </Link>
-          ))}
+          {explorerItems.map((item) => {
+            const isActive =
+              pathname === item.path ||
+              (item.path !== '/' && pathname.startsWith(`${item.path}/`));
+
+            return (
+              <Link
+                href={item.path}
+                prefetch={item.path === '/github' ? false : undefined}
+                key={item.name}
+                className={`${styles.file} ${isActive ? styles.active : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <Image src={item.icon} alt="" height={18} width={18} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </aside>

@@ -24,7 +24,7 @@ const SettingsPage = () => {
   }, []);
 
   const handleThemeSelect = (theme: ThemeKey) => {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.dataset.theme = theme;
     localStorage.setItem('theme', theme);
     setActiveTheme(theme);
   };

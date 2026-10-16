@@ -93,7 +93,7 @@
 
 .role {
   margin: 0 0 8px;
-  color: #70a5eb;
+  color: var(--accent-color, #70a5eb);
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.45;
@@ -131,7 +131,7 @@
 
 .outcome svg {
   flex: 0 0 auto;
-  color: #5cc89a;
+  color: var(--status-success-text, #5cc89a);
   margin-top: 2px;
 }
 

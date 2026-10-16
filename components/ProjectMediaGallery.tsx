@@ -12,22 +12,59 @@ interface ProjectMediaGalleryProps {
   readonly coverImage?: string;
 }
 
+interface GalleryItemProps {
+  readonly item: ProjectMedia;
+  readonly index: number;
+  readonly totalCount: number;
+}
+
+function GalleryVideo({
+  item,
+  hasCaption,
+  captionId,
+}: {
+  readonly item: Extract<ProjectMedia, { type: 'video' }>;
+  readonly hasCaption: boolean;
+  readonly captionId: string;
+}) {
+  const videoAccessibility = resolveVideoAccessibility(item);
+
+  return (
+    <video
+      className={styles.video}
+      width={item.width}
+      height={item.height}
+      poster={item.poster}
+      preload="none"
+      controls
+      playsInline
+      muted={videoAccessibility.audio === 'none'}
+      aria-label={item.alt}
+      aria-describedby={hasCaption ? captionId : undefined}
+    >
+      <source src={item.src} type="video/mp4" />
+      {videoAccessibility.track ? (
+        <track
+          kind={videoAccessibility.track.kind}
+          src={videoAccessibility.track.src}
+          srcLang={videoAccessibility.track.srcLang}
+          label={videoAccessibility.track.label}
+          default
+        />
+      ) : null}
+      <a href={item.src}>Open the recorded project demo</a>
+    </video>
+  );
+}
+
 function GalleryItem({
   item,
   index,
   totalCount,
-}: {
-  item: ProjectMedia;
-  index: number;
-  totalCount: number;
-}) {
+}: GalleryItemProps) {
   const isFeatured = totalCount % 2 === 1 && index === 0;
-  const videoAccessibility =
-    item.type === 'video'
-      ? resolveVideoAccessibility(item)
-      : { audio: 'captions' as const, track: undefined };
+  const silent = item.type === 'video' && resolveVideoAccessibility(item).audio === 'none';
   const captionId = `project-media-caption-${index}`;
-  const silent = item.type === 'video' && videoAccessibility.audio === 'none';
   const hasCaption = Boolean(item.caption) || silent;
 
   return (
@@ -48,30 +85,11 @@ function GalleryItem({
             unoptimized={item.src.endsWith('.svg')}
           />
         ) : (
-          <video
-            className={styles.video}
-            width={item.width}
-            height={item.height}
-            poster={item.poster}
-            preload="none"
-            controls
-            playsInline
-            muted={videoAccessibility.audio === 'none'}
-            aria-label={item.alt}
-            aria-describedby={hasCaption ? captionId : undefined}
-          >
-            <source src={item.src} type="video/mp4" />
-            {videoAccessibility.track ? (
-              <track
-                kind={videoAccessibility.track.kind}
-                src={videoAccessibility.track.src}
-                srcLang={videoAccessibility.track.srcLang}
-                label={videoAccessibility.track.label}
-                default
-              />
-            ) : null}
-            <a href={item.src}>Open the recorded project demo</a>
-          </video>
+          <GalleryVideo
+            item={item}
+            hasCaption={hasCaption}
+            captionId={captionId}
+          />
         )}
       </div>
       {hasCaption ? (

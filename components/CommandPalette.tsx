@@ -221,7 +221,7 @@ const CommandPalette = ({
         const theme = filteredThemes[index];
         if (!theme) return;
 
-        document.documentElement.setAttribute('data-theme', theme.theme);
+        document.documentElement.dataset.theme = theme.theme;
         localStorage.setItem('theme', theme.theme);
         onClose();
         return;
@@ -335,6 +335,89 @@ const CommandPalette = ({
       ?.scrollIntoView({ block: 'nearest' });
   }, [activeOptionId]);
 
+  const renderResults = () => {
+    if (resultCount === 0) {
+      return (
+        <output className={styles.noResults} aria-live="polite">
+          {showThemePicker
+            ? 'No matching themes'
+            : 'No matching commands'}
+        </output>
+      );
+    }
+
+    if (showThemePicker) {
+      return filteredThemes.map((theme, index) => (
+        <button
+          key={theme.theme}
+          id={optionId(theme.theme)}
+          type="button"
+          role="option"
+          tabIndex={-1}
+          aria-selected={activeIndex === index}
+          aria-setsize={resultCount}
+          aria-posinset={index + 1}
+          className={`${styles.item} ${
+            activeIndex === index ? styles.selected : ''
+          }`}
+          onClick={() => handleSelect(index)}
+          onPointerMove={() => setSelectedIndex(index)}
+        >
+          <span className={styles.itemIcon} aria-hidden="true">
+            <VscColorMode size={16} />
+          </span>
+          <span className={styles.itemContent}>
+            <span className={styles.itemLabel}>{theme.name}</span>
+            <span className={styles.itemDescription}>
+              {theme.publisher}
+            </span>
+          </span>
+        </button>
+      ));
+    }
+
+    return filteredCommands.map((command, index) => (
+      <button
+        key={command.id}
+        id={optionId(command.id)}
+        type="button"
+        role="option"
+        tabIndex={-1}
+        aria-selected={activeIndex === index}
+        aria-setsize={resultCount}
+        aria-posinset={index + 1}
+        className={`${styles.item} ${
+          activeIndex === index ? styles.selected : ''
+        }`}
+        onClick={() => handleSelect(index)}
+        onPointerMove={() => setSelectedIndex(index)}
+      >
+        <span className={styles.itemIcon} aria-hidden="true">
+          {command.icon}
+        </span>
+        <span className={styles.itemContent}>
+          <span className={styles.itemLabel}>{command.label}</span>
+          <span className={styles.itemDescription}>
+            {command.category}
+          </span>
+        </span>
+        {command.shortcut && (
+          <span className={styles.shortcut} aria-hidden="true">
+            {command.id === 'change-theme' ? (
+              <MdNavigateNext size={16} />
+            ) : (
+              command.shortcut.split(' ').map((key) => (
+                <span key={key} className={styles.key}>
+                  {key}
+                </span>
+              ))
+            )}
+          </span>
+        )}
+      </button>
+    ));
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -433,82 +516,7 @@ const CommandPalette = ({
           role="listbox"
           aria-label={showThemePicker ? 'Color themes' : 'Commands'}
         >
-          {resultCount === 0 ? (
-            <output className={styles.noResults} aria-live="polite">
-              {showThemePicker
-                ? 'No matching themes'
-                : 'No matching commands'}
-            </output>
-          ) : showThemePicker ? (
-            filteredThemes.map((theme, index) => (
-              <button
-                key={theme.theme}
-                id={optionId(theme.theme)}
-                type="button"
-                role="option"
-                tabIndex={-1}
-                aria-selected={activeIndex === index}
-                aria-setsize={resultCount}
-                aria-posinset={index + 1}
-                className={`${styles.item} ${
-                  activeIndex === index ? styles.selected : ''
-                }`}
-                onClick={() => handleSelect(index)}
-                onPointerMove={() => setSelectedIndex(index)}
-              >
-                <span className={styles.itemIcon} aria-hidden="true">
-                  <VscColorMode size={16} />
-                </span>
-                <span className={styles.itemContent}>
-                  <span className={styles.itemLabel}>{theme.name}</span>
-                  <span className={styles.itemDescription}>
-                    {theme.publisher}
-                  </span>
-                </span>
-              </button>
-            ))
-          ) : (
-            filteredCommands.map((command, index) => (
-              <button
-                key={command.id}
-                id={optionId(command.id)}
-                type="button"
-                role="option"
-                tabIndex={-1}
-                aria-selected={activeIndex === index}
-                aria-setsize={resultCount}
-                aria-posinset={index + 1}
-                className={`${styles.item} ${
-                  activeIndex === index ? styles.selected : ''
-                }`}
-                onClick={() => handleSelect(index)}
-                onPointerMove={() => setSelectedIndex(index)}
-              >
-                <span className={styles.itemIcon} aria-hidden="true">
-                  {command.icon}
-                </span>
-                <span className={styles.itemContent}>
-                  <span className={styles.itemLabel}>{command.label}</span>
-                  <span className={styles.itemDescription}>
-                    {command.category}
-                  </span>
-                </span>
-                {command.shortcut && (
-                  <span className={styles.shortcut} aria-hidden="true">
-                    {command.id === 'change-theme' ? (
-                      <MdNavigateNext size={16} />
-                    ) : (
-                      command.shortcut.split(' ').map((key) => (
-                        <span key={key} className={styles.key}>
-                          {key}
-                        </span>
-                      ))
-                    )}
-                  </span>
-                )}
-              </button>
-            ))
-          )}
+          {renderResults()}
         </div>
       </div>
     </dialog>

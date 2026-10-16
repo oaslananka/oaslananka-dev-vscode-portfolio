@@ -15,7 +15,12 @@ export default function SocialCard({
   host,
   labels = [],
 }: SocialCardProps) {
-  const fontSize = title.length > 70 ? 50 : title.length > 42 ? 58 : 68;
+  let fontSize = 68;
+  if (title.length > 70) {
+    fontSize = 50;
+  } else if (title.length > 42) {
+    fontSize = 58;
+  }
 
   return (
     <div
