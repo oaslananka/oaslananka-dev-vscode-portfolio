@@ -52,7 +52,7 @@ for (const route of routes) {
 
 test('open command palette has no WCAG A/AA violations', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open Command Palette' }).click();
+  await page.getByRole('button', { name: /Open Command Palette/i }).click();
   await expect(page.getByRole('dialog', { name: 'Command palette' })).toBeVisible();
 
   await expectNoWcagViolations(page);
