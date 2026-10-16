@@ -1,0 +1,288 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "oaslananka.dev explicitly gated content updates",
+    "version": "0.1.0-disabled",
+    "description": "This API MUST NOT be enabled or imported into a production Ops connection before write-mode authorization and E2E acceptance."
+  },
+  "security": [
+    {
+      "agentWriteBearer": []
+    }
+  ],
+  "paths": {
+    "/api/agent/v1/profile": {
+      "patch": {
+        "operationId": "patchProfile",
+        "summary": "Update existing profile",
+        "description": "Disabled until a distinct write secret and explicit feature switch are configured. Requires current record revision and accepts only approved content fields.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "description": "Strong quoted integer revision from private GET. Example: \"1\"",
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated; re-read to obtain the latest revision"
+          },
+          "400": {
+            "description": "Malformed JSON or invalid precondition"
+          },
+          "401": {
+            "description": "Write bearer token not authorized"
+          },
+          "403": {
+            "description": "Publishing operation prohibited by this API"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "415": {
+            "description": "Unsupported media type"
+          },
+          "422": {
+            "description": "Content validation failed"
+          },
+          "428": {
+            "description": "Revision precondition required"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "503": {
+            "description": "Write access disabled or unavailable"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/settings": {
+      "patch": {
+        "operationId": "patchSettings",
+        "summary": "Update existing settings",
+        "description": "Disabled until a distinct write secret and explicit feature switch are configured. Requires current record revision and accepts only approved content fields.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "description": "Strong quoted integer revision from private GET. Example: \"1\"",
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated; re-read to obtain the latest revision"
+          },
+          "400": {
+            "description": "Malformed JSON or invalid precondition"
+          },
+          "401": {
+            "description": "Write bearer token not authorized"
+          },
+          "403": {
+            "description": "Publishing operation prohibited by this API"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "415": {
+            "description": "Unsupported media type"
+          },
+          "422": {
+            "description": "Content validation failed"
+          },
+          "428": {
+            "description": "Revision precondition required"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "503": {
+            "description": "Write access disabled or unavailable"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/projects/{slug}": {
+      "patch": {
+        "operationId": "patchProject",
+        "summary": "Update existing project",
+        "description": "Disabled until a distinct write secret and explicit feature switch are configured. Requires current record revision and accepts only approved content fields.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "description": "Strong quoted integer revision from private GET. Example: \"1\"",
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated; re-read to obtain the latest revision"
+          },
+          "400": {
+            "description": "Malformed JSON or invalid precondition"
+          },
+          "401": {
+            "description": "Write bearer token not authorized"
+          },
+          "403": {
+            "description": "Publishing operation prohibited by this API"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "415": {
+            "description": "Unsupported media type"
+          },
+          "422": {
+            "description": "Content validation failed"
+          },
+          "428": {
+            "description": "Revision precondition required"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "503": {
+            "description": "Write access disabled or unavailable"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/posts/{slug}": {
+      "patch": {
+        "operationId": "patchPost",
+        "summary": "Update existing article; publishing fields forbidden",
+        "description": "Disabled until a distinct write secret and explicit feature switch are configured. Requires current record revision and accepts only approved content fields.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "description": "Strong quoted integer revision from private GET. Example: \"1\"",
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated; re-read to obtain the latest revision"
+          },
+          "400": {
+            "description": "Malformed JSON or invalid precondition"
+          },
+          "401": {
+            "description": "Write bearer token not authorized"
+          },
+          "403": {
+            "description": "Publishing operation prohibited by this API"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "415": {
+            "description": "Unsupported media type"
+          },
+          "422": {
+            "description": "Content validation failed"
+          },
+          "428": {
+            "description": "Revision precondition required"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "503": {
+            "description": "Write access disabled or unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "agentWriteBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Separate write key, never the read-only key"
+      }
+    }
+  }
+}
