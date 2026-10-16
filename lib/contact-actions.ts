@@ -1,7 +1,6 @@
 'use server';
 
 import * as Sentry from '@sentry/nextjs';
-import { lt } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { after } from 'next/server';
 import { z } from 'zod';
@@ -58,19 +57,6 @@ function retentionDate(): Date {
   return expiresAt;
 }
 
-async function purgeExpiredMessages(): Promise<void> {
-  if (!db) return;
-
-  try {
-    await db
-      .delete(contactMessages)
-      .where(lt(contactMessages.retentionExpiresAt, new Date()));
-  } catch (error) {
-    Sentry.captureException(error, {
-      tags: { component: 'contact-retention' },
-    });
-  }
-}
 
 async function runContactNotificationSafely(messageId: number): Promise<void> {
   try {
@@ -152,12 +138,11 @@ export async function submitContact(
     return { ok: false, message: 'Something went wrong. Please try again.' };
   }
 
-  after(async () => {
-    await purgeExpiredMessages();
-    if (process.env.RESEND_API_KEY) {
+  if (process.env.RESEND_API_KEY) {
+    after(async () => {
       await runContactNotificationSafely(messageId);
-    }
-  });
+    });
+  }
 
   return { ok: true, message: 'Thanks — your message has been sent.' };
 }

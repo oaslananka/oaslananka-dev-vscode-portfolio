@@ -19,20 +19,22 @@ interface ThemeInfoProps {
 const ThemeInfo = ({ icon, name, publisher, theme, isActive, onSelect }: ThemeInfoProps) => {
   return (
     <button
+      type="button"
       className={`${styles.card} ${isActive ? styles.active : ''}`}
       onClick={() => onSelect(theme)}
+      aria-pressed={isActive}
     >
       <div className={styles.preview}>
         <Image
           src={icon}
-          alt={name}
+          alt=""
           height={40}
           width={40}
           className={styles.icon}
         />
         {isActive && (
           <div className={styles.check}>
-            <VscCheck size={14} />
+            <VscCheck size={14} aria-hidden="true" />
           </div>
         )}
       </div>

@@ -73,7 +73,7 @@
 .dot {
   width: 8px;
   height: 8px;
-  background: #4ec9b0;
+  background: var(--status-success-text, #4ec9b0);
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -103,7 +103,7 @@
 }
 
 .iconButton:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, var(--text-color));
   background: rgba(255, 255, 255, 0.07);
   border-color: var(--text-muted);
   transform: translateY(-2px);

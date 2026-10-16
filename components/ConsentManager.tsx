@@ -323,34 +323,43 @@ export default function ConsentManager({
   const panelOpen = choice === null || settingsOpen;
   const analyticsAllowed = choice === 'analytics';
 
-  return (
-    <>
-      {analyticsAllowed ? (
-        <AnalyticsScripts gaId={gaId} gtmId={gtmId} metaPixelId={metaPixelId} />
-      ) : null}
-
-      {panelOpen ? (
+  const renderControl = () => {
+    if (panelOpen) {
+      return (
         <PrivacyPanel
           choice={choice}
           onChoose={choose}
           onClose={closeSettings}
           panelRef={panelRef}
         />
-      ) : privacyControlSlot ? (
-        createPortal(
-          <button
-            aria-label="Open privacy choices"
-            className={styles.settingsButton}
-            onClick={() => setSettingsOpen(true)}
-            ref={settingsButtonRef}
-            title="Privacy choices"
-            type="button"
-          >
-            <VscShield aria-hidden="true" size={17} />
-          </button>,
-          privacyControlSlot,
-        )
+      );
+    }
+
+    if (privacyControlSlot) {
+      return createPortal(
+        <button
+          aria-label="Open privacy choices"
+          className={styles.settingsButton}
+          onClick={() => setSettingsOpen(true)}
+          ref={settingsButtonRef}
+          title="Privacy choices"
+          type="button"
+        >
+          <VscShield aria-hidden="true" size={17} />
+        </button>,
+        privacyControlSlot,
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <>
+      {analyticsAllowed ? (
+        <AnalyticsScripts gaId={gaId} gtmId={gtmId} metaPixelId={metaPixelId} />
       ) : null}
+      {renderControl()}
     </>
   );
 }

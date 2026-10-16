@@ -17,6 +17,7 @@ for (const script of scripts) {
   const result = spawnSync(npmCommand, ['run', script], {
     env: process.env,
     stdio: 'inherit',
+    shell: process.platform === 'win32',
   });
 
   if (result.error) throw result.error;

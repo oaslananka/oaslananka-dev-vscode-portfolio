@@ -97,8 +97,8 @@ export default async function AboutPage() {
     title: `About ${profile.name}`,
     body: (
       <AboutSectionBody>
-        {profile.bio.map((p, i) => (
-          <p key={i} className={styles.paragraph}>
+        {profile.bio.map((p) => (
+          <p key={p} className={styles.paragraph}>
             {p}
           </p>
         ))}
@@ -111,8 +111,8 @@ export default async function AboutPage() {
       title: 'Experience',
       body: (
         <AboutSectionBody>
-          {profile.experience.map((exp, i) => (
-            <div key={i} className={styles.experienceCard}>
+          {profile.experience.map((exp) => (
+            <div key={`${exp.period}:${exp.role}:${exp.company}`} className={styles.experienceCard}>
               <div className={styles.expMeta}>
                 <span className={styles.expPeriod}>{exp.period}</span>
               </div>
@@ -123,8 +123,8 @@ export default async function AboutPage() {
               )}
               {exp.points.length > 0 && (
                 <ul className={styles.expList}>
-                  {exp.points.map((pt, j) => (
-                    <li key={j}>{pt}</li>
+                  {exp.points.map((pt) => (
+                    <li key={pt}>{pt}</li>
                   ))}
                 </ul>
               )}
@@ -163,8 +163,8 @@ export default async function AboutPage() {
       body: (
         <AboutSectionBody>
           <div className={styles.skillsGrid}>
-            {profile.skills.map((group, i) => (
-              <div key={i} className={styles.skillCategory}>
+            {profile.skills.map((group) => (
+              <div key={group.category} className={styles.skillCategory}>
                 <h3 className={styles.skillTitle}>{group.category}</h3>
                 <div className={styles.skillTags}>
                   {group.items.map((item) => (

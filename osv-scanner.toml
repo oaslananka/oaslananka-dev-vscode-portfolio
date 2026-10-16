@@ -1,0 +1,6 @@
+# osv-scanner configuration
+# https://google.github.io/osv-scanner/configuration/
+
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+reason = "Dev dependency in eslint-config-next with no upstream fix available"
