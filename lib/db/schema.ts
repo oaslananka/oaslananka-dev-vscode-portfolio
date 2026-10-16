@@ -93,6 +93,7 @@ export const profile = pgTable(
       .notNull()
       .default([]),
     writing: jsonb('writing').$type<WritingLink[]>().notNull().default([]),
+    revision: integer('revision').notNull().default(1),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -151,6 +152,7 @@ export const projects = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
+    revision: integer('revision').notNull().default(1),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -198,6 +200,7 @@ export const posts = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
+    revision: integer('revision').notNull().default(1),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -222,6 +225,7 @@ export const siteSettings = pgTable(
     keywords: jsonb('keywords').$type<string[]>().notNull().default([]),
     defaultTheme: text('default_theme').notNull().default('github-dark'),
     ogHeading: text('og_heading').notNull().default(''),
+    revision: integer('revision').notNull().default(1),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -236,6 +240,27 @@ export const siteSettings = pgTable(
       'site_settings_theme_check',
       sql`${table.defaultTheme} in ('github-dark', 'dracula', 'ayu-dark', 'ayu-mirage', 'nord', 'night-owl')`,
     ),
+  ],
+);
+
+// Append-only content history is written transactionally by database triggers.
+// Revision conflicts for API writes will be checked with a conditional update.
+export const contentChanges = pgTable(
+  'content_changes',
+  {
+    id: serial('id').primaryKey(),
+    entityType: text('entity_type').notNull(),
+    entityId: integer('entity_id').notNull(),
+    revision: integer('revision').notNull(),
+    operation: text('operation').notNull(),
+    before: jsonb('before'),
+    after: jsonb('after'),
+    recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('content_changes_entity_check', sql`${table.entityType} in ('profile', 'site_settings', 'projects', 'posts')`),
+    check('content_changes_operation_check', sql`${table.operation} in ('insert', 'update', 'delete')`),
+    index('content_changes_lookup_idx').on(table.entityType, table.entityId, table.revision),
   ],
 );
 

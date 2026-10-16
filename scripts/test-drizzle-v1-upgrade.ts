@@ -29,9 +29,11 @@ const legacyMigrationTimestamps = [
   1_785_110_400_000,
 ] as const;
 
-assert.equal(migrationFolders.length, legacyMigrationTimestamps.length);
+assert.ok(migrationFolders.length > legacyMigrationTimestamps.length);
 
-const migrations: MigrationFixture[] = migrationFolders.map((folder, index) => {
+const migrations: MigrationFixture[] = migrationFolders
+  .slice(0, legacyMigrationTimestamps.length)
+  .map((folder, index) => {
   const sql = readFileSync(resolve(migrationsRoot, folder, 'migration.sql'), 'utf8');
   return {
     folder,
@@ -141,20 +143,23 @@ async function main(): Promise<void> {
         FROM drizzle.__drizzle_migrations
         ORDER BY id
       `);
-      assert.equal(history.rowCount, migrations.length);
+      assert.equal(history.rowCount, migrations.length + 1);
+      const legacyRows = history.rows.slice(0, migrations.length);
       assert.deepEqual(
-        history.rows.map((row) => row.name),
+        legacyRows.map((row) => row.name),
         migrations.map((migration) => migration.folder),
       );
       assert.deepEqual(
-        history.rows.map((row) => row.hash),
+        legacyRows.map((row) => row.hash),
         migrations.map((migration) => migration.hash),
       );
       assert.deepEqual(
-        history.rows.map((row) => row.created_at),
+        legacyRows.map((row) => row.created_at),
         migrations.map((migration) => String(migration.timestamp)),
       );
-      assert.equal(history.rows.every((row) => row.applied_at === null), true);
+      assert.equal(legacyRows.every((row) => row.applied_at === null), true);
+      assert.equal(history.rows.at(-1)?.name, migrationFolders.at(-1));
+      assert.ok(history.rows.at(-1)?.applied_at, 'new migration must be applied');
 
       const after = await fixture.query<{
         posts: string;
@@ -169,7 +174,7 @@ async function main(): Promise<void> {
           (SELECT count(*)::text FROM site_settings) AS settings
       `);
       assert.deepEqual(after.rows, before.rows);
-      console.log(`Drizzle v1 upgraded ${history.rowCount} legacy migration records without replaying SQL.`);
+      console.log(`Drizzle v1 preserved ${migrations.length} legacy migration records and applied ${history.rowCount - migrations.length} new migration(s).`);
     } finally {
       await fixture.end();
     }

@@ -10,6 +10,7 @@ export const REQUIRED_APPLICATION_TABLES = [
   'projects',
   'posts',
   'site_settings',
+  'content_changes',
   'contact_messages',
   'login_attempts',
 ] as const;
