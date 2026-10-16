@@ -17,17 +17,17 @@ ALTER TABLE "projects" ADD COLUMN "revision" integer DEFAULT 1 NOT NULL;--> stat
 ALTER TABLE "site_settings" ADD COLUMN "revision" integer DEFAULT 1 NOT NULL;--> statement-breakpoint
 CREATE INDEX "content_changes_lookup_idx" ON "content_changes" ("entity_type","entity_id","revision");--> statement-breakpoint
 -- Keep a baseline snapshot for preexisting content before enabling the row triggers.
-INSERT INTO content_changes (entity_type, entity_id, revision, operation, "after")
-SELECT 'profile', id, revision, 'insert', to_jsonb(profile) FROM profile;
---> statement-breakpoint
-INSERT INTO content_changes (entity_type, entity_id, revision, operation, "after")
-SELECT 'site_settings', id, revision, 'insert', to_jsonb(site_settings) FROM site_settings;
---> statement-breakpoint
-INSERT INTO content_changes (entity_type, entity_id, revision, operation, "after")
-SELECT 'projects', id, revision, 'insert', to_jsonb(projects) FROM projects;
---> statement-breakpoint
-INSERT INTO content_changes (entity_type, entity_id, revision, operation, "after")
-SELECT 'posts', id, revision, 'insert', to_jsonb(posts) FROM posts;
+INSERT INTO content_changes (entity_type, entity_id, revision, operation, after)
+SELECT entity_type, entity_id, revision, 'insert', row_content
+FROM (
+  SELECT 'profile' AS entity_type, id AS entity_id, revision, to_jsonb(profile) AS row_content FROM profile
+  UNION ALL
+  SELECT 'site_settings', id, revision, to_jsonb(site_settings) FROM site_settings
+  UNION ALL
+  SELECT 'projects', id, revision, to_jsonb(projects) FROM projects
+  UNION ALL
+  SELECT 'posts', id, revision, to_jsonb(posts) FROM posts
+) AS initial_rows;
 --> statement-breakpoint
 -- Revision numbers are assigned exclusively by the database, even for admin writes.
 CREATE FUNCTION content_revision_before_write() RETURNS trigger
@@ -50,15 +50,15 @@ CREATE FUNCTION content_revision_log_write() RETURNS trigger
 LANGUAGE plpgsql AS $content_audit$
 BEGIN
   IF TG_OP = 'INSERT' THEN
-    INSERT INTO content_changes(entity_type, entity_id, revision, operation, "before", "after")
+    INSERT INTO content_changes(entity_type, entity_id, revision, operation, before, after)
     VALUES (TG_TABLE_NAME, NEW.id, NEW.revision, 'insert', NULL, to_jsonb(NEW));
     RETURN NEW;
   ELSIF TG_OP = 'UPDATE' THEN
-    INSERT INTO content_changes(entity_type, entity_id, revision, operation, "before", "after")
+    INSERT INTO content_changes(entity_type, entity_id, revision, operation, before, after)
     VALUES (TG_TABLE_NAME, NEW.id, NEW.revision, 'update', to_jsonb(OLD), to_jsonb(NEW));
     RETURN NEW;
   ELSE
-    INSERT INTO content_changes(entity_type, entity_id, revision, operation, "before", "after")
+    INSERT INTO content_changes(entity_type, entity_id, revision, operation, before, after)
     VALUES (TG_TABLE_NAME, OLD.id, OLD.revision + 1, 'delete', to_jsonb(OLD), NULL);
     RETURN OLD;
   END IF;

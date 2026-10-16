@@ -56,7 +56,6 @@ jobs:
       CONTACT_NOTIFICATION_TEST_DATABASE_URL: postgresql://portfolio:portfolio@127.0.0.1:5432/portfolio_test
       RATE_LIMIT_TEST_DATABASE_URL: postgresql://portfolio:portfolio@127.0.0.1:5432/portfolio_test
       DB_PREFLIGHT_TEST_DATABASE_URL: postgresql://portfolio:portfolio@127.0.0.1:5432/portfolio_test
-      CONTENT_HISTORY_TEST_DATABASE_URL: postgresql://portfolio:portfolio@127.0.0.1:5432/portfolio_test
       AUTH_SECRET: ci-e2e-auth-secret-not-used-in-production
       SITE_URL: http://127.0.0.1:3100
       E2E_GITHUB_FIXTURE: 'true'
@@ -87,6 +86,8 @@ jobs:
         run: npm run db:migrate
 
       - name: Test with critical-module coverage thresholds
+        env:
+          CONTENT_HISTORY_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
         run: npm run test:coverage
 
       - name: Validate agent evaluation corpus
