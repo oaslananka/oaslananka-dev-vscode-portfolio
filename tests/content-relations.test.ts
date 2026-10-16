@@ -19,6 +19,7 @@ function project(
 ): Project {
   return {
     id: sortOrder + 1,
+    revision: 1,
     slug,
     title: slug,
     description: slug,
@@ -43,6 +44,7 @@ function project(
 function post(slug: string, tags: string[], updatedAt = now): Post {
   return {
     id: slug.length,
+    revision: 1,
     slug,
     title: slug,
     excerpt: slug,

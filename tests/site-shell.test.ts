@@ -11,6 +11,7 @@ function profile(overrides: Partial<Profile> = {}): Profile {
     ...defaultProfile,
     updatedAt: new Date('2026-07-21T00:00:00.000Z'),
     ...overrides,
+    revision: overrides.revision ?? 1,
   };
 }
 

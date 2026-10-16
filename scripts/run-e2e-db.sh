@@ -36,6 +36,7 @@ export DATABASE_URL="${database_url}"
 export DATABASE_URL_UNPOOLED="${database_url}"
 export DATABASE_DRIVER="node-postgres"
 export RATE_LIMIT_TEST_DATABASE_URL="${database_url}"
+export CONTENT_HISTORY_TEST_DATABASE_URL="${database_url}"
 
 npm run db:migrate
 npm test

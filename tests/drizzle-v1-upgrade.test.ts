@@ -48,7 +48,8 @@ test('migration v3 conversion preserves every SQL file byte-for-byte', () => {
     .filter((name) => statSync(new URL(name, migrationsRoot)).isDirectory())
     .sort();
 
-  assert.equal(directories.length, expectedMigrationHashes.length);
+  assert.equal(directories.length, expectedMigrationHashes.length + 1);
+  assert.ok(directories.at(-1)?.endsWith('content-audit-revisions'));
   assert.equal(directories.some((name) => name === 'meta'), false);
 
   const actualHashes = directories.map((directory) =>
@@ -56,7 +57,7 @@ test('migration v3 conversion preserves every SQL file byte-for-byte', () => {
       .update(read(`lib/db/migrations/${directory}/migration.sql`))
       .digest('hex'),
   );
-  assert.deepEqual(actualHashes, expectedMigrationHashes);
+  assert.deepEqual(actualHashes.slice(0, expectedMigrationHashes.length), expectedMigrationHashes);
 });
 
 test('Drizzle config pins the legacy migration history location', () => {

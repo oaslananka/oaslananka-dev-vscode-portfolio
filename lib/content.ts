@@ -70,12 +70,13 @@ async function readContent<T>(
 }
 
 function fallbackProfile(): Profile {
-  return { id: 1, updatedAt: now(), ...defaultProfile };
+  return { id: 1, revision: 1, updatedAt: now(), ...defaultProfile };
 }
 
 function fallbackProjects(): Project[] {
   return defaultProjects.map((p, i) => ({
     id: i + 1,
+    revision: 1,
     createdAt: now(),
     updatedAt: now(),
     ...p,
@@ -85,6 +86,7 @@ function fallbackProjects(): Project[] {
 function fallbackPosts(): Post[] {
   return defaultPosts.map((p, i) => ({
     id: i + 1,
+    revision: 1,
     publishedAt: now(),
     createdAt: now(),
     updatedAt: now(),
@@ -93,7 +95,7 @@ function fallbackPosts(): Post[] {
 }
 
 function fallbackSettings(): SiteSettings {
-  return { id: 1, updatedAt: now(), ...defaultSettings };
+  return { id: 1, revision: 1, updatedAt: now(), ...defaultSettings };
 }
 
 export const getProfile = cache(async (): Promise<Profile> => {

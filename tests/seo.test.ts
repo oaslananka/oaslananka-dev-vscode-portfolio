@@ -33,6 +33,7 @@ const now = new Date('2026-07-14T12:00:00.000Z');
 
 const profile: Profile = {
   id: 1,
+  revision: 1,
   name: 'Oğuz Aslan Anka',
   role: 'Software Engineer',
   tagline: 'Embedded systems and developer tooling',
@@ -70,6 +71,7 @@ const profile: Profile = {
 
 const settings: SiteSettings = {
   id: 1,
+  revision: 1,
   siteTitle: 'Oğuz Aslan Anka - Portfolio',
   siteDescription: 'Engineering portfolio and technical writing.',
   keywords: ['embedded systems', 'developer tooling'],
@@ -80,6 +82,7 @@ const settings: SiteSettings = {
 
 const project: Project = {
   id: 1,
+  revision: 1,
   slug: 'safe-project',
   title: 'Safe Project',
   description: 'A verified project.',
@@ -102,6 +105,7 @@ const project: Project = {
 
 const post: Post = {
   id: 1,
+  revision: 1,
   slug: 'safe-article',
   title: 'Safe Article',
   excerpt: 'A practical engineering article.',
