@@ -99,3 +99,49 @@ test('content history is transactional, immutable, and supports guarded rollback
     await client.end();
   }
 });
+
+test('two concurrent editors cannot silently overwrite a matching revision', {
+  skip: !databaseUrl && 'Requires migrated disposable CONTENT_HISTORY_TEST_DATABASE_URL',
+}, async () => {
+  requireLocalDatabase(databaseUrl!);
+  const first = new Client({ connectionString: databaseUrl });
+  const second = new Client({ connectionString: databaseUrl });
+  await first.connect();
+  await second.connect();
+  let insertedId: number | undefined;
+  try {
+    const inserted = await first.query<{ id: number }>(`
+      INSERT INTO projects(slug, title, description)
+      VALUES ('audit-race-fixture', 'Initial', 'Concurrent test') RETURNING id
+    `);
+    insertedId = inserted.rows[0].id;
+    await first.query('BEGIN');
+    const winner = await first.query<{ revision: number }>(`
+      UPDATE projects SET title = 'Winner' WHERE id = $1 AND revision = 1
+      RETURNING revision
+    `, [insertedId]);
+    assert.equal(winner.rows[0].revision, 2);
+
+    // Under READ COMMITTED the second UPDATE must wait for the row lock;
+    // after the first commits it will re-evaluate the revision predicate.
+    const waitingWriter = second.query(`
+      UPDATE projects SET title = 'Stale contender' WHERE id = $1 AND revision = 1
+      RETURNING revision
+    `, [insertedId]);
+    await first.query('COMMIT');
+    const stale = await waitingWriter;
+    assert.equal(stale.rowCount, 0);
+
+    const current = await second.query<{ title: string; revision: number }>(
+      'SELECT title, revision FROM projects WHERE id = $1', [insertedId],
+    );
+    assert.deepEqual(current.rows[0], { title: 'Winner', revision: 2 });
+  } finally {
+    await first.query('ROLLBACK').catch(() => undefined);
+    if (insertedId !== undefined) {
+      await first.query('DELETE FROM projects WHERE id = $1', [insertedId]).catch(() => undefined);
+    }
+    await first.end();
+    await second.end();
+  }
+});
