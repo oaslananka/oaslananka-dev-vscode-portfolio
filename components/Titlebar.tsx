@@ -29,7 +29,7 @@ const Titlebar = ({ name, onOpenCommandPalette }: TitlebarProps) => {
           onClick={onOpenCommandPalette}
           className={styles.menuItem}
           title="Open Command Palette (Ctrl+Shift+P)"
-          aria-label="Open Command Palette"
+          aria-label="View — Open Command Palette"
         >
           <span className={styles.paletteLabel}>View</span>
           <VscSearch className={styles.paletteIcon} aria-hidden="true" />

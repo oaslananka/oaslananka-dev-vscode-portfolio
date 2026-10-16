@@ -223,7 +223,7 @@ test('command palette opens, accepts search, and closes with Escape', async ({
 }) => {
   await page.goto('/');
 
-  const opener = page.getByRole('button', { name: 'Open Command Palette' });
+  const opener = page.getByRole('button', { name: /Open Command Palette/i });
   await opener.click();
   const dialog = page.getByRole('dialog', { name: 'Command palette' });
   await expect(dialog).toBeVisible();

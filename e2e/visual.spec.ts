@@ -35,7 +35,7 @@ test('homepage mobile visual baseline', async ({ page }) => {
 test('command palette visual baseline', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open Command Palette' }).click();
+  await page.getByRole('button', { name: /Open Command Palette/i }).click();
   const dialog = page.getByRole('dialog', { name: 'Command palette' });
   await expect(dialog.locator(':scope > div')).toHaveScreenshot('command-palette.png');
 });
