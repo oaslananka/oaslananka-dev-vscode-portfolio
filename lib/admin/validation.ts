@@ -7,6 +7,7 @@ import {
   projectOutcomeListSchema,
 } from '@/lib/project-content';
 import { isThemeKey, type ThemeKey } from '@/lib/themes';
+import { isCanonicalSlug } from '@/lib/slug-policy';
 import {
   isSafeHttpsUrl,
   isSafeResourceUrl,
@@ -21,7 +22,6 @@ export { ADMIN_CONTENT_LIMITS } from '@/lib/admin/limits';
 import { ADMIN_CONTENT_LIMITS } from '@/lib/admin/limits';
 
 const limits = ADMIN_CONTENT_LIMITS;
-const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const trimmedString = (maximum: number) => z.string().trim().max(maximum);
 const requiredString = (maximum: number) => trimmedString(maximum).min(1);
@@ -135,8 +135,8 @@ const settingsInputSchema = z.object({
 const projectInputSchema = z
   .object({
     title: requiredString(limits.shortTextLength),
-    slug: requiredString(limits.slugLength).regex(
-      slugPattern,
+    slug: requiredString(limits.slugLength).refine(
+      isCanonicalSlug,
       'must contain lowercase letters, numbers, and single hyphens only',
     ),
     description: requiredString(limits.projectDescriptionLength),
@@ -186,8 +186,8 @@ const projectInputSchema = z
 
 const postInputSchema = z.object({
   title: requiredString(limits.shortTextLength),
-  slug: requiredString(limits.slugLength).regex(
-    slugPattern,
+  slug: requiredString(limits.slugLength).refine(
+    isCanonicalSlug,
     'must contain lowercase letters, numbers, and single hyphens only',
   ),
   excerpt: trimmedString(limits.postExcerptLength),

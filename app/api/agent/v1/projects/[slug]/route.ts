@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import { AgentNotFoundError, agentRead } from '@/lib/agent-api/response';
 import { db } from '@/lib/db';
+import { isCanonicalSlug } from '@/lib/slug-policy';
 import { projects } from '@/lib/db/schema';
 
 export const runtime = 'nodejs';
@@ -13,7 +14,7 @@ export async function GET(
 ): Promise<Response> {
   return agentRead(request, async () => {
     const { slug } = await params;
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new AgentNotFoundError();
+    if (!isCanonicalSlug(slug)) throw new AgentNotFoundError();
     const rows = await db!.select().from(projects).where(eq(projects.slug, slug)).limit(1);
     if (!rows[0]) throw new AgentNotFoundError();
     return rows[0];
