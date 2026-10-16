@@ -19,3 +19,14 @@ test('without explicit write configuration every agent PATCH fails closed', asyn
     expect(response.headers()['cache-control']).toContain('no-store');
   }
 });
+
+
+test('proposal workflow is also unavailable without explicit credentials and enablement', async ({ request }) => {
+  const created = await request.post('/api/agent/v1/proposals', {
+    headers: { 'If-Match': '"1"', 'Idempotency-Key': 'fd42cc2c-948f-44fa-8921-f5aa8c61e5cc' },
+    data: { resource: '/api/agent/v1/profile', patch: { role: 'Must not write' } },
+  });
+  expect(created.status()).toBe(503);
+  const status = await request.get('/api/agent/v1/proposals/fd42cc2c-948f-44fa-8921-f5aa8c61e5cc');
+  expect(status.status()).toBe(503);
+});

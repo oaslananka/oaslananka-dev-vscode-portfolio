@@ -34,6 +34,11 @@ test('admin approval is signed and bound to exact actor, change, revision, targe
       );
     }
     assert.notEqual(approvalFingerprint(subject), approvalFingerprint({ ...subject, revision: 2 }));
+    assert.equal(
+      approvalFingerprint({ ...subject, patch: { a: { y: 2, x: 1 }, b: 3 } }),
+      approvalFingerprint({ ...subject, patch: { b: 3, a: { x: 1, y: 2 } } }),
+      'JSONB object key reordering must not alter the approved content fingerprint',
+    );
     await assert.rejects(verifyAgentApproval(null, subject), AgentWriteInputError);
     await assert.rejects(verifyAgentApproval('not-a-signed-token', subject), AgentWriteInputError);
   } finally {

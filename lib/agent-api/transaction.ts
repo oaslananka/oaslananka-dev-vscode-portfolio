@@ -6,6 +6,7 @@ import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
 
 import type { db } from '@/lib/db';
 import { AgentWriteInputError } from './write-policy';
+import { approvalFingerprint } from './approval';
 
 export interface AgentMutationContext {
   database: NonNullable<typeof db>;
@@ -67,6 +68,16 @@ export async function applyAgentMutation(
       await client.query('COMMIT');
       committed = true;
       return false;
+    }
+
+    const verifiedProposal = await client.query<{ fingerprint: string }>(
+      `SELECT fingerprint FROM agent_content_proposals
+       WHERE request_id = $1 AND actor_id = $2 AND resource = $3
+       AND expected_revision = $4 AND status = 'approved' AND expires_at > now()`,
+      [identity.requestId, identity.actorId, identity.resource, identity.revision],
+    );
+    if (verifiedProposal.rows[0]?.fingerprint !== approvalFingerprint(identity)) {
+      throw new AgentWriteInputError(403, 'Content change was not explicitly approved.');
     }
 
     await client.query(

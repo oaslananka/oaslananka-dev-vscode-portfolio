@@ -1,9 +1,10 @@
 ---
 # This repository uses PostgreSQL, not Microsoft SQL Server. The committed,
 # already-applied immutable migration must never gain SQL Server-only SET
-# QUOTED_IDENTIFIER statements. Only TSQLLint is excluded for this one file;
+# QUOTED_IDENTIFIER statements. Only TSQLLint is excluded for these PostgreSQL migrations;
 # PostgreSQL migration/E2E validation and all other security scanners remain.
 engines:
   tsqllint:
     exclude_paths:
       - "lib/db/migrations/20261016211500_agent-command-approval/migration.sql"
+      - "lib/db/migrations/20261016213000_agent-proposal-workflow/migration.sql"

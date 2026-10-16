@@ -32,7 +32,7 @@ not exposed by this PR; all need separately scoped, authorized workflows.
 adds `agent_write_requests` and records the actor/request ID in `content_changes`.
 A separate migration `20261016211500_agent-command-approval` adds the
 request-bound administrator approval reference without modifying the migration
-already journaled in Preview. Apply and validate **both** migrations *before*
+already journaled in Preview. Apply and validate **all three** migrations *before*
 deploying this application change;
 never merge the new schema reference first. Do not enable production writes.
 An explicitly approved publication workflow, independently attributed human
@@ -41,21 +41,50 @@ missing. No write credentials or service connection are created by this PR.
 
 ## User-command approval boundary
 
-Holding the agent write key does **not** grant permission to change arbitrary
-content. Before each new edit, an **authenticated administrator** must approve
-the exact request body, `If-Match` revision, target resource and idempotency
-UUID through same-origin `POST /admin/api/agent-approvals`. This issuance path
-is protected by the existing admin session and the admin access gateway, and
-rejects cross-origin browser requests. It returns a 3-minute HS256 approval
-JWT bound to all the approved parameters. The write endpoint verifies this
-proof independently of the agent write key; it rejects missing, modified or
-expired approvals with 403. The approval JWT is **not** a reusable global
-permission to edit content. The issued approval ID is recorded in the durable
-request ledger alongside the authenticated agent principal and its request ID.
+The agent cannot mint approvals. The API write key is only permitted to
+submit change proposals until a human explicitly approves each edit.
 
-This is a **backend approval primitive**, not yet a complete ChatGPT-native
-user approval interaction. The administrator must see and deliberately approve
-what will change. Before enabling any live writes, complete the UX and Ops
-approval provenance integration; do not let an agent mint approval tokens or
-present an autonomous API POST as proof of human approval. In particular,
-ChatGPT conversation text alone is not a cryptographic signature.
+1. The agent calls POST /api/agent/v1/proposals with a unique UUIDv4
+   Idempotency-Key, If-Match strong revision, and JSON body with resource
+   and patch fields. The proposal is validated against the current record
+   but does NOT modify any site content. It expires after 15 minutes.
+2. The owner visits /admin/agent-approvals, protected by the existing
+   admin session and Cloudflare access gate, reviews each current and
+   proposed field, checks the acknowledgement, and clicks Approve or Reject.
+   Stale or invalid content cannot be approved.
+3. The agent polls GET /api/agent/v1/proposals/{requestId} with its
+   separate writer bearer token. Pending, rejected, expired, or approved
+   status is returned. Only an approved proposal returns a 3-minute JWT.
+4. The agent calls the matching PATCH with identical revision, request ID
+   and exact JSON patch plus X-Agent-Approval. The PostgreSQL transaction
+   re-verifies that the proposal was approved and is still valid before
+   committing the new revision and durable actor/approval audit record.
+
+The previous direct admin approval-token POST route has been removed.
+An authenticated session alone cannot generate tokens with an agent API
+call: the owner must deliberately approve the displayed diff.
+
+This works as a backend + site admin review workflow. A ChatGPT-native
+approval callback and automatic Ops connector handoff are separate provider
+integrations: the current chat text alone is NOT a cryptographic signature.
+
+## Ops integration status
+
+Ops currently has no registered oaslananka.dev API connection. The
+separate agent-content-write.openapi.json specifies proposal submission,
+status polling and content PATCH. This contract must remain off in
+production until scoped credential onboarding and rollout authorization.
+ChatGPT should return the admin approval-page link when proposals are
+pending; it must not click Approve on the owner's behalf.
+
+## Release gate
+
+Schema-first migrations, in order:
+- 20261016193000_agent-write-identity (audit and idempotency ledger)
+- 20261016211500_agent-command-approval (approval ID)
+- 20261016213000_agent-proposal-workflow (review queue)
+
+Previously journaled migrations remain byte-identical. None of these
+migrations is authorized for the production database yet. Keep agent write
+feature flag off. No creation, publishing, deletion, historical restoration
+or media upload capability is enabled by this PR.

@@ -16,6 +16,15 @@ const APPROVAL_ISSUER = 'oaslananka.dev';
 const APPROVAL_AUDIENCE = 'portfolio-agent-content-write';
 const APPROVAL_TTL_SECONDS = 180;
 
+function canonicalJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalJson);
+  if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    return Object.fromEntries(Object.keys(obj).sort().map((key) => [key, canonicalJson(obj[key])]));
+  }
+  return value;
+}
+
 export function approvalFingerprint(subject: AgentApprovalSubject): string {
   return createHash('sha256')
     .update(JSON.stringify([
@@ -23,7 +32,7 @@ export function approvalFingerprint(subject: AgentApprovalSubject): string {
       subject.requestId,
       subject.resource,
       subject.revision,
-      subject.patch,
+      canonicalJson(subject.patch),
     ]))
     .digest('hex');
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   VscAccount,
+  VscCheck,
   VscDashboard,
   VscFileCode,
   VscGear,
@@ -19,6 +20,7 @@ const links = [
   { href: '/admin/profile', label: 'Profile', icon: VscAccount },
   { href: '/admin/projects', label: 'Projects', icon: VscProject },
   { href: '/admin/posts', label: 'Blog posts', icon: VscFileCode },
+  { href: '/admin/agent-approvals', label: 'AI approvals', icon: VscCheck },
   { href: '/admin/messages', label: 'Messages', icon: VscMail },
   { href: '/admin/settings', label: 'Settings', icon: VscGear },
 ];

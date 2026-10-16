@@ -276,6 +276,22 @@ export const agentWriteRequests = pgTable('agent_write_requests', {
   completedAt: timestamp('completed_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** Explicit content edits waiting for an administrator's review. */
+export const agentContentProposals = pgTable('agent_content_proposals', {
+  requestId: text('request_id').primaryKey(),
+  actorId: text('actor_id').notNull(),
+  resource: text('resource').notNull(),
+  expectedRevision: integer('expected_revision').notNull(),
+  patch: jsonb('patch').$type<Record<string, unknown>>().notNull(),
+  fingerprint: text('fingerprint').notNull(),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  decidedAt: timestamp('decided_at', { withTimezone: true }),
+}, (table) => [
+  index('agent_content_proposals_pending_idx').on(table.status, table.createdAt),
+]);
+
 // ── contact messages ───────────────────────────────────────────────────────
 
 export const contactMessages = pgTable(
