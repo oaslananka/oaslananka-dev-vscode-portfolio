@@ -1,0 +1,37 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "oaslananka.dev private content administration",
+    "version": "1.0.0-read",
+    "description": "Read-only initial rollout for the owner's authorized AI tools. Never make response content public."
+  },
+  "security": [{ "agentBearer": [] }],
+  "paths": {
+    "/api/agent/v1/context": {
+      "get": { "operationId": "getSiteContext", "summary": "Read profile, site settings, project/post summaries and content limits", "responses": { "200": { "description": "Private content manifest" }, "401": { "description": "Unauthorized" }, "503": { "description": "Unavailable" } } }
+    },
+    "/api/agent/v1/profile": {
+      "get": { "operationId": "getProfile", "summary": "Read complete current profile", "responses": { "200": { "description": "Profile" } } }
+    },
+    "/api/agent/v1/settings": {
+      "get": { "operationId": "getSiteSettings", "summary": "Read site and SEO settings", "responses": { "200": { "description": "Settings" } } }
+    },
+    "/api/agent/v1/projects": {
+      "get": { "operationId": "listProjects", "summary": "Read all projects including complete detail and media references", "responses": { "200": { "description": "Projects" } } }
+    },
+    "/api/agent/v1/projects/{slug}": {
+      "get": { "operationId": "getProject", "summary": "Read one project", "parameters": [{ "in": "path", "name": "slug", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Project" }, "404": { "description": "Not found" } } }
+    },
+    "/api/agent/v1/posts": {
+      "get": { "operationId": "listPosts", "summary": "Read all posts including draft bodies", "responses": { "200": { "description": "Posts" } } }
+    },
+    "/api/agent/v1/posts/{slug}": {
+      "get": { "operationId": "getPost", "summary": "Read one post including unpublished posts", "parameters": [{ "in": "path", "name": "slug", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Post" }, "404": { "description": "Not found" } } }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "agentBearer": { "type": "http", "scheme": "bearer", "description": "Private API key managed by Doppler and hidden by the Ops gateway" }
+    }
+  }
+}
