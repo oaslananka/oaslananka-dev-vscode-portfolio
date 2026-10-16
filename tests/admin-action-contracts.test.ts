@@ -63,10 +63,10 @@ test('admin mutations authenticate and delegate to the common content service', 
   })) {
     const source = fs.readFileSync(path.join(actionDirectory, file), 'utf8');
     for (const operation of operations) {
-      assert.match(source, new RegExp(`${operation}\\(`));
+      assert.ok(source.includes(`${operation}(`), `${operation} must be delegated`);
     }
   }
-  const service = fs.readFileSync(path.join(process.cwd(), 'lib/content-management/mutations.ts'), 'utf8');
+  const service = fs.readFileSync('lib/content-management/mutations.ts', 'utf8');
   assert.match(service, /revalidatePath\(/);
   assert.match(service, /scheduleIndexNow\(/);
   assert.match(service, /revalidateDiscoveryPaths\(/);
