@@ -29,7 +29,7 @@ export function approvalFingerprint(subject: AgentApprovalSubject): string {
 }
 
 /** Only call from an authenticated, deliberately confirmed admin action. */
-export async function issueAgentApproval(subject: AgentApprovalSubject): Promise<string> {
+export function issueAgentApproval(subject: AgentApprovalSubject): Promise<string> {
   return new SignJWT({ fingerprint: approvalFingerprint(subject) })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuer(APPROVAL_ISSUER)
