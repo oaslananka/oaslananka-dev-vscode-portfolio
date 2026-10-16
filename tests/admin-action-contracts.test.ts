@@ -54,11 +54,21 @@ test('every protected mutation authenticates before database access', () => {
   }
 });
 
-test('project and post actions retain revalidation and IndexNow behavior', () => {
-  for (const file of ['projects.ts', 'posts.ts']) {
+test('admin mutations authenticate and delegate to the common content service', () => {
+  for (const [file, operations] of Object.entries({
+    'profile.ts': ['saveProfileContent'],
+    'settings.ts': ['saveSettingsContent'],
+    'projects.ts': ['saveProjectContent', 'deleteProjectContent'],
+    'posts.ts': ['savePostContent', 'deletePostContent'],
+  })) {
     const source = fs.readFileSync(path.join(actionDirectory, file), 'utf8');
-    assert.match(source, /revalidatePath\(/, `${file} must revalidate changed paths`);
-    assert.match(source, /scheduleIndexNow\(/, `${file} must schedule IndexNow`);
-    assert.match(source, /revalidateDiscoveryPaths\(/, `${file} must refresh discovery routes`);
+    for (const operation of operations) {
+      assert.ok(source.includes(`${operation}(`), `${operation} must be delegated`);
+    }
   }
+  const service = fs.readFileSync('lib/content-management/mutations.ts', 'utf8');
+  assert.match(service, /revalidatePath\(/);
+  assert.match(service, /scheduleIndexNow\(/);
+  assert.match(service, /revalidateDiscoveryPaths\(/);
+  assert.match(service, /import 'server-only'/);
 });
