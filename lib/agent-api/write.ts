@@ -5,7 +5,7 @@ import { verifyAgentApproval } from './approval';
 
 import { verifyAgentBearer } from './auth';
 import { agentJson, AgentNotFoundError } from './response';
-import { readAgentJsonPatch, parseIfMatchRevision, parseAgentIdempotencyKey, isAgentWriteConfigured, AgentWriteInputError } from './write-policy';
+import { readAgentJsonPatch, parseIfMatchRevision, parseAgentIdempotencyKey, requireCreatePrecondition, isAgentWriteConfigured, AgentWriteInputError } from './write-policy';
 import { db } from '@/lib/db';
 import { consumeRateLimitAttempt, type RateLimitPolicy } from '@/lib/rate-limit';
 import { AdminValidationError } from '@/lib/admin/validation';
@@ -17,6 +17,7 @@ const writePolicy: RateLimitPolicy = { scope: 'agent-write', windowMs: 60 * 60 *
 export async function agentWrite(
   request: Request,
   change: (body: Record<string, unknown>, revision: number, scope: AgentMutationContext) => Promise<void>,
+  options?: { createDraft: boolean },
 ): Promise<Response> {
   if (!isAgentWriteConfigured({
     AGENT_CONTENT_WRITE_ENABLED: process.env.AGENT_CONTENT_WRITE_ENABLED,
@@ -30,7 +31,13 @@ export async function agentWrite(
   if (!db) return agentJson({ error: 'Content unavailable' }, 503);
 
   try {
-    const expectedRevision = parseIfMatchRevision(request.headers.get('if-match'));
+    if (options?.createDraft) {
+      requireCreatePrecondition(request.headers.get('if-none-match'), request.headers.get('if-match'));
+    } else if (request.headers.has('if-none-match')) {
+      throw new AgentWriteInputError(400, 'If-None-Match is not allowed for updates.');
+    }
+    const expectedRevision = options?.createDraft
+      ? 0 : parseIfMatchRevision(request.headers.get('if-match'));
     const idempotencyKey = parseAgentIdempotencyKey(request.headers.get('idempotency-key'));
     if (!await consumeRateLimitAttempt('agent-editor', writePolicy)) {
       return agentJson({ error: 'Too many requests or rate-limit unavailable' }, 429);
@@ -53,12 +60,15 @@ export async function agentWrite(
       patch: body,
       approvalId,
     }, async (scope) => change(body, expectedRevision, scope), connectionString);
-    return new Response(null, { status: 204, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
+    return new Response(null, { status: options?.createDraft ? 201 : 204, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
   } catch (error) {
     if (error instanceof AgentWriteInputError) return agentJson({ error: error.message }, error.status);
     if (error instanceof AdminValidationError) return agentJson({ error: error.message }, 422);
     if (error instanceof AgentNotFoundError) return agentJson({ error: 'Not found' }, 404);
     if (error instanceof ContentRevisionConflictError) return agentJson({ error: 'Revision conflict; read the latest version.' }, 409);
+    if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
+      return agentJson({ error: 'Content slug already exists' }, 409);
+    }
     return agentJson({ error: 'Content unavailable' }, 503);
   }
 }

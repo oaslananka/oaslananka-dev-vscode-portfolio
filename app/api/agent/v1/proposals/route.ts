@@ -7,7 +7,7 @@ import { verifyAgentBearer } from '@/lib/agent-api/auth';
 import { AgentNotFoundError, agentJson } from '@/lib/agent-api/response';
 import {
   AgentWriteInputError, isAgentWriteConfigured,
-  parseAgentIdempotencyKey, parseIfMatchRevision, readAgentJsonPatch,
+  parseAgentIdempotencyKey, parseIfMatchRevision, readAgentJsonPatch, requireCreatePrecondition,
 } from '@/lib/agent-api/write-policy';
 import { validateProposal } from '@/lib/agent-api/proposals';
 import { consumeRateLimitAttempt, type RateLimitPolicy } from '@/lib/rate-limit';
@@ -53,12 +53,18 @@ export async function POST(request: Request): Promise<Response> {
   if (!db) return agentJson({ error: 'Content unavailable' }, 503);
   try {
     const requestId = parseAgentIdempotencyKey(request.headers.get('idempotency-key'));
-    const revision = parseIfMatchRevision(request.headers.get('if-match'));
     if (!await consumeRateLimitAttempt('agent-proposal', proposalPolicy)) {
       return agentJson({ error: 'Proposal rate limit reached' }, 429);
     }
 
     const { resource, patch } = await parseProposalPayload(request);
+    const isCreation = resource === '/api/agent/v1/posts';
+    if (isCreation) {
+      requireCreatePrecondition(request.headers.get('if-none-match'), request.headers.get('if-match'));
+    } else if (request.headers.has('if-none-match')) {
+      throw new AgentWriteInputError(400, 'If-None-Match applies only to new drafts.');
+    }
+    const revision = isCreation ? 0 : parseIfMatchRevision(request.headers.get('if-match'));
 
     const actorId = process.env.AGENT_WRITE_ACTOR_ID!;
     const subject = { actorId, requestId, resource, revision, patch };

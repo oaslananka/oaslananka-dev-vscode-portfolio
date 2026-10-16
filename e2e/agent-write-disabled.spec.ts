@@ -32,3 +32,12 @@ test('proposal workflow is also unavailable without explicit credentials and ena
   const status = await request.get('/api/agent/v1/proposals/' + requestId);
   expect(status.status()).toBe(503);
 });
+
+
+test('draft-article creation is disabled without approved production setup', async ({ request }) => {
+  const response = await request.post('/api/agent/v1/posts', {
+    headers: { 'If-None-Match': '*' },
+    data: { title: 'Should not exist', slug: 'should-not-exist' },
+  });
+  expect(response.status()).toBe(503);
+});
