@@ -44,6 +44,21 @@ function preventPublishedPostEdit(
   }
 }
 
+async function validateNewDraft(
+  database: NonNullable<typeof db>,
+  revision: number,
+  patch: Record<string, unknown>,
+): Promise<{ current: Record<string, unknown> }> {
+  if (revision !== 0) {
+    throw new AgentWriteInputError(428, 'New drafts require the creation precondition.');
+  }
+  const draft = parseAgentDraftPostInput(patch);
+  const [existing] = await database.select({ id: posts.id }).from(posts)
+    .where(eq(posts.slug, draft.slug)).limit(1);
+  if (existing) throw new AgentWriteInputError(409, 'Article slug already exists.');
+  return { current: {} };
+}
+
 /** Validate against current stored content without modifying it. */
 export async function validateProposal(
   resource: string,
@@ -52,18 +67,9 @@ export async function validateProposal(
 ): Promise<{ current: Record<string, unknown> }> {
   if (!db) throw new AgentWriteInputError(503, 'Content unavailable.');
   const parsed = parseEditableResource(resource);
+  if (parsed.kind === 'draftPost') return validateNewDraft(db, revision, patch);
   let current: Record<string, unknown> | undefined;
   switch (parsed.kind) {
-    case 'draftPost': {
-      if (revision !== 0) {
-        throw new AgentWriteInputError(428, 'New drafts require the creation precondition.');
-      }
-      const draft = parseAgentDraftPostInput(patch);
-      const [existing] = await db.select({ id: posts.id }).from(posts)
-        .where(eq(posts.slug, draft.slug)).limit(1);
-      if (existing) throw new AgentWriteInputError(409, 'Article slug already exists.');
-      return { current: {} };
-    }
     case 'profile': {
       const [row] = await db.select().from(profile).limit(1);
       if (row) {
