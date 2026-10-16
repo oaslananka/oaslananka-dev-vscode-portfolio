@@ -26,3 +26,20 @@ insert/update/delete creates a history entry *in the same transaction*.
 Deployment condition: first pass upgrade compatibility and temporary-Postgres
 integration checks, then review the PR and migration plan. Deployment/runtime
 behaviour must be separately observed before any write API is enabled.
+
+## Server-only conditional writes and restoration
+
+The four existing admin-backed save operations also accept an optional expected
+revision. When supplied, the write uses `UPDATE ... WHERE id = ... AND
+revision = ... RETURNING ...`; if no row was updated, a typed
+`ContentRevisionConflictError` is raised, and no cache invalidation or
+IndexNow notification is scheduled. The legacy authenticated admin actions
+still use their original no-precondition behavior.
+
+`restoreContentRevision()` looks up a historical full snapshot and runs it
+through the same current Zod validators before using this compare-and-swap
+write path. Restoration creates a newer journal entry; published/draft status
+is restored, not implicitly changed. It rejects missing/deleted snapshots and
+invalid revisions. It is a `server-only` internal function, **not an API or
+Server Action**, and contains no independent authentication: any later API
+handler must perform authorization and policy checks before invocation.
