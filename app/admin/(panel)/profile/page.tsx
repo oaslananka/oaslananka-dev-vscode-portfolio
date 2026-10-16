@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminProfilePage() {
   const existing = await getAdminProfile();
   const profile: Profile =
-    existing ?? { id: 0, updatedAt: new Date(), ...defaultProfile };
+    existing ?? { id: 0, revision: 1, updatedAt: new Date(), ...defaultProfile };
 
   return (
     <>

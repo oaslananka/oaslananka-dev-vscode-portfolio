@@ -30,7 +30,7 @@ export function dbReady(): boolean {
 }
 
 export async function getAdminProfile(): Promise<Profile | null> {
-  if (!db) return { id: 1, updatedAt: new Date(), ...defaultProfile };
+  if (!db) return { id: 1, revision: 1, updatedAt: new Date(), ...defaultProfile };
   const rows = await db
     .select()
     .from(profileTable)
@@ -40,7 +40,7 @@ export async function getAdminProfile(): Promise<Profile | null> {
 }
 
 export async function getAdminSettings(): Promise<SiteSettings | null> {
-  if (!db) return { id: 1, updatedAt: new Date(), ...defaultSettings };
+  if (!db) return { id: 1, revision: 1, updatedAt: new Date(), ...defaultSettings };
   const rows = await db
     .select()
     .from(settingsTable)

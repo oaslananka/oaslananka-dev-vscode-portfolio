@@ -25,6 +25,7 @@ export async function GET(request: Request): Promise<Response> {
       siteSettings,
       projects: projects.map((project) => ({
         id: project.id,
+        revision: project.revision,
         slug: project.slug,
         title: project.title,
         description: project.description,
@@ -36,6 +37,7 @@ export async function GET(request: Request): Promise<Response> {
       })),
       posts: posts.map((post) => ({
         id: post.id,
+        revision: post.revision,
         slug: post.slug,
         title: post.title,
         excerpt: post.excerpt,

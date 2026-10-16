@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminSettingsPage() {
   const existing = await getAdminSettings();
   const settings: SiteSettings =
-    existing ?? { id: 0, updatedAt: new Date(), ...defaultSettings };
+    existing ?? { id: 0, revision: 1, updatedAt: new Date(), ...defaultSettings };
 
   return (
     <>
