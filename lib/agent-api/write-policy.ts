@@ -27,11 +27,11 @@ export function isAgentWriteConfigured(env: {
 /** Require a single strong ETag from the agent's most recent read. */
 export function parseIfMatchRevision(header: string | null): number {
   if (!header) throw new AgentWriteInputError(428, 'If-Match revision is required.');
-  if (header.length > 25 || header.charCodeAt(0) !== 34 || header.charCodeAt(header.length - 1) !== 34) {
+  if (header.length > 25 || header.codePointAt(0) !== 34 || header.codePointAt(header.length - 1) !== 34) {
     throw new AgentWriteInputError(400, 'Expected a quoted integer revision in If-Match.');
   }
   const raw = header.slice(1, -1);
-  if (!/^[1-9][0-9]*$/.test(raw)) throw new AgentWriteInputError(400, 'Invalid revision.');
+  if (!/^[1-9]\d*$/.test(raw)) throw new AgentWriteInputError(400, 'Invalid revision.');
   const revision = Number(raw);
   if (!Number.isSafeInteger(revision) || revision > 2_147_483_646) {
     throw new AgentWriteInputError(400, 'Invalid revision.');
@@ -44,7 +44,7 @@ export async function readAgentJsonPatch(request: Request): Promise<Record<strin
   const contentType = request.headers.get('content-type')?.toLowerCase() ?? '';
   if (contentType !== 'application/json') throw new AgentWriteInputError(415, 'Content-Type must be application/json.');
   const contentLength = request.headers.get('content-length');
-  if (contentLength && (!/^[0-9]+$/.test(contentLength) || Number(contentLength) > MAX_JSON_BYTES)) {
+  if (contentLength && (!/^\d+$/.test(contentLength) || Number(contentLength) > MAX_JSON_BYTES)) {
     throw new AgentWriteInputError(413, 'JSON payload exceeds limit.');
   }
   if (!request.body) throw new AgentWriteInputError(400, 'JSON payload required.');
