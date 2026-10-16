@@ -48,8 +48,8 @@ test('migration v3 conversion preserves every SQL file byte-for-byte', () => {
     .filter((name) => statSync(new URL(name, migrationsRoot)).isDirectory())
     .sort();
 
-  assert.equal(directories.length, expectedMigrationHashes.length + 5);
-  assert.ok(directories.at(-1)?.endsWith('agent-draft-creation'));
+  assert.equal(directories.length, expectedMigrationHashes.length + 6);
+  assert.ok(directories.at(-1)?.endsWith('agent-project-publication'));
   assert.equal(directories.some((name) => name === 'meta'), false);
 
   const actualHashes = directories.map((directory) =>

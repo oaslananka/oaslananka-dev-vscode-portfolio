@@ -58,7 +58,7 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const { resource, patch } = await parseProposalPayload(request);
-    const revision = parseAgentRequestRevision(request.headers, resource === '/api/agent/v1/posts');
+    const revision = parseAgentRequestRevision(request.headers, resource === '/api/agent/v1/posts' || resource === '/api/agent/v1/projects');
 
     const actorId = process.env.AGENT_WRITE_ACTOR_ID!;
     const subject = { actorId, requestId, resource, revision, patch };

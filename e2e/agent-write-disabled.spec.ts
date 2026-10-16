@@ -41,3 +41,12 @@ test('draft-article creation is disabled without approved production setup', asy
   });
   expect(response.status()).toBe(503);
 });
+
+
+test('project draft-creation is disabled without explicitly enabled write API', async ({ request }) => {
+  const response = await request.post('/api/agent/v1/projects', {
+    headers: { 'If-None-Match': '*' },
+    data: { title: 'Must remain private', slug: 'must-remain-private', description: 'No writes' },
+  });
+  expect(response.status()).toBe(503);
+});

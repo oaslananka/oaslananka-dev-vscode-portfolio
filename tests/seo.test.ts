@@ -98,6 +98,7 @@ const project: Project = {
   media: [],
   links: [],
   featured: true,
+  published: true,
   sortOrder: 1,
   createdAt: now,
   updatedAt: now,

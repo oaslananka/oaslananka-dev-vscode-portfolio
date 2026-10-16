@@ -31,6 +31,8 @@ type ContentDatabase = NonNullable<typeof db>;
 export interface ContentMutationOptions {
   database?: ContentDatabase;
   onCommit?: (effect: () => void) => void;
+  /** Only the agent's independently approved new-project creation path. */
+  createProjectDraft?: boolean;
 }
 
 function signalChange(effect: () => void, options?: ContentMutationOptions): void {
@@ -88,7 +90,10 @@ export async function saveSettingsContent(input: SettingsInput, expectedRevision
 
 export async function saveProjectContent(input: ProjectInput, id?: number, expectedRevision?: number, options?: ContentMutationOptions): Promise<void> {
   const database = options?.database ?? requireDb();
-  const values = { ...input, updatedAt: new Date() };
+  if (options?.createProjectDraft && id !== undefined) {
+    throw new Error('Draft creation may not update an existing project.');
+  }
+  const values = { ...input, ...(options?.createProjectDraft ? { published: false } : {}), updatedAt: new Date() };
   let previousSlug: string | undefined;
 
   if (id !== undefined) {

@@ -106,3 +106,25 @@ export function parseAgentDraftPostInput(input: unknown): PostInput {
     values,
   );
 }
+
+
+/** Agent-created projects remain private until a separate publication action. */
+export function parseAgentDraftProjectInput(input: unknown): ProjectInput {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new AdminValidationError('Draft project must be a JSON object.');
+  }
+  const patch = input as Record<string, unknown>;
+  if (Object.hasOwn(patch, 'published') || Object.hasOwn(patch, 'featured')) {
+    throw new AdminValidationError('Project publication and featured status require separate actions.');
+  }
+  const defaults: ProjectInput = {
+    title: '', slug: '', description: '', longDescription: '', role: '',
+    logo: '', coverImage: '', coverImageAlt: '', link: '', repo: '',
+    tags: [], outcomes: [], media: [], links: [], featured: false, sortOrder: 0,
+  };
+  return parseAgentContent(
+    projectInputSchema,
+    Object.keys(projectInputSchema.shape),
+    { ...defaults, ...patch },
+  );
+}

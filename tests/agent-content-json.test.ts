@@ -4,6 +4,7 @@ import test from 'node:test';
 import { defaultProfile, defaultSettings } from '../lib/db/defaults';
 import {
   parseAgentDraftPostInput,
+  parseAgentDraftProjectInput,
   parseAgentPostInput,
   parseAgentProfileInput,
   parseAgentProjectInput,
@@ -80,5 +81,28 @@ test('creating articles only permits unpublished, validated content', () => {
     { slug: 'draft' },
   ]) {
     assert.throws(() => parseAgentDraftPostInput(patch));
+  }
+});
+
+
+test('creating a private project validates content and never sets publishing metadata', () => {
+  const draft = parseAgentDraftProjectInput({
+    title: 'Hidden engineering draft', slug: 'hidden-engineering-draft',
+    description: 'Visible to admin only', tags: ['design'],
+  });
+  assert.equal(draft.title, 'Hidden engineering draft');
+  assert.equal(draft.featured, false);
+  assert.equal(draft.sortOrder, 0);
+  assert.deepEqual(draft.media, []);
+  for (const input of [
+    { title: 'Draft', slug: 'draft', description: 'About', featured: true },
+    { title: 'Draft', slug: 'draft', description: 'About', featured: false },
+    { title: 'Draft', slug: 'draft', description: 'About', published: true },
+    { title: 'Draft', slug: 'draft', description: 'About', published: false },
+    { title: 'Draft', slug: 'draft', description: 'About', revision: 1 },
+    { title: 'Draft', slug: '../unsafe', description: 'About' },
+    { title: 'Draft', slug: 'draft' },
+  ]) {
+    assert.throws(() => parseAgentDraftProjectInput(input));
   }
 });
