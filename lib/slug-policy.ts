@@ -8,7 +8,7 @@ export function isCanonicalSlug(value: string): boolean {
 
   let lastWasHyphen = true;
   for (let i = 0; i < value.length; i += 1) {
-    const code = value.charCodeAt(i);
+    const code = value.codePointAt(i) ?? -1;
     if (code === 45) {
       if (lastWasHyphen) return false;
       lastWasHyphen = true;
