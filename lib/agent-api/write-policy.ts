@@ -92,3 +92,13 @@ export function parseAgentIdempotencyKey(value: string | null): string {
   }
   return value;
 }
+
+/** Creation cannot silently overwrite a resource and never uses an old ETag. */
+export function requireCreatePrecondition(
+  ifNoneMatch: string | null,
+  ifMatch: string | null,
+): void {
+  if (ifNoneMatch !== '*' || ifMatch !== null) {
+    throw new AgentWriteInputError(428, 'Creation requires If-None-Match: * and no If-Match.');
+  }
+}

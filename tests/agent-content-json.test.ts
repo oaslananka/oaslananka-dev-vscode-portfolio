@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { defaultProfile, defaultSettings } from '../lib/db/defaults';
 import {
+  parseAgentDraftPostInput,
   parseAgentPostInput,
   parseAgentProfileInput,
   parseAgentProjectInput,
@@ -61,4 +62,23 @@ test('post JSON dates must be valid UTC timestamps and complete schemas remain e
   }
   assert.throws(() => parseAgentPostInput({ published: true }));
   assert.equal(parseAgentPostInput({ ...post, publishedAt: post.publishedAt.toISOString() }).slug, post.slug);
+});
+
+
+test('creating articles only permits unpublished, validated content', () => {
+  const draft = parseAgentDraftPostInput({ title: 'Draft article', slug: 'draft-article', body: '# Preview' });
+  assert.equal(draft.published, false);
+  assert.equal(draft.publishedAt instanceof Date, true);
+  assert.equal(draft.excerpt, '');
+  assert.deepEqual(draft.tags, []);
+  for (const patch of [
+    { title: 'Title', slug: 'draft', published: true },
+    { title: 'Title', slug: 'draft', published: false },
+    { title: 'Title', slug: 'draft', publishedAt: '2026-10-16T00:00:00Z' },
+    { title: 'Title', slug: '../escape' },
+    { slug: 'draft', title: 'Title', createdAt: 'fake' },
+    { slug: 'draft' },
+  ]) {
+    assert.throws(() => parseAgentDraftPostInput(patch));
+  }
 });
