@@ -78,7 +78,7 @@
 .publisher {
   margin: 0;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted, #b6bec9);
 }
 
 /* Responsive */

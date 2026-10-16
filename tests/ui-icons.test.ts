@@ -29,6 +29,7 @@ test('icon registry uses deterministic local names and known upstream packages',
 
 import { readdir, readFile as readTextFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -69,7 +70,7 @@ test('public runtime source does not inline React Icons components', async () =>
   const violations: string[] = [];
 
   for (const root of roots) {
-    for (const file of await publicRuntimeFiles(root.pathname)) {
+    for (const file of await publicRuntimeFiles(fileURLToPath(root))) {
       const source = await readTextFile(file, 'utf8');
       if (/from ['"]react-icons(?:\/[^'"]+)?['"]/.test(source)) {
         violations.push(path.relative(process.cwd(), file));

@@ -25,7 +25,6 @@ export default function LoginForm() {
           type="password"
           className={styles.input}
           autoComplete="current-password"
-          autoFocus
           required
         />
       </div>

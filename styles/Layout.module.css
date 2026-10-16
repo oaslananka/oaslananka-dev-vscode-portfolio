@@ -63,15 +63,12 @@
   overflow-x: hidden;
   overscroll-behavior: contain;
   min-width: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-bg) var(--scrollbar-track-bg);
 }
 
 .content:focus {
   outline: none;
-}
-
-.content {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb-bg) var(--scrollbar-track-bg);
 }
 
 .content::-webkit-scrollbar {

@@ -52,7 +52,7 @@ function singleLine(value: string): string {
 
 /** Keep database-authored content inside its current Markdown construct. */
 export function escapeMarkdownText(value: string): string {
-  return singleLine(value).replace(/([\\`*_\[\]<>])/g, '\\$1');
+  return singleLine(value).replace(/([\\`*_[\]<>])/g, '\\$1');
 }
 
 function safePublicUrl(value: string): string | null {

@@ -19,8 +19,7 @@ const ContactCode = ({ socials }: ContactCodeProps) => {
           &nbsp;&nbsp;&nbsp;{item.platform}:{' '}
           <a href={item.url} target="_blank" rel="noopener noreferrer">
             {item.label}
-          </a>
-          ;
+          </a>;
         </p>
       ))}
       <p className={styles.line}>&#125;</p>

@@ -22,4 +22,7 @@ async function main() {
   console.log('\nADMIN_PASSWORD_HASH="' + hash + '"\n');
 }
 
-main();
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});

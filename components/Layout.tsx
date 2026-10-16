@@ -77,52 +77,58 @@ const Layout = ({ children, shell }: LayoutProps) => {
       's': '/settings',
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isCommandPaletteOpen) return;
-
-      // Browser extensions and synthetic events can dispatch `keydown` without
-      // the KeyboardEvent `key` field. Ignore those events instead of crashing.
-      if (!hasKeyIdentifier(e)) return;
-
-      if (isModifierPressed(e) && e.key === '`') {
-        e.preventDefault();
-        toggleTerminal();
-        return;
-      }
-
-      const key = e.key.toLowerCase();
-
-      if (isModifierPressed(e) && e.shiftKey && key === 'p') {
-        e.preventDefault();
-        openCommandPalette();
-        return;
-      }
-
+    const handleChord = (key: string, e: KeyboardEvent): boolean => {
       if (chordKey === 'g' && navigationRoutes[key]) {
         e.preventDefault();
         router.push(navigationRoutes[key]);
         setChordKey(null);
-        return;
+        return true;
       }
 
       if (chordKey === 'k' && key === 't') {
         e.preventDefault();
         openCommandPalette();
         setChordKey(null);
-        return;
+        return true;
       }
 
-      if (isChordStartKey(key) && !isTypingTarget(e.target)) {
+      if (isChordStartKey(key)) {
         e.preventDefault();
         setChordKey(key);
         if (chordTimerRef.current) clearTimeout(chordTimerRef.current);
         chordTimerRef.current = setTimeout(() => setChordKey(null), 2000);
-        return;
+        return true;
       }
 
       if (chordKey && key !== chordKey) {
         setChordKey(null);
       }
+
+      return false;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isCommandPaletteOpen || !hasKeyIdentifier(e)) return;
+
+      if (isModifierPressed(e)) {
+        if (e.key === '`') {
+          e.preventDefault();
+          toggleTerminal();
+          return;
+        }
+        if (e.shiftKey && e.key.toLowerCase() === 'p') {
+          e.preventDefault();
+          openCommandPalette();
+          return;
+        }
+      }
+
+      if (isTypingTarget(e.target)) {
+        if (chordKey) setChordKey(null);
+        return;
+      }
+
+      handleChord(e.key.toLowerCase(), e);
     };
 
     window.addEventListener('keydown', handleKeyDown);
