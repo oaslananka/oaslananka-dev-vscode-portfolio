@@ -3,7 +3,7 @@
   "info": {
     "title": "oaslananka.dev explicitly gated content updates",
     "version": "0.1.0-disabled",
-    "description": "Disabled-by-default write API. Apply agent-write attribution database migration before deployment. No production enablement without owner approval."
+    "description": "Disabled-by-default private write API. Requires per-change admin-approved JWT, separate agent key, and schema-first migration. Do not import/enable in production before approved UX and Ops integration."
   },
   "security": [
     {
@@ -36,6 +36,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Agent-Approval",
+            "in": "header",
+            "required": true,
+            "description": "Short-lived request-specific JWT issued only by authenticated admin approval",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -60,7 +69,7 @@
             "description": "Write bearer token not authorized"
           },
           "403": {
-            "description": "Publishing operation prohibited by this API"
+            "description": "Explicit human approval missing or does not match request, or publication prohibited"
           },
           "409": {
             "description": "Revision conflict"
@@ -108,6 +117,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Agent-Approval",
+            "in": "header",
+            "required": true,
+            "description": "Short-lived request-specific JWT issued only by authenticated admin approval",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -132,7 +150,7 @@
             "description": "Write bearer token not authorized"
           },
           "403": {
-            "description": "Publishing operation prohibited by this API"
+            "description": "Explicit human approval missing or does not match request, or publication prohibited"
           },
           "409": {
             "description": "Revision conflict"
@@ -188,6 +206,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Agent-Approval",
+            "in": "header",
+            "required": true,
+            "description": "Short-lived request-specific JWT issued only by authenticated admin approval",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -212,7 +239,7 @@
             "description": "Write bearer token not authorized"
           },
           "403": {
-            "description": "Publishing operation prohibited by this API"
+            "description": "Explicit human approval missing or does not match request, or publication prohibited"
           },
           "409": {
             "description": "Revision conflict"
@@ -268,6 +295,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Agent-Approval",
+            "in": "header",
+            "required": true,
+            "description": "Short-lived request-specific JWT issued only by authenticated admin approval",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -292,7 +328,7 @@
             "description": "Write bearer token not authorized"
           },
           "403": {
-            "description": "Publishing operation prohibited by this API"
+            "description": "Explicit human approval missing or does not match request, or publication prohibited"
           },
           "409": {
             "description": "Revision conflict"

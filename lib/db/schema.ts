@@ -272,6 +272,7 @@ export const agentWriteRequests = pgTable('agent_write_requests', {
   actorId: text('actor_id').notNull(),
   resource: text('resource').notNull(),
   payloadSha256: text('payload_sha256').notNull(),
+  approvalId: text('approval_id').notNull(),
   completedAt: timestamp('completed_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

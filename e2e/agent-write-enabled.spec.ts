@@ -1,12 +1,37 @@
 import { randomUUID } from 'node:crypto';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { E2E_ADMIN_PASSWORD } from './constants';
 import { Client } from 'pg';
 
 const enabled = process.env.E2E_AGENT_WRITE_TEST === 'true' &&
   process.env.DATABASE_DRIVER === 'node-postgres';
 test.skip(!enabled, 'Only against a migrated disposable PostgreSQL with explicit test secrets.');
 
-test('actor-attributed writes are transactional, idempotent and reject stale revisions', async ({ request }) => {
+async function loginAndApprove(page: Page): Promise<(path: string, revision: number, key: string, patch: object) => Promise<string>> {
+  await page.goto('/admin/login');
+  await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  return async (path, revision, key, patch) => {
+    const result = await page.evaluate(async ({ path, revision, key, patch }) => {
+      const response = await fetch('/admin/api/agent-approvals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Agent-Resource': path,
+          'If-Match': `"${revision}"`,
+          'Idempotency-Key': key,
+        },
+        body: JSON.stringify(patch),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { path, revision, key, patch });
+    expect(result.status, JSON.stringify(result.body)).toBe(201);
+    return (result.body as { approval: string }).approval;
+  };
+}
+
+test('actor-attributed writes are transactional, idempotent and reject stale revisions', async ({ request, page }) => {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl || !['127.0.0.1', 'localhost'].includes(new URL(databaseUrl).hostname)) {
     throw new Error('Agent write E2E must never use a remote database.');
@@ -19,7 +44,7 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
   const path = '/api/agent/v1/projects/' + slug;
   const key1 = randomUUID();
   const key2 = randomUUID();
-  const writeHeaders = {
+  const writeHeaders: Record<string, string> = {
     Authorization: 'Bearer ' + 'e2e-write-key-' + 'w'.repeat(42),
     'If-Match': '"1"',
     'Idempotency-Key': key1,
@@ -30,7 +55,17 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
       [slug, 'Disposable agent test', 'Before'],
     );
     projectId = created.rows[0].id;
+    const approve = await loginAndApprove(page);
     const updateBody = { description: 'After agent patch' };
+    // Knowing the service write key is insufficient to change content.
+    const noApproval = await request.patch(path, { headers: writeHeaders, data: updateBody });
+    expect(noApproval.status()).toBe(403);
+    writeHeaders['X-Agent-Approval'] = await approve(path, 1, key1, updateBody);
+    const unapprovedChange = await request.patch(path, {
+      headers: writeHeaders,
+      data: { description: 'Changed after approval' },
+    });
+    expect(unapprovedChange.status()).toBe(403);
 
     const first = await request.patch(path, { headers: writeHeaders, data: updateBody });
     expect(first.status(), await first.text()).toBe(204);
@@ -38,15 +73,20 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
     const replay = await request.patch(path, { headers: writeHeaders, data: updateBody });
     expect(replay.status(), await replay.text()).toBe(204);
 
+    const differentBody = { description: 'Different content with reused key' };
+    const conflictingApproval = await approve(path, 1, key1, differentBody);
     const conflictKey = await request.patch(path, {
-      headers: writeHeaders,
-      data: { description: 'Different content with reused key' },
+      headers: { ...writeHeaders, 'X-Agent-Approval': conflictingApproval },
+      data: differentBody,
     });
     expect(conflictKey.status()).toBe(409);
 
+    const staleKey = randomUUID();
+    const staleBody = { description: 'Stale write' };
     const stale = await request.patch(path, {
-      headers: { ...writeHeaders, 'Idempotency-Key': randomUUID() },
-      data: { description: 'Stale write' },
+      headers: { ...writeHeaders, 'Idempotency-Key': staleKey,
+        'X-Agent-Approval': await approve(path, 1, staleKey, staleBody) },
+      data: staleBody,
     });
     expect(stale.status()).toBe(409);
 
@@ -72,7 +112,8 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
     // New key & latest version; both same-key concurrent requests must produce
     // exactly one new revision under PostgreSQL's advisory transaction lock.
     const updated = { description: 'Concurrent, exactly once' };
-    const concurrentHeaders = { ...writeHeaders, 'If-Match': '"2"', 'Idempotency-Key': key2 };
+    const concurrentHeaders = { ...writeHeaders, 'If-Match': '"2"', 'Idempotency-Key': key2,
+      'X-Agent-Approval': await approve(path, 2, key2, updated) };
     const both = await Promise.all([
       request.patch(path, { headers: concurrentHeaders, data: updated }),
       request.patch(path, { headers: concurrentHeaders, data: updated }),
@@ -98,7 +139,7 @@ test('actor-attributed writes are transactional, idempotent and reject stale rev
   }
 });
 
-test('a published article cannot be modified through generic PATCH', async ({ request }) => {
+test('a published article cannot be modified through generic PATCH', async ({ request, page }) => {
   const url = process.env.DATABASE_URL;
   if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
     throw new Error('Published article E2E requires an isolated local DB.');
@@ -113,13 +154,18 @@ test('a published article cannot be modified through generic PATCH', async ({ re
       [slug, 'Published fixture', 'Excerpt', 'Original'],
     );
     id = created.rows[0].id;
-    const forbidden = await request.patch('/api/agent/v1/posts/' + slug, {
+    const path = '/api/agent/v1/posts/' + slug;
+    const key = randomUUID();
+    const patch = { body: 'Must not silently republish' };
+    const approve = await loginAndApprove(page);
+    const forbidden = await request.patch(path, {
       headers: {
         Authorization: 'Bearer ' + 'e2e-write-key-' + 'w'.repeat(42),
         'If-Match': '"1"',
-        'Idempotency-Key': randomUUID(),
+        'Idempotency-Key': key,
+        'X-Agent-Approval': await approve(path, 1, key, patch),
       },
-      data: { body: 'Must not silently republish' },
+      data: patch,
     });
     expect(forbidden.status()).toBe(403);
     const record = await client.query<{ revision: number; body: string }>(

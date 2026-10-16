@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { applyAgentMutation, type AgentMutationContext } from './transaction';
+import { verifyAgentApproval } from './approval';
 
 import { verifyAgentBearer } from './auth';
 import { agentJson, AgentNotFoundError } from './response';
@@ -35,6 +36,13 @@ export async function agentWrite(
       return agentJson({ error: 'Too many requests or rate-limit unavailable' }, 429);
     }
     const body = await readAgentJsonPatch(request);
+    const approvalId = await verifyAgentApproval(request.headers.get('x-agent-approval'), {
+      actorId: process.env.AGENT_WRITE_ACTOR_ID!,
+      requestId: idempotencyKey,
+      resource: new URL(request.url).pathname,
+      revision: expectedRevision,
+      patch: body,
+    });
     const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
     if (!connectionString) return agentJson({ error: 'Content unavailable' }, 503);
     await applyAgentMutation({
@@ -43,6 +51,7 @@ export async function agentWrite(
       resource: new URL(request.url).pathname,
       revision: expectedRevision,
       patch: body,
+      approvalId,
     }, async (scope) => change(body, expectedRevision, scope), connectionString);
     return new Response(null, { status: 204, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
   } catch (error) {

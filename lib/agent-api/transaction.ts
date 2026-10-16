@@ -14,6 +14,7 @@ export interface AgentMutationContext {
 
 export interface AgentRequestIdentity {
   actorId: string;
+  approvalId: string;
   requestId: string;
   resource: string;
   revision: number;
@@ -76,8 +77,8 @@ export async function applyAgentMutation(
     const database = drizzlePg({ client }) as unknown as NonNullable<typeof db>;
     await mutate({ database, onCommit: (effect) => effects.push(effect) });
     await client.query(
-      'INSERT INTO agent_write_requests (request_id, actor_id, resource, payload_sha256) VALUES ($1, $2, $3, $4)',
-      [identity.requestId, identity.actorId, identity.resource, digest],
+      'INSERT INTO agent_write_requests (request_id, actor_id, resource, payload_sha256, approval_id) VALUES ($1, $2, $3, $4, $5)',
+      [identity.requestId, identity.actorId, identity.resource, digest, identity.approvalId],
     );
     await client.query('COMMIT');
     committed = true;
