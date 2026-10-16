@@ -9,7 +9,7 @@ import {
   parseAgentProjectInput, parseAgentSettingsInput,
 } from '@/lib/content-management/json-input';
 import { isCanonicalSlug } from '@/lib/slug-policy';
-import { isThemeKey } from '@/lib/themes';
+import { isThemeKey, type ThemeKey } from '@/lib/themes';
 import { AdminValidationError } from '@/lib/admin/validation';
 import { AgentNotFoundError } from './response';
 import { AgentWriteInputError } from './write-policy';
@@ -27,6 +27,20 @@ export function parseEditableResource(value: string): EditableResource {
     return { kind: match[1] === 'projects' ? 'project' : 'post', slug: match[2] };
   }
   throw new AgentWriteInputError(400, 'Unsupported content resource.');
+}
+
+function validateStoredTheme(theme: string): ThemeKey {
+  if (!isThemeKey(theme)) throw new AdminValidationError('Invalid stored theme.');
+  return theme;
+}
+
+function preventPublishedPostEdit(
+  published: boolean,
+  patch: Record<string, unknown>,
+): void {
+  if (published || Object.hasOwn(patch, 'published') || Object.hasOwn(patch, 'publishedAt')) {
+    throw new AgentWriteInputError(403, 'Published content needs a separate publication workflow.');
+  }
 }
 
 /** Validate against current stored content without modifying it. */
@@ -50,8 +64,8 @@ export async function validateProposal(
     case 'settings': {
       const [row] = await db.select().from(siteSettings).limit(1);
       if (row) {
-        if (!isThemeKey(row.defaultTheme)) throw new AdminValidationError('Invalid stored theme.');
-        parseAgentSettingsInput(patch, { ...row, defaultTheme: row.defaultTheme });
+        const validatedTheme = validateStoredTheme(row.defaultTheme);
+        parseAgentSettingsInput(patch, { ...row, defaultTheme: validatedTheme });
         current = row;
       }
       break;
@@ -67,9 +81,7 @@ export async function validateProposal(
     case 'post': {
       const [row] = await db.select().from(posts).where(eq(posts.slug, parsed.slug)).limit(1);
       if (row) {
-        if (row.published || Object.hasOwn(patch, 'published') || Object.hasOwn(patch, 'publishedAt')) {
-          throw new AgentWriteInputError(403, 'Published content needs a separate publication workflow.');
-        }
+        preventPublishedPostEdit(row.published, patch);
         parseAgentPostInput(patch, row);
         current = row;
       }

@@ -104,14 +104,14 @@ export default async function AgentApprovalsPage() {
                 <input type="checkbox" name="confirmation" value="reviewed" required />{' '}
                 I reviewed the exact changes above.
               </label>
-              <button className={[styles.button, styles.buttonPrimary].join(' ')} disabled={!valid}>
+              <button type="submit" className={[styles.button, styles.buttonPrimary].join(' ')} disabled={!valid}>
                 Approve this change
               </button>
             </form>
             <form action={rejectProposal}>
               <input type="hidden" name="requestId" value={item.requestId} />
               <input type="hidden" name="confirmation" value="reviewed" />
-              <button className={styles.button}>Reject</button>
+              <button type="submit" className={styles.button}>Reject</button>
             </form>
           </div>
         </section>

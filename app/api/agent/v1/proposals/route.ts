@@ -21,6 +21,25 @@ const proposalPolicy: RateLimitPolicy = {
 };
 const LIFETIME_MS = 15 * 60 * 1000;
 
+
+async function parseProposalPayload(request: Request): Promise<{
+  resource: string;
+  patch: Record<string, unknown>;
+}> {
+  const json = await readAgentJsonPatch(request);
+  const keys = Object.keys(json).sort((a, b) => a.localeCompare(b)).join(',');
+  if (keys !== 'patch,resource' || typeof json.resource !== 'string' ||
+      !json.patch || typeof json.patch !== 'object' ||
+      Array.isArray(json.patch)) {
+    throw new AgentWriteInputError(400, 'Expected resource and patch fields.');
+  }
+  const patch = json.patch as Record<string, unknown>;
+  if (Object.keys(patch).length === 0) {
+    throw new AgentWriteInputError(400, 'An edit is required.');
+  }
+  return { resource: json.resource, patch };
+}
+
 export async function POST(request: Request): Promise<Response> {
   if (!isAgentWriteConfigured({
     AGENT_CONTENT_WRITE_ENABLED: process.env.AGENT_CONTENT_WRITE_ENABLED,
@@ -39,15 +58,7 @@ export async function POST(request: Request): Promise<Response> {
       return agentJson({ error: 'Proposal rate limit reached' }, 429);
     }
 
-    const json = await readAgentJsonPatch(request);
-    if (Object.keys(json).sort().join(',') !== 'patch,resource' ||
-        typeof json.resource !== 'string' || !json.patch ||
-        typeof json.patch !== 'object' || Array.isArray(json.patch)) {
-      throw new AgentWriteInputError(400, 'Expected resource and patch fields.');
-    }
-    const resource = json.resource;
-    const patch = json.patch as Record<string, unknown>;
-    if (Object.keys(patch).length === 0) throw new AgentWriteInputError(400, 'An edit is required.');
+    const { resource, patch } = await parseProposalPayload(request);
 
     const actorId = process.env.AGENT_WRITE_ACTOR_ID!;
     const subject = { actorId, requestId, resource, revision, patch };

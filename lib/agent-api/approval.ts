@@ -20,7 +20,7 @@ function canonicalJson(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalJson);
   if (value && typeof value === 'object') {
     const obj = value as Record<string, unknown>;
-    return Object.fromEntries(Object.keys(obj).sort().map((key) => [key, canonicalJson(obj[key])]));
+    return Object.fromEntries(Object.keys(obj).sort((a, b) => a.localeCompare(b)).map((key) => [key, canonicalJson(obj[key])]));
   }
   return value;
 }
