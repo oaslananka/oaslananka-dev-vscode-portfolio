@@ -95,13 +95,18 @@ export async function saveProjectContent(input: ProjectInput, id?: number, expec
     await database.insert(projectsTable).values(values);
   }
 
-  const changedPaths = new Set(['/', '/projects', `/projects/${values.slug}`]);
-  if (previousSlug && previousSlug !== values.slug) {
+  refreshProjectChanges(values.slug, previousSlug);
+}
+
+
+function refreshProjectChanges(slug: string, previousSlug?: string): void {
+  const changedPaths = new Set(['/', '/projects', `/projects/${slug}`]);
+  if (previousSlug && previousSlug !== slug) {
     changedPaths.add(`/projects/${previousSlug}`);
   }
   for (const path of changedPaths) revalidatePath(path);
-  revalidatePath(`/projects/${values.slug}/opengraph-image`);
-  if (previousSlug && previousSlug !== values.slug) {
+  revalidatePath(`/projects/${slug}/opengraph-image`);
+  if (previousSlug && previousSlug !== slug) {
     revalidatePath(`/projects/${previousSlug}/opengraph-image`);
   }
   revalidateDiscoveryPaths();
@@ -151,6 +156,14 @@ export async function savePostContent(input: PostInput, id?: number, expectedRev
     await database.insert(postsTable).values(values);
   }
 
+  refreshPostChanges(values, previousPost);
+}
+
+
+function refreshPostChanges(
+  values: Pick<PostInput, 'slug' | 'published'>,
+  previousPost?: { slug: string; published: boolean },
+): void {
   revalidatePath('/articles');
   revalidatePath(`/articles/${values.slug}`);
   revalidatePath(`/articles/${values.slug}/opengraph-image`);
@@ -159,7 +172,6 @@ export async function savePostContent(input: PostInput, id?: number, expectedRev
     revalidatePath(`/articles/${previousPost.slug}/opengraph-image`);
   }
   revalidateDiscoveryPaths();
-
   const changedPaths = new Set<string>();
   if (values.published || previousPost?.published) changedPaths.add('/articles');
   if (values.published) changedPaths.add(`/articles/${values.slug}`);

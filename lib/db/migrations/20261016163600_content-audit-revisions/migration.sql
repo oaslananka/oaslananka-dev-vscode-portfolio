@@ -51,15 +51,15 @@ LANGUAGE plpgsql AS $content_audit$
 BEGIN
   IF TG_OP = 'INSERT' THEN
     INSERT INTO content_changes(entity_type, entity_id, revision, operation, before, after)
-    VALUES (TG_TABLE_NAME, NEW.id, NEW.revision, 'insert', NULL, to_jsonb(NEW));
+    VALUES (TG_TABLE_NAME, NEW.id, NEW.revision, lower(TG_OP), NULL, to_jsonb(NEW));
     RETURN NEW;
   ELSIF TG_OP = 'UPDATE' THEN
     INSERT INTO content_changes(entity_type, entity_id, revision, operation, before, after)
-    VALUES (TG_TABLE_NAME, NEW.id, NEW.revision, 'update', to_jsonb(OLD), to_jsonb(NEW));
+    VALUES (TG_TABLE_NAME, NEW.id, NEW.revision, lower(TG_OP), to_jsonb(OLD), to_jsonb(NEW));
     RETURN NEW;
   ELSE
     INSERT INTO content_changes(entity_type, entity_id, revision, operation, before, after)
-    VALUES (TG_TABLE_NAME, OLD.id, OLD.revision + 1, 'delete', to_jsonb(OLD), NULL);
+    VALUES (TG_TABLE_NAME, OLD.id, OLD.revision + 1, lower(TG_OP), to_jsonb(OLD), NULL);
     RETURN OLD;
   END IF;
 END;
