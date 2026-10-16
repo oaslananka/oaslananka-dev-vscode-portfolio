@@ -1,0 +1,250 @@
+import { randomUUID } from 'node:crypto';
+import { expect, test, type Page, type APIRequestContext } from '@playwright/test';
+import { E2E_ADMIN_PASSWORD } from './constants';
+import { Client } from 'pg';
+
+const enabled = process.env.E2E_AGENT_WRITE_TEST === 'true' &&
+  process.env.DATABASE_DRIVER === 'node-postgres';
+test.skip(!enabled, 'Only against a migrated disposable PostgreSQL with explicit test secrets.');
+
+const agentKey = 'Bearer ' + 'e2e-write-key-' + 'w'.repeat(42);
+
+async function loginAndApprove(
+  page: Page,
+  request: APIRequestContext,
+): Promise<(path: string, revision: number, key: string, patch: object) => Promise<string>> {
+  await page.goto('/admin/login');
+  await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+
+  return async (path, revision, key, patch) => {
+    const sent = await request.post('/api/agent/v1/proposals', {
+      headers: {
+        Authorization: agentKey,
+        'If-Match': JSON.stringify(String(revision)),
+        'Idempotency-Key': key,
+      },
+      data: { resource: path, patch },
+    });
+    expect(sent.status(), await sent.text()).toBe(202);
+    const pending = await request.get('/api/agent/v1/proposals/' + key, {
+      headers: { Authorization: agentKey },
+    });
+    expect((await pending.json()).status).toBe('pending');
+
+    await page.goto('/admin/agent-approvals');
+    const preview = page.locator('section').filter({ hasText: path })
+      .filter({ hasText: String(Object.values(patch)[0]) }).first();
+    await expect(preview).toBeVisible();
+    await preview.getByLabel('I reviewed the exact changes above.').check();
+    await preview.getByRole('button', { name: 'Approve this change' }).click();
+    await expect(preview).toHaveCount(0);
+
+    const status = await request.get('/api/agent/v1/proposals/' + key, {
+      headers: { Authorization: agentKey },
+    });
+    const result = await status.json();
+    expect(status.status(), JSON.stringify(result)).toBe(200);
+    expect(result.status).toBe('approved');
+    expect(typeof result.approval).toBe('string');
+    return result.approval as string;
+  };
+}
+
+test('actor-attributed writes are transactional, idempotent and reject stale revisions', async ({ request, page }) => {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl || !['127.0.0.1', 'localhost'].includes(new URL(databaseUrl).hostname)) {
+    throw new Error('Agent write E2E must never use a remote database.');
+  }
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+
+  const slug = 'agent-writer-' + randomUUID().slice(0, 13);
+  let projectId: number | undefined;
+  const path = '/api/agent/v1/projects/' + slug;
+  const key1 = randomUUID();
+  const key2 = randomUUID();
+  const writeHeaders: Record<string, string> = {
+    Authorization: 'Bearer ' + 'e2e-write-key-' + 'w'.repeat(42),
+    'If-Match': '"1"',
+    'Idempotency-Key': key1,
+  };
+  try {
+    const created = await client.query<{ id: number }>(
+      'INSERT INTO projects (slug, title, description) VALUES ($1, $2, $3) RETURNING id',
+      [slug, 'Disposable agent test', 'Before'],
+    );
+    projectId = created.rows[0].id;
+    const approve = await loginAndApprove(page, request);
+    const updateBody = { description: 'After agent patch' };
+    // Knowing the service write key is insufficient to change content.
+    const noApproval = await request.patch(path, { headers: writeHeaders, data: updateBody });
+    expect(noApproval.status()).toBe(403);
+    writeHeaders['X-Agent-Approval'] = await approve(path, 1, key1, updateBody);
+    const unapprovedChange = await request.patch(path, {
+      headers: writeHeaders,
+      data: { description: 'Changed after approval' },
+    });
+    expect(unapprovedChange.status()).toBe(403);
+
+    const first = await request.patch(path, { headers: writeHeaders, data: updateBody });
+    expect(first.status(), await first.text()).toBe(204);
+
+    const replay = await request.patch(path, { headers: writeHeaders, data: updateBody });
+    expect(replay.status(), await replay.text()).toBe(204);
+
+    const differentBody = { description: 'Different content with reused key' };
+    const collision = await request.post('/api/agent/v1/proposals', {
+      headers: {
+        Authorization: agentKey, 'If-Match': '"1"', 'Idempotency-Key': key1,
+      },
+      data: { resource: path, patch: differentBody },
+    });
+    expect(collision.status()).toBe(409);
+    const conflictKey = await request.patch(path, {
+      headers: writeHeaders,
+      data: differentBody,
+    });
+    expect(conflictKey.status()).toBe(403);
+
+    const staleKey = randomUUID();
+    const staleBody = { description: 'Stale write' };
+    const stale = await request.post('/api/agent/v1/proposals', {
+      headers: { Authorization: agentKey, 'If-Match': '"1"', 'Idempotency-Key': staleKey },
+      data: { resource: path, patch: staleBody },
+    });
+    expect(stale.status()).toBe(409);
+
+    const rows = await client.query<{ revision: number; description: string }>(
+      'SELECT revision, description FROM projects WHERE id = $1', [projectId],
+    );
+    expect(rows.rows[0]).toEqual({ revision: 2, description: 'After agent patch' });
+    const history = await client.query<{
+      actor_id: string; request_id: string; revision: number;
+    }>(
+      'SELECT actor_id, request_id, revision FROM content_changes WHERE entity_type = $1 AND entity_id = $2 ORDER BY revision',
+      ['projects', projectId],
+    );
+    expect(history.rows).toHaveLength(2);
+    expect(history.rows[1]).toEqual({
+      actor_id: 'agent:isolated-e2e', request_id: key1, revision: 2,
+    });
+    const ledger = await client.query<{ request_id: string }>(
+      'SELECT request_id FROM agent_write_requests WHERE resource = $1', [path],
+    );
+    expect(ledger.rows.map((row) => row.request_id)).toEqual([key1]);
+
+    // New key & latest version; both same-key concurrent requests must produce
+    // exactly one new revision under PostgreSQL's advisory transaction lock.
+    const updated = { description: 'Concurrent, exactly once' };
+    const concurrentHeaders = { ...writeHeaders, 'If-Match': '"2"', 'Idempotency-Key': key2,
+      'X-Agent-Approval': await approve(path, 2, key2, updated) };
+    const both = await Promise.all([
+      request.patch(path, { headers: concurrentHeaders, data: updated }),
+      request.patch(path, { headers: concurrentHeaders, data: updated }),
+    ]);
+    expect(both.map((response) => response.status())).toEqual([204, 204]);
+    const final = await client.query<{ revision: number; description: string }>(
+      'SELECT revision, description FROM projects WHERE id = $1', [projectId],
+    );
+    expect(final.rows[0]).toEqual({ revision: 3, description: 'Concurrent, exactly once' });
+    const revisions = await client.query<{ revision: number; request_id: string | null }>(
+      'SELECT revision, request_id FROM content_changes WHERE entity_type = $1 AND entity_id = $2 ORDER BY revision',
+      ['projects', projectId],
+    );
+    expect(revisions.rows.map((row) => row.revision)).toEqual([1, 2, 3]);
+    expect(revisions.rows[2].request_id).toBe(key2);
+    // The idempotency ledger cannot be changed by ordinary SQL DML.
+    await expect(
+      client.query('DELETE FROM agent_write_requests WHERE request_id = $1', [key1]),
+    ).rejects.toMatchObject({ code: '23514' });
+  } finally {
+    if (projectId !== undefined) await client.query('DELETE FROM projects WHERE id = $1', [projectId]);
+    await client.end();
+  }
+});
+
+test('a published article cannot be proposed through generic PATCH', async ({ request }) => {
+  const url = process.env.DATABASE_URL;
+  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
+    throw new Error('Published article E2E requires an isolated local DB.');
+  }
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  const slug = 'agent-published-' + randomUUID().slice(0, 13);
+  let id: number | undefined;
+  try {
+    const created = await client.query<{ id: number }>(
+      'INSERT INTO posts(slug, title, excerpt, body, published) VALUES($1, $2, $3, $4, true) RETURNING id',
+      [slug, 'Published fixture', 'Excerpt', 'Original'],
+    );
+    id = created.rows[0].id;
+    const path = '/api/agent/v1/posts/' + slug;
+    const key = randomUUID();
+    const patch = { body: 'Must not silently republish' };
+    const forbidden = await request.post('/api/agent/v1/proposals', {
+      headers: {
+        Authorization: agentKey,
+        'If-Match': '"1"',
+        'Idempotency-Key': key,
+      },
+      data: { resource: path, patch },
+    });
+    expect(forbidden.status()).toBe(403);
+    const record = await client.query<{ revision: number; body: string }>(
+      'SELECT revision, body FROM posts WHERE id = $1', [id],
+    );
+    expect(record.rows[0]).toEqual({ revision: 1, body: 'Original' });
+  } finally {
+    if (id !== undefined) await client.query('DELETE FROM posts WHERE id = $1', [id]);
+    await client.end();
+  }
+});
+
+test('a human can reject an agent proposal; rejection grants no token', async ({ request, page }) => {
+  const url = process.env.DATABASE_URL;
+  if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) {
+    throw new Error('Approval E2E requires a disposable database.');
+  }
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  const slug = 'agent-rejected-' + randomUUID().slice(0, 13);
+  const id = randomUUID();
+  const path = '/api/agent/v1/projects/' + slug;
+  let projectId: number | undefined;
+  try {
+    const created = await client.query<{ id: number }>(
+      'INSERT INTO projects(slug,title,description) VALUES($1,$2,$3) RETURNING id',
+      [slug, 'Rejected proposal fixture', 'Original content'],
+    );
+    projectId = created.rows[0].id;
+    const submitted = await request.post('/api/agent/v1/proposals', {
+      headers: { Authorization: agentKey, 'If-Match': '"1"', 'Idempotency-Key': id },
+      data: { resource: path, patch: { description: 'Rejected change' } },
+    });
+    expect(submitted.status(), await submitted.text()).toBe(202);
+
+    await page.goto('/admin/login');
+    await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.goto('/admin/agent-approvals');
+    const section = page.locator('section').filter({ hasText: 'Rejected change' });
+    await expect(section).toBeVisible();
+    await section.getByRole('button', { name: 'Reject' }).click();
+    await expect(section).toHaveCount(0);
+
+    const status = await request.get('/api/agent/v1/proposals/' + id, {
+      headers: { Authorization: agentKey },
+    });
+    expect(await status.json()).toEqual({ requestId: id, status: 'rejected' });
+    const row = await client.query<{ revision: number; description: string }>(
+      'SELECT revision, description FROM projects WHERE id=$1', [projectId],
+    );
+    expect(row.rows[0]).toEqual({ revision: 1, description: 'Original content' });
+  } finally {
+    if (projectId !== undefined) await client.query('DELETE FROM projects WHERE id=$1', [projectId]);
+    await client.end();
+  }
+});

@@ -253,6 +253,8 @@ export const contentChanges = pgTable(
     entityId: integer('entity_id').notNull(),
     revision: integer('revision').notNull(),
     operation: text('operation').notNull(),
+    actorId: text('actor_id'),
+    requestId: text('request_id'),
     before: jsonb('before'),
     after: jsonb('after'),
     recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
@@ -263,6 +265,32 @@ export const contentChanges = pgTable(
     index('content_changes_lookup_idx').on(table.entityType, table.entityId, table.revision),
   ],
 );
+
+// Durable deduplication record, written in the same DB transaction as an agent edit.
+export const agentWriteRequests = pgTable('agent_write_requests', {
+  requestId: text('request_id').primaryKey(),
+  actorId: text('actor_id').notNull(),
+  resource: text('resource').notNull(),
+  payloadSha256: text('payload_sha256').notNull(),
+  approvalId: text('approval_id').notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Explicit content edits waiting for an administrator's review. */
+export const agentContentProposals = pgTable('agent_content_proposals', {
+  requestId: text('request_id').primaryKey(),
+  actorId: text('actor_id').notNull(),
+  resource: text('resource').notNull(),
+  expectedRevision: integer('expected_revision').notNull(),
+  patch: jsonb('patch').$type<Record<string, unknown>>().notNull(),
+  fingerprint: text('fingerprint').notNull(),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  decidedAt: timestamp('decided_at', { withTimezone: true }),
+}, (table) => [
+  index('agent_content_proposals_pending_idx').on(table.status, table.createdAt),
+]);
 
 // ── contact messages ───────────────────────────────────────────────────────
 

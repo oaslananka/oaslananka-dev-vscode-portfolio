@@ -11,6 +11,8 @@ export const REQUIRED_APPLICATION_TABLES = [
   'posts',
   'site_settings',
   'content_changes',
+  'agent_write_requests',
+  'agent_content_proposals',
   'contact_messages',
   'login_attempts',
 ] as const;

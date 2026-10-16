@@ -72,6 +72,12 @@ export default defineConfig({
     timeout: 180_000,
     env: {
       ...databaseEnv,
+      ...(process.env.E2E_AGENT_WRITE_TEST === 'true' ? {
+        AGENT_CONTENT_WRITE_ENABLED: 'true',
+        AGENT_API_SECRET_KEY: 'e2e-read-key-' + 'r'.repeat(42),
+        AGENT_API_WRITE_KEY: 'e2e-write-key-' + 'w'.repeat(42),
+        AGENT_WRITE_ACTOR_ID: 'agent:isolated-e2e',
+      } : {}),
       ALLOW_DEFAULT_CONTENT: 'true',
       E2E_GITHUB_FIXTURE: 'true',
       AUTH_SECRET: 'ci-e2e-auth-secret-not-used-in-production',

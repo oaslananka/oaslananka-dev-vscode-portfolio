@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { revalidatePath } from 'next/cache';
+import type { db } from '@/lib/db';
 import { and, eq } from 'drizzle-orm';
 
 import type {
@@ -25,12 +26,24 @@ import {
 
 import { assertExpectedRevision, ContentRevisionConflictError } from './revision';
 
+type ContentDatabase = NonNullable<typeof db>;
+
+export interface ContentMutationOptions {
+  database?: ContentDatabase;
+  onCommit?: (effect: () => void) => void;
+}
+
+function signalChange(effect: () => void, options?: ContentMutationOptions): void {
+  if (options?.onCommit) options.onCommit(effect);
+  else effect();
+}
+
 /** This is the sole content mutation path for both admin UI and future API adapters.
  * Callers MUST authenticate and validate input before calling these functions.
  * No HTTP routes or extra credentials are introduced by this module.
  */
-export async function saveProfileContent(input: ProfileInput, expectedRevision?: number): Promise<void> {
-  const database = requireDb();
+export async function saveProfileContent(input: ProfileInput, expectedRevision?: number, options?: ContentMutationOptions): Promise<void> {
+  const database = options?.database ?? requireDb();
   const values = { ...input, updatedAt: new Date() };
   if (expectedRevision !== undefined) {
     assertExpectedRevision(expectedRevision);
@@ -43,14 +56,16 @@ export async function saveProfileContent(input: ProfileInput, expectedRevision?:
       .onConflictDoUpdate({ target: profileTable.id, set: values });
   }
 
+  signalChange(() => {
   revalidatePath('/', 'layout');
   revalidatePath('/opengraph-image');
   revalidateDiscoveryPaths();
   scheduleIndexNow(PROFILE_INDEX_PATHS);
+  }, options);
 }
 
-export async function saveSettingsContent(input: SettingsInput, expectedRevision?: number): Promise<void> {
-  const database = requireDb();
+export async function saveSettingsContent(input: SettingsInput, expectedRevision?: number, options?: ContentMutationOptions): Promise<void> {
+  const database = options?.database ?? requireDb();
   const values = { ...input, updatedAt: new Date() };
   if (expectedRevision !== undefined) {
     assertExpectedRevision(expectedRevision);
@@ -63,14 +78,16 @@ export async function saveSettingsContent(input: SettingsInput, expectedRevision
       .onConflictDoUpdate({ target: settingsTable.id, set: values });
   }
 
+  signalChange(() => {
   revalidatePath('/', 'layout');
   revalidatePath('/opengraph-image');
   revalidateDiscoveryPaths();
   scheduleIndexNow(SETTINGS_INDEX_PATHS);
+  }, options);
 }
 
-export async function saveProjectContent(input: ProjectInput, id?: number, expectedRevision?: number): Promise<void> {
-  const database = requireDb();
+export async function saveProjectContent(input: ProjectInput, id?: number, expectedRevision?: number, options?: ContentMutationOptions): Promise<void> {
+  const database = options?.database ?? requireDb();
   const values = { ...input, updatedAt: new Date() };
   let previousSlug: string | undefined;
 
@@ -95,7 +112,7 @@ export async function saveProjectContent(input: ProjectInput, id?: number, expec
     await database.insert(projectsTable).values(values);
   }
 
-  refreshProjectChanges(values.slug, previousSlug);
+  signalChange(() => refreshProjectChanges(values.slug, previousSlug), options);
 }
 
 
@@ -130,8 +147,8 @@ export async function deleteProjectContent(id: number): Promise<void> {
   scheduleIndexNow(changedPaths);
 }
 
-export async function savePostContent(input: PostInput, id?: number, expectedRevision?: number): Promise<void> {
-  const database = requireDb();
+export async function savePostContent(input: PostInput, id?: number, expectedRevision?: number, options?: ContentMutationOptions): Promise<void> {
+  const database = options?.database ?? requireDb();
   const values = { ...input, updatedAt: new Date() };
   let previousPost: { slug: string; published: boolean } | undefined;
 
@@ -156,7 +173,7 @@ export async function savePostContent(input: PostInput, id?: number, expectedRev
     await database.insert(postsTable).values(values);
   }
 
-  refreshPostChanges(values, previousPost);
+  signalChange(() => refreshPostChanges(values, previousPost), options);
 }
 
 
