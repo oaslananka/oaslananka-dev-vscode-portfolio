@@ -20,6 +20,7 @@ const now = new Date('2026-07-20T12:00:00.000Z');
 const data: AgentDiscoveryData = {
   profile: {
     id: 1,
+    revision: 1,
     name: 'Test Engineer',
     role: 'Edge AI Engineer',
     tagline: 'Reliable physical systems',
@@ -60,6 +61,7 @@ const data: AgentDiscoveryData = {
   },
   settings: {
     id: 1,
+    revision: 1,
     siteTitle: 'Test portfolio',
     siteDescription: 'Engineering portfolio.',
     keywords: ['engineering'],
@@ -70,6 +72,7 @@ const data: AgentDiscoveryData = {
   projects: [
     {
       id: 2,
+      revision: 1,
       slug: 'sismo-smart',
       title: 'Sismo Smart',
       description: 'A privacy-safe sensor-to-alert case study.',
@@ -92,6 +95,7 @@ const data: AgentDiscoveryData = {
     },
     {
       id: 1,
+    revision: 1,
       slug: 'verified-project',
       title: 'Verified Project',
       description: 'A project with evidence.',
@@ -115,6 +119,7 @@ const data: AgentDiscoveryData = {
   posts: [
     {
       id: 1,
+    revision: 1,
       slug: 'verified-article',
       title: 'Verified Article',
       excerpt: 'An article about verification.',
