@@ -28,11 +28,11 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<Response> {
-  return agentWrite(request, async (patch, revision) => {
+  return agentWrite(request, async (patch, revision, scope) => {
     const { slug } = await params;
     if (!isCanonicalSlug(slug)) throw new AgentNotFoundError();
-    const [current] = await db!.select().from(projects).where(eq(projects.slug, slug)).limit(1);
+    const [current] = await scope.database.select().from(projects).where(eq(projects.slug, slug)).limit(1);
     if (!current) throw new AgentNotFoundError();
-    await saveProjectContent(parseAgentProjectInput(patch, current), current.id, revision);
+    await saveProjectContent(parseAgentProjectInput(patch, current), current.id, revision, scope);
   });
 }

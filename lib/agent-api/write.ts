@@ -1,8 +1,10 @@
 import 'server-only';
 
+import { applyAgentMutation, type AgentMutationContext } from './transaction';
+
 import { verifyAgentBearer } from './auth';
 import { agentJson, AgentNotFoundError } from './response';
-import { readAgentJsonPatch, parseIfMatchRevision, isAgentWriteConfigured, AgentWriteInputError } from './write-policy';
+import { readAgentJsonPatch, parseIfMatchRevision, parseAgentIdempotencyKey, isAgentWriteConfigured, AgentWriteInputError } from './write-policy';
 import { db } from '@/lib/db';
 import { consumeRateLimitAttempt, type RateLimitPolicy } from '@/lib/rate-limit';
 import { AdminValidationError } from '@/lib/admin/validation';
@@ -13,12 +15,13 @@ const writePolicy: RateLimitPolicy = { scope: 'agent-write', windowMs: 60 * 60 *
 /** Mutations are entirely disabled unless both an independent key and flag are configured. */
 export async function agentWrite(
   request: Request,
-  change: (body: Record<string, unknown>, revision: number) => Promise<void>,
+  change: (body: Record<string, unknown>, revision: number, scope: AgentMutationContext) => Promise<void>,
 ): Promise<Response> {
   if (!isAgentWriteConfigured({
     AGENT_CONTENT_WRITE_ENABLED: process.env.AGENT_CONTENT_WRITE_ENABLED,
     AGENT_API_SECRET_KEY: process.env.AGENT_API_SECRET_KEY,
     AGENT_API_WRITE_KEY: process.env.AGENT_API_WRITE_KEY,
+    AGENT_WRITE_ACTOR_ID: process.env.AGENT_WRITE_ACTOR_ID,
   })) return agentJson({ error: 'Write API disabled' }, 503);
   if (!verifyAgentBearer(request.headers.get('authorization'), process.env.AGENT_API_WRITE_KEY)) {
     return agentJson({ error: 'Unauthorized' }, 401);
@@ -27,11 +30,20 @@ export async function agentWrite(
 
   try {
     const expectedRevision = parseIfMatchRevision(request.headers.get('if-match'));
+    const idempotencyKey = parseAgentIdempotencyKey(request.headers.get('idempotency-key'));
     if (!await consumeRateLimitAttempt('agent-editor', writePolicy)) {
       return agentJson({ error: 'Too many requests or rate-limit unavailable' }, 429);
     }
     const body = await readAgentJsonPatch(request);
-    await change(body, expectedRevision);
+    const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
+    if (!connectionString) return agentJson({ error: 'Content unavailable' }, 503);
+    await applyAgentMutation({
+      actorId: process.env.AGENT_WRITE_ACTOR_ID!,
+      requestId: idempotencyKey,
+      resource: new URL(request.url).pathname,
+      revision: expectedRevision,
+      patch: body,
+    }, async (scope) => change(body, expectedRevision, scope), connectionString);
     return new Response(null, { status: 204, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
   } catch (error) {
     if (error instanceof AgentWriteInputError) return agentJson({ error: error.message }, error.status);

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+test.skip(process.env.E2E_AGENT_WRITE_TEST === 'true', 'Separate E2E suite verifies explicitly enabled writes.');
+
 const endpoints = [
   '/api/agent/v1/profile',
   '/api/agent/v1/settings',

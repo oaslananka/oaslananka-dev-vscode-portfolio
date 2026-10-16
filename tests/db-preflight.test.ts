@@ -68,14 +68,14 @@ test('migration loader reads Drizzle v3 timestamped folders', async () => {
     new URL('../lib/db/migrations/', import.meta.url),
   );
 
-  assert.equal(migrations.length, 11);
+  assert.equal(migrations.length, 12);
   assert.deepEqual(migrations[0], {
     tag: '20260711000431_fuzzy_luke_cage',
     when: 1_783_728_271_000,
   });
   assert.deepEqual(migrations.at(-1), {
-    tag: '20261016163600_content-audit-revisions',
-    when: Date.UTC(2026, 9, 16, 16, 36),
+    tag: '20261016193000_agent-write-identity',
+    when: Date.UTC(2026, 9, 16, 19, 30),
   });
 });
 

@@ -14,10 +14,12 @@ export function isAgentWriteConfigured(env: {
   AGENT_CONTENT_WRITE_ENABLED?: string;
   AGENT_API_SECRET_KEY?: string;
   AGENT_API_WRITE_KEY?: string;
+  AGENT_WRITE_ACTOR_ID?: string;
 }): boolean {
   const writeKey = env.AGENT_API_WRITE_KEY;
   const readKey = env.AGENT_API_SECRET_KEY;
   if (env.AGENT_CONTENT_WRITE_ENABLED !== 'true' || !writeKey || !readKey) return false;
+  if (!env.AGENT_WRITE_ACTOR_ID || !/^agent:[a-z0-9][a-z0-9_-]{2,63}$/.test(env.AGENT_WRITE_ACTOR_ID)) return false;
   if (Buffer.byteLength(writeKey, 'utf8') < 32 || Buffer.byteLength(readKey, 'utf8') < 32) return false;
   const a = createHash('sha256').update(writeKey).digest();
   const b = createHash('sha256').update(readKey).digest();
@@ -81,4 +83,12 @@ export function rejectImplicitPublication(input: Record<string, unknown>): void 
   if (Object.hasOwn(input, 'published') || Object.hasOwn(input, 'publishedAt')) {
     throw new AgentWriteInputError(403, 'Publishing requires a separate authorized operation.');
   }
+}
+
+/** Unique UUIDv4 per logical command, stable across transport retries. */
+export function parseAgentIdempotencyKey(value: string | null): string {
+  if (!value || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value)) {
+    throw new AgentWriteInputError(428, 'Idempotency-Key must be an RFC 4122 UUIDv4.');
+  }
+  return value;
 }

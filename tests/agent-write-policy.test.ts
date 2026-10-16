@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { AgentWriteInputError, isAgentWriteConfigured, parseIfMatchRevision, readAgentJsonPatch, rejectImplicitPublication } from '../lib/agent-api/write-policy';
+import { AgentWriteInputError, isAgentWriteConfigured, parseIfMatchRevision, parseAgentIdempotencyKey, readAgentJsonPatch, rejectImplicitPublication } from '../lib/agent-api/write-policy';
 
-const env = { AGENT_CONTENT_WRITE_ENABLED: 'true', AGENT_API_SECRET_KEY: 'read-' + 'x'.repeat(40), AGENT_API_WRITE_KEY: 'write-' + 'y'.repeat(40) };
+const env = { AGENT_CONTENT_WRITE_ENABLED: 'true', AGENT_API_SECRET_KEY: 'read-' + 'x'.repeat(40), AGENT_API_WRITE_KEY: 'write-' + 'y'.repeat(40), AGENT_WRITE_ACTOR_ID: 'agent:portfolio-owner' };
 
 test('agent writes are opt-in with separate strong credentials', () => {
   assert.equal(isAgentWriteConfigured({}), false);
@@ -32,4 +32,12 @@ test('publication requires a different deliberate operation', () => {
   for (const data of [{ published: true }, { published: false }, { publishedAt: null }]) {
     assert.throws(() => rejectImplicitPublication(data), AgentWriteInputError);
   }
+});
+
+test('agent requests must carry a stable strict UUIDv4 and actor identifier', () => {
+  assert.equal(parseAgentIdempotencyKey('fd42cc2c-948f-44fa-8921-f5aa8c61e5cc'), 'fd42cc2c-948f-44fa-8921-f5aa8c61e5cc');
+  for (const value of [null, '', 'abc', 'FD42CC2C-948F-44FA-8921-F5AA8C61E5CC', 'fd42cc2c-948f-14fa-8921-f5aa8c61e5cc']) {
+    assert.throws(() => parseAgentIdempotencyKey(value), AgentWriteInputError);
+  }
+  assert.equal(isAgentWriteConfigured({ ...env, AGENT_WRITE_ACTOR_ID: '' }), false);
 });

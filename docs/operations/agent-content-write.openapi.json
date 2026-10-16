@@ -3,7 +3,7 @@
   "info": {
     "title": "oaslananka.dev explicitly gated content updates",
     "version": "0.1.0-disabled",
-    "description": "This API MUST NOT be enabled or imported into a production Ops connection before write-mode authorization and E2E acceptance."
+    "description": "Disabled-by-default write API. Apply agent-write attribution database migration before deployment. No production enablement without owner approval."
   },
   "security": [
     {
@@ -25,6 +25,16 @@
             "schema": {
               "type": "string",
               "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "description": "UUIDv4 stable across retries of the same logical command",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -87,6 +97,16 @@
             "schema": {
               "type": "string",
               "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "description": "UUIDv4 stable across retries of the same logical command",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -158,6 +178,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "description": "UUIDv4 stable across retries of the same logical command",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -227,6 +257,16 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "description": "UUIDv4 stable across retries of the same logical command",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
