@@ -31,6 +31,7 @@ export default async function AdminProjectsPage() {
               <tr>
                 <th>Title</th>
                 <th>Slug</th>
+                <th>Visibility</th>
                 <th>Featured</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
@@ -40,6 +41,11 @@ export default async function AdminProjectsPage() {
                 <tr key={project.id}>
                   <td>{project.title}</td>
                   <td className={styles.mono}>{project.slug}</td>
+                  <td>
+                    <span className={project.published ? styles.badgeOn : styles.badgeOff}>
+                      {project.published ? 'Published' : 'Draft'}
+                    </span>
+                  </td>
                   <td>
                     {project.featured ? (
                       <span className={`${styles.badge} ${styles.badgeOn}`}>Featured</span>

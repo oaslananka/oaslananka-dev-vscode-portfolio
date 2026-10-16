@@ -148,6 +148,7 @@ export const projects = pgTable(
     media: jsonb('media').$type<ProjectMedia[]>().notNull().default([]),
     links: jsonb('links').$type<ProjectLink[]>().notNull().default([]),
     featured: boolean('featured').notNull().default(false),
+    published: boolean('published').notNull().default(true),
     sortOrder: integer('sort_order').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
