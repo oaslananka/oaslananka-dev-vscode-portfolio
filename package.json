@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx scripts/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx lib/db/seed.ts",
@@ -33,7 +33,9 @@
     "test:drizzle-upgrade": "tsx scripts/test-drizzle-v1-upgrade.ts",
     "sbom": "npm sbom --sbom-format cyclonedx > sbom.cdx.json",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run test:agent-evals",
-    "test:agent-evals": "node scripts/validate-agent-evals.mjs"
+    "test:agent-evals": "node scripts/validate-agent-evals.mjs",
+    "release:target:fingerprint": "tsx scripts/verify-release-target.ts --print-fingerprint",
+    "db:migrate:production": "tsx scripts/migrate-production.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

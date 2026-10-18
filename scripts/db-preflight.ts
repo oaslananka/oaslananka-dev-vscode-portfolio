@@ -4,6 +4,11 @@ import {
   resolveDatabaseUrl,
   runDatabasePreflightFromUrl,
 } from '../lib/db/preflight';
+import {
+  readProductionDatabaseTarget,
+  assertProductionDatabaseUrls,
+  ProductionTargetError,
+} from '../lib/db/production-target';
 
 const EXIT_CODES = {
   configuration: 2,
@@ -14,12 +19,15 @@ const EXIT_CODES = {
 } as const;
 
 async function main(): Promise<void> {
+  const productionTarget = readProductionDatabaseTarget(process.env);
+  assertProductionDatabaseUrls(process.env, productionTarget);
   const connectionString = resolveDatabaseUrl(process.env);
   const expectedMigrations = await loadMigrationJournal(
     new URL('../lib/db/migrations/', import.meta.url),
   );
   const report = await runDatabasePreflightFromUrl(connectionString, {
     expectedMigrations,
+    ...(productionTarget ? { productionTarget } : {}),
   });
 
   console.log(
@@ -29,6 +37,11 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
+  if (error instanceof ProductionTargetError) {
+    console.error(`[db:preflight] configuration error: ${error.message}`);
+    process.exitCode = EXIT_CODES.configuration;
+    return;
+  }
   if (error instanceof DatabasePreflightError) {
     console.error(`[db:preflight] ${error.code} error: ${error.message}`);
     for (const detail of error.details) console.error(`- ${detail}`);

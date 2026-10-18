@@ -52,3 +52,7 @@ Run local development with bundled placeholder content:
 ```bash
 ALLOW_DEFAULT_CONTENT=true npm run dev
 ```
+
+## Neon production target pin
+
+Production deployments require a four-part Neon project/branch/endpoint/database identity pin. A read-only PostgreSQL session check validates the actual deployment target independently of the Neon default branch. See [Production Neon target identity](./production-neon-target-guard.md).
