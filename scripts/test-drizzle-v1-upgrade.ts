@@ -143,7 +143,8 @@ async function main(): Promise<void> {
         FROM drizzle.__drizzle_migrations
         ORDER BY id
       `);
-      assert.equal(history.rowCount, migrations.length + 1);
+      // All post-legacy migrations must apply, not just the first one.
+      assert.equal(history.rowCount, migrationFolders.length);
       const legacyRows = history.rows.slice(0, migrations.length);
       assert.deepEqual(
         legacyRows.map((row) => row.name),
@@ -158,8 +159,16 @@ async function main(): Promise<void> {
         migrations.map((migration) => String(migration.timestamp)),
       );
       assert.equal(legacyRows.every((row) => row.applied_at === null), true);
-      assert.equal(history.rows.at(-1)?.name, migrationFolders.at(-1));
-      assert.ok(history.rows.at(-1)?.applied_at, 'new migration must be applied');
+      const postLegacy = history.rows.slice(migrations.length);
+      assert.deepEqual(
+        postLegacy.map((row) => row.name),
+        migrationFolders.slice(migrations.length),
+      );
+      assert.equal(
+        postLegacy.every((row) => row.applied_at !== null),
+        true,
+        'all new migrations must be applied',
+      );
 
       const after = await fixture.query<{
         posts: string;
