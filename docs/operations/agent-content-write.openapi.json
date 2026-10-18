@@ -432,7 +432,7 @@
             "description": "Writer disabled"
           }
         },
-        "description": "Edits use If-Match; new private article/project drafts use If-None-Match: * and matching collection path. Proposals do not create or publish content."
+        "description": "Edits and separate publication commands use If-Match; new private article/project drafts use If-None-Match: *. Publication proposals target the resource path ending in /publication and contain only {\"published\":true|false}. Proposals never directly publish content."
       }
     },
     "/api/agent/v1/proposals/{requestId}": {
@@ -716,6 +716,200 @@
           },
           "503": {
             "description": "Write API disabled"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/projects/{slug}/publication": {
+      "post": {
+        "operationId": "changeProjectPublication",
+        "summary": "Publish or unpublish existing content after independent administrator approval",
+        "description": "Separate from ordinary PATCH. First submit an exact proposal using this publication resource, await deliberate administrator approval, then POST exactly {\"published\":true|false} with the same revision, UUIDv4 request ID and signed approval. No operation is available when agent writes are disabled.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "description": "Strong quoted integer revision from private GET. Example: \"1\"",
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "description": "UUIDv4 stable across retries of the same logical command",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Agent-Approval",
+            "in": "header",
+            "required": true,
+            "description": "Approval JWT returned only by an administrator-approved proposal status poll",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "published"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "published": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Publication state changed or identical approved request replayed"
+          },
+          "400": {
+            "description": "Malformed JSON or invalid precondition"
+          },
+          "401": {
+            "description": "Write bearer token not authorized"
+          },
+          "403": {
+            "description": "Explicit human approval missing or does not match request, or publication prohibited"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "415": {
+            "description": "Unsupported media type"
+          },
+          "422": {
+            "description": "Content validation failed"
+          },
+          "428": {
+            "description": "Revision precondition required"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "503": {
+            "description": "Write access disabled or unavailable"
+          }
+        }
+      }
+    },
+    "/api/agent/v1/posts/{slug}/publication": {
+      "post": {
+        "operationId": "changeArticlePublication",
+        "summary": "Publish or unpublish existing content after independent administrator approval",
+        "description": "Separate from ordinary PATCH. First submit an exact proposal using this publication resource, await deliberate administrator approval, then POST exactly {\"published\":true|false} with the same revision, UUIDv4 request ID and signed approval. No operation is available when agent writes are disabled.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "description": "Strong quoted integer revision from private GET. Example: \"1\"",
+            "schema": {
+              "type": "string",
+              "pattern": "^\"[1-9][0-9]*\"$"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "description": "UUIDv4 stable across retries of the same logical command",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Agent-Approval",
+            "in": "header",
+            "required": true,
+            "description": "Approval JWT returned only by an administrator-approved proposal status poll",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "published"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "published": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Publication state changed or identical approved request replayed"
+          },
+          "400": {
+            "description": "Malformed JSON or invalid precondition"
+          },
+          "401": {
+            "description": "Write bearer token not authorized"
+          },
+          "403": {
+            "description": "Explicit human approval missing or does not match request, or publication prohibited"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "415": {
+            "description": "Unsupported media type"
+          },
+          "422": {
+            "description": "Content validation failed"
+          },
+          "428": {
+            "description": "Revision precondition required"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "503": {
+            "description": "Write access disabled or unavailable"
           }
         }
       }

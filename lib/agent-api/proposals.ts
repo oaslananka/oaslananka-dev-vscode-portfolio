@@ -16,7 +16,7 @@ import { AgentWriteInputError } from './write-policy';
 
 export type EditableResource =
   | { kind: 'profile' | 'settings' | 'draftPost' | 'draftProject' }
-  | { kind: 'project' | 'post'; slug: string };
+  | { kind: 'project' | 'post' | 'publishProject' | 'publishPost'; slug: string };
 
 export function parseEditableResource(value: string): EditableResource {
   if (value === '/api/agent/v1/profile') return { kind: 'profile' };
@@ -24,6 +24,10 @@ export function parseEditableResource(value: string): EditableResource {
   if (value === '/api/agent/v1/posts') return { kind: 'draftPost' };
   if (value === '/api/agent/v1/projects') return { kind: 'draftProject' };
   if (value.length > 320) throw new AgentWriteInputError(400, 'Resource too long.');
+  const publication = /^\/api\/agent\/v1\/(projects|posts)\/([^/]+)\/publication$/.exec(value);
+  if (publication && isCanonicalSlug(publication[2])) {
+    return { kind: publication[1] === 'projects' ? 'publishProject' : 'publishPost', slug: publication[2] };
+  }
   const match = /^\/api\/agent\/v1\/(projects|posts)\/([^/]+)$/.exec(value);
   if (match && isCanonicalSlug(match[2]) && value.length <= 320) {
     return { kind: match[1] === 'projects' ? 'project' : 'post', slug: match[2] };
@@ -75,6 +79,14 @@ async function validateNewProjectDraft(
   return { current: {} };
 }
 
+/** Publication accepts one exact boolean and cannot carry ordinary content edits. */
+export function parsePublicationPatch(patch: Record<string, unknown>): boolean {
+  if (Object.keys(patch).length !== 1 || typeof patch.published !== 'boolean') {
+    throw new AgentWriteInputError(422, 'Publication requires only a published boolean.');
+  }
+  return patch.published;
+}
+
 /** Validate against current stored content without modifying it. */
 export async function validateProposal(
   resource: string,
@@ -100,6 +112,21 @@ export async function validateProposal(
       if (row) {
         const validatedTheme = validateStoredTheme(row.defaultTheme);
         parseAgentSettingsInput(patch, { ...row, defaultTheme: validatedTheme });
+        current = row;
+      }
+      break;
+    }
+    case 'publishProject':
+    case 'publishPost': {
+      const desired = parsePublicationPatch(patch);
+      const isProject = parsed.kind === 'publishProject';
+      const [row] = isProject
+        ? await db.select().from(projects).where(eq(projects.slug, parsed.slug)).limit(1)
+        : await db.select().from(posts).where(eq(posts.slug, parsed.slug)).limit(1);
+      if (row) {
+        if (row.published === desired) {
+          throw new AgentWriteInputError(409, 'Content is already in the requested publication state.');
+        }
         current = row;
       }
       break;

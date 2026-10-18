@@ -135,6 +135,22 @@ function refreshProjectChanges(slug: string, previousSlug?: string): void {
   scheduleIndexNow(changedPaths);
 }
 
+/** Exact publication state transition; revision and audit are enforced by PostgreSQL. */
+export async function setProjectPublication(
+  id: number, slug: string, published: boolean, expectedRevision: number,
+  options?: ContentMutationOptions,
+): Promise<void> {
+  assertExpectedRevision(expectedRevision);
+  const database = options?.database ?? requireDb();
+  const updated = await database.update(projectsTable)
+    .set({ published, updatedAt: new Date() })
+    .where(and(eq(projectsTable.id, id), eq(projectsTable.revision, expectedRevision),
+      eq(projectsTable.published, !published)))
+    .returning({ id: projectsTable.id });
+  if (updated.length === 0) throw new ContentRevisionConflictError();
+  signalChange(() => refreshProjectChanges(slug), options);
+}
+
 export async function deleteProjectContent(id: number): Promise<void> {
   const database = requireDb();
   const [project] = await database
@@ -204,6 +220,22 @@ function refreshPostChanges(
     changedPaths.add(`/articles/${previousPost.slug}`);
   }
   scheduleIndexNow(changedPaths);
+}
+
+/** Publishing uses server time; unpublishing retains the prior publication timestamp. */
+export async function setPostPublication(
+  id: number, slug: string, published: boolean, expectedRevision: number,
+  options?: ContentMutationOptions,
+): Promise<void> {
+  assertExpectedRevision(expectedRevision);
+  const database = options?.database ?? requireDb();
+  const updated = await database.update(postsTable)
+    .set({ published, ...(published ? { publishedAt: new Date() } : {}), updatedAt: new Date() })
+    .where(and(eq(postsTable.id, id), eq(postsTable.revision, expectedRevision),
+      eq(postsTable.published, !published)))
+    .returning({ id: postsTable.id });
+  if (updated.length === 0) throw new ContentRevisionConflictError();
+  signalChange(() => refreshPostChanges({ slug, published }, { slug, published: !published }), options);
 }
 
 export async function deletePostContent(id: number): Promise<void> {
