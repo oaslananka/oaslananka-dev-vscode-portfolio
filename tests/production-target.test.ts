@@ -55,14 +55,14 @@ test('both pooled and unpooled URLs are checked against the pinned compute', () 
   for (const url of [
     unpooled.replace('ep-noisy-mode-ass01uqp', 'ep-odd-sound-asxtee1z'),
     unpooled.replace('/neondb', '/otherdb'),
-    'postgresql://secret:do-not-print@somewhere.example.com/neondb',
+    'postgresql://secret:do-not-print@somewhere\.example\.com/neondb',
     'not even a URL',
   ]) {
     assert.throws(() => assertProductionDatabaseUrls({
       DATABASE_URL_UNPOOLED: url,
     }, target), (error: unknown) => {
       assert.ok(error instanceof ProductionTargetError);
-      assert.doesNotMatch(error.message, /do-not-print|somewhere.example.com/);
+      assert.doesNotMatch(error.message, /do-not-print|somewhere\.example\.com/);
       return true;
     });
   }
