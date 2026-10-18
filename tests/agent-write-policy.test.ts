@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { AgentWriteInputError, isAgentWriteConfigured, parseIfMatchRevision, parseAgentIdempotencyKey, readAgentJsonPatch, rejectImplicitPublication } from '../lib/agent-api/write-policy';
+import { AgentWriteInputError, isAgentWriteConfigured, parseIfMatchRevision, parseAgentIdempotencyKey, requireCreatePrecondition, readAgentJsonPatch, rejectImplicitPublication } from '../lib/agent-api/write-policy';
 
 const env = { AGENT_CONTENT_WRITE_ENABLED: 'true', AGENT_API_SECRET_KEY: 'read-' + 'x'.repeat(40), AGENT_API_WRITE_KEY: 'write-' + 'y'.repeat(40), AGENT_WRITE_ACTOR_ID: 'agent:portfolio-owner' };
 
@@ -40,4 +40,11 @@ test('agent requests must carry a stable strict UUIDv4 and actor identifier', ()
     assert.throws(() => parseAgentIdempotencyKey(value), AgentWriteInputError);
   }
   assert.equal(isAgentWriteConfigured({ ...env, AGENT_WRITE_ACTOR_ID: '' }), false);
+});
+
+test('new draft creation requires an exclusive non-overwrite precondition', () => {
+  assert.doesNotThrow(() => requireCreatePrecondition('*', null));
+  for (const [none, match] of [[null, null], ['"0"', null], ['*', '"1"'], ['*', ''], ['"*"','"1"']] as const) {
+    assert.throws(() => requireCreatePrecondition(none, match), AgentWriteInputError);
+  }
 });

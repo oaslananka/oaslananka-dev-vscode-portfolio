@@ -92,3 +92,26 @@ export function parseAgentIdempotencyKey(value: string | null): string {
   }
   return value;
 }
+
+/** Creation cannot silently overwrite a resource and never uses an old ETag. */
+export function requireCreatePrecondition(
+  ifNoneMatch: string | null,
+  ifMatch: string | null,
+): void {
+  if (ifNoneMatch !== '*' || ifMatch !== null) {
+    throw new AgentWriteInputError(428, 'Creation requires If-None-Match: * and no If-Match.');
+  }
+}
+
+
+/** Centralize creation-vs-update HTTP preconditions for both API adapters. */
+export function parseAgentRequestRevision(headers: Headers, createDraft: boolean): number {
+  if (createDraft) {
+    requireCreatePrecondition(headers.get('if-none-match'), headers.get('if-match'));
+    return 0;
+  }
+  if (headers.has('if-none-match')) {
+    throw new AgentWriteInputError(400, 'If-None-Match applies only to new drafts.');
+  }
+  return parseIfMatchRevision(headers.get('if-match'));
+}

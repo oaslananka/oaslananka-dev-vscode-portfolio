@@ -8,3 +8,4 @@ engines:
     exclude_paths:
       - "lib/db/migrations/20261016211500_agent-command-approval/migration.sql"
       - "lib/db/migrations/20261016213000_agent-proposal-workflow/migration.sql"
+      - "lib/db/migrations/20261016214500_agent-draft-creation/migration.sql"
