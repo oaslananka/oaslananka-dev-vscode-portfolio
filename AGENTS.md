@@ -28,6 +28,8 @@ doppler run --config dev -- npm run db:preflight
 
 Local development requires the isolated `dev` config. If Doppler only offers `prod`, do not use production services for local work; provision/populate `dev` first. Always pass `--config` explicitly instead of relying on directory-scoped Doppler state.
 
+Production migrations use the explicit project/branch/endpoint identity pin and guarded db:migrate:production workflow in docs/operations/production-neon-target-guard.md. Never infer the live branch from the Neon default label.
+
 Production content is database-backed and fails closed. Never enable bundled default content in production. Apply migrations only with an explicitly selected Doppler configuration.
 
 ## Usage

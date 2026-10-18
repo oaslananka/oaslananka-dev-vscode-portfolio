@@ -1,4 +1,8 @@
 import { defineConfig } from 'drizzle-kit';
+import { assertProductionDatabaseUrls, readProductionDatabaseTarget } from './lib/db/production-target';
+
+const productionTarget = readProductionDatabaseTarget(process.env);
+assertProductionDatabaseUrls(process.env, productionTarget);
 
 const databaseUrl =
   process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;

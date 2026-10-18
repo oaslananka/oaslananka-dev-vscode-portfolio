@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 import { Client, type QueryResultRow } from 'pg';
 
+import { assertProductionDatabaseIdentity, type ProductionDatabaseTarget, ProductionTargetError } from './production-target';
+
 export const REQUIRED_APPLICATION_TABLES = [
   'profile',
   'projects',
@@ -52,6 +54,7 @@ export interface DatabasePreflightOptions {
   migrationTable?: string;
   requiredTables?: readonly string[];
   expectedMigrations: readonly MigrationJournalEntry[];
+  productionTarget?: ProductionDatabaseTarget;
   connectionTimeoutMillis?: number;
 }
 
@@ -270,6 +273,17 @@ export async function runDatabasePreflight(
         'schema',
         'Database preflight refused to continue because the transaction is not read-only.',
       );
+    }
+
+    if (options.productionTarget) {
+      try {
+        await assertProductionDatabaseIdentity(client, options.productionTarget);
+      } catch (error) {
+        if (error instanceof ProductionTargetError) {
+          throw new DatabasePreflightError('configuration', error.message);
+        }
+        throw error;
+      }
     }
 
     const tableRows = await queryPhase<{ table_name: string }>(
