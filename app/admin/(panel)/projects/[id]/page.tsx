@@ -19,7 +19,7 @@ export default async function EditProjectPage({
     <>
       <header className={styles.header}>
         <h1 className={styles.title}>Edit project</h1>
-        <p className={styles.subtitle}>{project.title}</p>
+        <p className={styles.subtitle}>{project.title} · {project.published ? 'Published' : 'Unpublished draft'}</p>
       </header>
       <div className={styles.card}>
         <ProjectForm project={project} />

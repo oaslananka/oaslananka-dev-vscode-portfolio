@@ -77,6 +77,7 @@ function fallbackProjects(): Project[] {
   return defaultProjects.map((p, i) => ({
     id: i + 1,
     revision: 1,
+    published: true,
     createdAt: now(),
     updatedAt: now(),
     ...p,
@@ -115,6 +116,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
     database
       .select()
       .from(projectsTable)
+      .where(eq(projectsTable.published, true))
       .orderBy(asc(projectsTable.sortOrder), asc(projectsTable.id)),
   );
 });
@@ -128,7 +130,7 @@ export const getProjectBySlug = cache(
         const rows = await database
           .select()
           .from(projectsTable)
-          .where(eq(projectsTable.slug, slug))
+          .where(and(eq(projectsTable.slug, slug), eq(projectsTable.published, true)))
           .limit(1);
         return rows[0] ?? null;
       },

@@ -330,3 +330,98 @@ test('a new article requires human approval and remains an unpublished draft', a
     await client.end();
   }
 });
+
+
+test('an admin-approved project is private until explicitly published', async ({ request, page }) => {
+  const client = await connectDisposableDatabase();
+  const slug = 'agent-project-draft-' + randomUUID().slice(0, 13);
+  const key = randomUUID();
+  const resource = '/api/agent/v1/projects';
+  const patch = {
+    title: 'Private project fixture ' + slug,
+    slug,
+    description: 'This content must never appear publicly before publishing',
+    tags: ['internal'],
+  };
+  const headers = {
+    Authorization: agentKey,
+    'If-None-Match': '*',
+    'Idempotency-Key': key,
+  };
+
+  try {
+    const noApproval = await request.post(resource, { headers, data: patch });
+    expect(noApproval.status()).toBe(403);
+
+    for (const unauthorized of [
+      { ...patch, published: true },
+      { ...patch, published: false },
+      { ...patch, featured: true },
+      { ...patch, featured: false },
+    ]) {
+      const forbidden = await request.post('/api/agent/v1/proposals', {
+        headers: { ...headers, 'Idempotency-Key': randomUUID() },
+        data: { resource, patch: unauthorized },
+      });
+      expect(forbidden.status()).toBe(422);
+    }
+
+    const approve = await loginAndApprove(page, request);
+    const token = await approve(resource, 0, key, patch);
+    const publishedAttempt = await request.post(resource, {
+      headers: { ...headers, 'X-Agent-Approval': token },
+      data: { ...patch, featured: true },
+    });
+    expect(publishedAttempt.status()).toBe(403);
+
+    const created = await request.post(resource, {
+      headers: { ...headers, 'X-Agent-Approval': token },
+      data: patch,
+    });
+    expect(created.status(), await created.text()).toBe(201);
+
+    const retry = await request.post(resource, {
+      headers: { ...headers, 'X-Agent-Approval': token },
+      data: patch,
+    });
+    expect(retry.status()).toBe(201);
+
+    const rows = await client.query<{
+      id: number; published: boolean; featured: boolean; revision: number;
+    }>('SELECT id,published,featured,revision FROM projects WHERE slug=$1', [slug]);
+    expect(rows.rows).toHaveLength(1);
+    expect(rows.rows[0].published).toBe(false);
+    expect(rows.rows[0].featured).toBe(false);
+    expect(rows.rows[0].revision).toBe(1);
+
+    const history = await client.query<{ actor_id: string; request_id: string; revision: number }>(
+      'SELECT actor_id, request_id, revision FROM content_changes WHERE entity_type=$1 AND entity_id=$2',
+      ['projects', rows.rows[0].id],
+    );
+    expect(history.rows).toEqual([{ actor_id: 'agent:isolated-e2e', request_id: key, revision: 1 }]);
+
+    const detail = await request.get('/projects/' + slug);
+    expect(detail.status()).toBe(404);
+    const openGraph = await request.get('/projects/' + slug + '/opengraph-image');
+    expect(openGraph.status()).toBe(404);
+    const listing = await request.get('/projects');
+    expect(listing.status()).toBe(200);
+    expect(await listing.text()).not.toContain(patch.title);
+    const sitemap = await request.get('/sitemap.xml');
+    expect(sitemap.status()).toBe(200);
+    expect(await sitemap.text()).not.toContain('/projects/' + slug);
+
+    await page.goto('/admin/projects');
+    const adminRow = page.getByRole('row').filter({ hasText: patch.title });
+    await expect(adminRow).toContainText('Draft');
+
+    const collision = await request.post('/api/agent/v1/proposals', {
+      headers: { ...headers, 'Idempotency-Key': randomUUID() },
+      data: { resource, patch },
+    });
+    expect(collision.status()).toBe(409);
+  } finally {
+    await client.query('DELETE FROM projects WHERE slug=$1', [slug]);
+    await client.end();
+  }
+});
