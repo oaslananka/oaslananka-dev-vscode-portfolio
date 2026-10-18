@@ -50,3 +50,14 @@ test('project draft-creation is disabled without explicitly enabled write API', 
   });
   expect(response.status()).toBe(503);
 });
+
+
+test('publication cannot run while the production write feature is disabled', async ({ request }) => {
+  for (const type of ['projects', 'posts']) {
+    const result = await request.post(`/api/agent/v1/${type}/unknown/publication`, {
+      headers: { 'If-Match': '"1"', 'Idempotency-Key': randomUUID() },
+      data: { published: true },
+    });
+    expect(result.status()).toBe(503);
+  }
+});

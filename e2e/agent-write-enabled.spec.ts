@@ -425,3 +425,91 @@ test('an admin-approved project is private until explicitly published', async ({
     await client.end();
   }
 });
+
+
+test('publication and unpublication require separate approvals, preserve history and public visibility', async ({ request, page }) => {
+  const client = await connectDisposableDatabase();
+  const approve = await loginAndApprove(page, request);
+
+  for (const kind of ['projects', 'posts'] as const) {
+    const slug = `agent-publication-${kind}-` + randomUUID().slice(0, 13);
+    const title = 'Approved publication ' + slug;
+    const isProject = kind === 'projects';
+    const resource = `/api/agent/v1/${kind}/${slug}/publication`;
+    const publicPath = `/${isProject ? 'projects' : 'articles'}/${slug}`;
+    const table = isProject ? 'projects' : 'posts';
+    const readStatusSql = isProject
+      ? 'SELECT published,revision FROM projects WHERE id=$1'
+      : 'SELECT published,revision FROM posts WHERE id=$1';
+    const deleteSql = isProject ? 'DELETE FROM projects WHERE id=$1' : 'DELETE FROM posts WHERE id=$1';
+    const created = isProject
+      ? await client.query('INSERT INTO projects (slug,title,description,published) VALUES ($1,$2,$3,false) RETURNING id', [slug, title, 'Private fixture'])
+      : await client.query('INSERT INTO posts (slug,title,excerpt,body,published) VALUES ($1,$2,$3,$4,false) RETURNING id', [slug, title, 'Fixture', 'A test publication body']);
+    const id = created.rows[0].id as number;
+
+    try {
+      expect((await request.get(publicPath)).status()).toBe(404);
+      const firstKey = randomUUID();
+      const headers = { Authorization: agentKey, 'Idempotency-Key': firstKey, 'If-Match': '"1"' };
+      const patch = { published: true };
+
+      const unauthorized = await request.post(resource, { headers, data: patch });
+      expect(unauthorized.status()).toBe(403);
+      for (const wrong of [{ published: 'true' }, { published: true, title: 'Injected' }, { publishedAt: '2026-10-18T00:00:00Z' }]) {
+        const invalid = await request.post('/api/agent/v1/proposals', {
+          headers: { ...headers, 'Idempotency-Key': randomUUID() },
+          data: { resource, patch: wrong },
+        });
+        expect(invalid.status()).toBe(422);
+      }
+
+      const token = await approve(resource, 1, firstKey, patch);
+      const changedBody = await request.post(resource, {
+        headers: { ...headers, 'X-Agent-Approval': token },
+        data: { published: false },
+      });
+      expect(changedBody.status()).toBe(403);
+      const first = await request.post(resource, {
+        headers: { ...headers, 'X-Agent-Approval': token }, data: patch,
+      });
+      expect(first.status(), await first.text()).toBe(204);
+      const retry = await request.post(resource, {
+        headers: { ...headers, 'X-Agent-Approval': token }, data: patch,
+      });
+      expect(retry.status()).toBe(204);
+      const updated = await client.query(readStatusSql, [id]);
+      expect(updated.rows[0]).toEqual({ published: true, revision: 2 });
+      expect((await request.get(publicPath)).status()).toBe(200);
+
+      const stale = await request.post('/api/agent/v1/proposals', {
+        headers: { ...headers, 'Idempotency-Key': randomUUID() },
+        data: { resource, patch: { published: false } },
+      });
+      expect(stale.status()).toBe(409);
+
+      const secondKey = randomUUID();
+      const secondHeaders = { Authorization: agentKey, 'Idempotency-Key': secondKey, 'If-Match': '"2"' };
+      const unpublish = { published: false };
+      const secondToken = await approve(resource, 2, secondKey, unpublish);
+      const unpublished = await request.post(resource, {
+        headers: { ...secondHeaders, 'X-Agent-Approval': secondToken }, data: unpublish,
+      });
+      expect(unpublished.status(), await unpublished.text()).toBe(204);
+      expect((await request.get(publicPath)).status()).toBe(404);
+      const after = await client.query(readStatusSql, [id]);
+      expect(after.rows[0]).toEqual({ published: false, revision: 3 });
+      const history = await client.query(
+        'SELECT revision,actor_id,request_id FROM content_changes WHERE entity_type=$1 AND entity_id=$2 ORDER BY revision',
+        [table, id],
+      );
+      expect(history.rows.map((row) => row.revision)).toEqual([1, 2, 3]);
+      expect(history.rows.slice(1).map((row) => row.request_id)).toEqual([firstKey, secondKey]);
+      expect(history.rows.slice(1).map((row) => row.actor_id)).toEqual(['agent:isolated-e2e', 'agent:isolated-e2e']);
+      const sitemap = await request.get('/sitemap.xml');
+      expect(await sitemap.text()).not.toContain(publicPath);
+    } finally {
+      await client.query(deleteSql, [id]);
+    }
+  }
+  await client.end();
+});
