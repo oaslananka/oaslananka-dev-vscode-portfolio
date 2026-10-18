@@ -73,3 +73,7 @@ Operators with unbounded direct DB credentials may bypass a CLI wrapper;
 least privilege and change authorization remain important.
 
 A READY Vercel production build does not grant agent write access.
+
+## Architecture decision
+
+[ADR 0002](../decisions/0002-pin-live-neon-production-branch.md) retains the serving branch and its compute instead of changing Neon default metadata or copying divergent content. Default-derived Preview branches are not necessarily production-equivalent; actual live branch protection and automatic snapshots are independent follow-up work.

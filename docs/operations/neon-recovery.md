@@ -1,13 +1,13 @@
 # Neon recovery runbook
 
-This project uses Neon only for production. Recovery checks must therefore avoid writing to the production branch.
+This project uses Neon for production plus isolated preview and recovery branches. Recovery checks must avoid writing to the **actual live production branch**, which can differ from the Neon default. See [ADR 0002](../decisions/0002-pin-live-neon-production-branch.md) and the [production identity guard](./production-neon-target-guard.md).
 
 ## Recovery layers
 
 1. **Neon point-in-time branch** — create an isolated branch from a current or historical production state, validate it, then delete it.
 2. **Logical PostgreSQL backup** — create a temporary `pg_dump`, restore it into disposable local PostgreSQL, compare deterministic manifests, and delete every temporary artifact.
 
-Neither procedure changes the Vercel or Doppler production connection strings.
+Neither procedure changes the Vercel or Doppler production connection strings. Always identify the live branch from the approved production pin and PostgreSQL session, **not** from the Neon default branch.
 
 ## Automated logical restore drill
 
@@ -71,7 +71,7 @@ npx neonctl projects list
 npx neonctl branches list --project-id <project-id>
 ```
 
-Choose a timestamp inside the configured restore window and create an expiring branch:
+Before following this example, confirm the restore source is the actual live branch and review the installed neonctl syntax. **Do not run this timestamp-based command if it would implicitly use the Neon default branch.** Choose a timestamp inside the verified restore window and create an expiring branch:
 
 ```bash
 branch_name="restore-drill-$(date -u +%Y%m%d-%H%M%S)"
@@ -103,7 +103,7 @@ npx neonctl branches delete "${branch_name}" --project-id <project-id>
 
 Do not immediately rewind the production branch.
 
-1. Identify the incident timestamp in UTC.
+1. Resolve the **actual live** branch/compute ID from the pinned production connection (never the Neon default), then identify the incident timestamp in UTC.
 2. Create a new historical branch at that timestamp.
 3. Validate schema, content, authentication records, and application reads.
 4. Export only the required records or prepare a reviewed branch restore plan.
@@ -116,5 +116,6 @@ Do not immediately rewind the production branch.
 
 - Run the automated logical restore drill monthly and before high-risk migrations.
 - Run the Neon historical branch drill quarterly.
-- Re-check the configured restore window after any Neon plan change.
+- Re-check the configured restore window after any Neon plan change. The most recent inspection found a six-hour history window and **no scheduled native snapshots**: automatic backup coverage is not established.
+- Check the actual live branch protection and plan/quota support. An unsuccessful protection attempt must not be reported as protection enabled.
 - Record the date, commit, result, dump size, and verified table count; never record credentials or row data.
