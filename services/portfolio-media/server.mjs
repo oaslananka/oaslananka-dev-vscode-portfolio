@@ -94,13 +94,108 @@ function imageInput(text) {
     ? { data, ext: TYPES[input.mimeType], mimeType: input.mimeType } : null;
 }
 async function usedBytes(root) {
-  let total = 0;
-  for (const f of await readdir(root)) {
-    if (!/^[a-f0-9]{64}\.(png|jpg|webp)$/.test(f)) continue;
-    const s = await stat(path.join(root, f));
-    if (s.isFile()) total += s.size;
+  const names = (await readdir(root)).filter(name => /^[a-f0-9]{64}\.(png|jpg|webp)$/.test(name));
+  const entries = await Promise.all(names.map(name => stat(path.join(root, name))));
+  return entries.reduce((sum, entry) => sum + (entry.isFile() ? entry.size : 0), 0);
+}
+function filePathFor(root, hash, ext) {
+  if (!/^[a-f0-9]{64}$/.test(hash) || !Object.hasOwn(MIME, ext)) throw new Error('Invalid asset id');
+  const absoluteRoot = path.resolve(root);
+  const full = path.resolve(absoluteRoot, hash + '.' + ext);
+  if (path.dirname(full) !== absoluteRoot) throw new Error('Invalid asset path');
+  return full;
+}
+async function servePublic(req, res, root) {
+  if (req.url === '/healthz' && req.method === 'GET') return reply(res, 200, { status: 'ok' });
+  const match = NAME.exec(req.url || '');
+  if (!match) return reply(res, 404, { error: 'not_found' });
+  try {
+    const assetPath = filePathFor(root, match[1], match[2]);
+    const info = await lstat(assetPath);
+    if (!info.isFile()) return reply(res, 404, { error: 'not_found' });
+    const etag = '"' + match[1] + '"';
+    const headers = {
+      'Content-Type': MIME[match[2]], 'Content-Length': info.size,
+      'Cache-Control': 'public, max-age=31536000, immutable', ETag: etag,
+      'X-Content-Type-Options': 'nosniff',
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+      'Content-Security-Policy': "default-src 'none'; sandbox",
+    };
+    if (req.headers['if-none-match'] === etag) {
+      res.writeHead(304, headers);
+      return res.end();
+    }
+    res.writeHead(200, headers);
+    if (req.method === 'HEAD') return res.end();
+    return createReadStream(assetPath, { flags: constants.O_RDONLY | constants.O_NOFOLLOW })
+      .on('error', () => res.destroy()).pipe(res);
+  } catch {
+    return reply(res, 404, { error: 'not_found' });
   }
-  return total;
+}
+async function storeImage(root, upload, maxTotalBytes) {
+  const digest = createHash('sha256').update(upload.data).digest('hex');
+  const fileName = digest + '.' + upload.ext;
+  const destination = filePathFor(root, digest, upload.ext);
+  try {
+    if ((await stat(destination)).isFile()) return { digest, fileName, created: false };
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
+  }
+  if ((await usedBytes(root)) + upload.data.length > maxTotalBytes) {
+    const error = new Error('quota_exceeded');
+    error.status = 507;
+    throw error;
+  }
+  const temp = path.join(root, '.pending-' + randomUUID());
+  try {
+    const handle = await open(temp, 'wx', 0o600);
+    try {
+      await handle.writeFile(upload.data);
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+    await rename(temp, destination);
+  } finally {
+    await unlink(temp).catch(() => {});
+  }
+  return { digest, fileName, created: true };
+}
+function createUploader(root, maxTotalBytes) {
+  let queue = Promise.resolve();
+  return (upload) => {
+    const task = queue.then(() => storeImage(root, upload, maxTotalBytes));
+    queue = task.then(() => {}, () => {});
+    return task;
+  };
+}
+function rateLimiter() {
+  let windowStart = 0;
+  let attempts = 0;
+  return () => {
+    const now = Date.now();
+    if (now - windowStart >= 60_000) { windowStart = now; attempts = 0; }
+    return ++attempts <= 10;
+  };
+}
+async function serveUpload(req, res, { token, origin, upload, rateAllowed }) {
+  if (!authorized(req.headers.authorization, token)) return reply(res, 401, { error: 'unauthorized' });
+  if (req.url !== '/v1/media') return reply(res, 404, { error: 'not_found' });
+  if (!rateAllowed()) {
+    res.setHeader('Retry-After', '60');
+    return reply(res, 429, { error: 'rate_limited' });
+  }
+  if (!/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type'] || ''))
+    return reply(res, 415, { error: 'unsupported_type' });
+  const input = imageInput(await body(req));
+  if (!input) return reply(res, 422, { error: 'invalid_image' });
+  const stored = await upload(input);
+  return reply(res, stored.created ? 201 : 200, {
+    url: new URL('/files/' + stored.fileName, origin).href,
+    sha256: stored.digest, mimeType: input.mimeType, bytes: input.data.length,
+    created: stored.created,
+  });
 }
 export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }) {
   if (!path.isAbsolute(root || '')) throw new Error('Storage must be absolute');
@@ -108,71 +203,23 @@ export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }
   const origin = new URL(publicOrigin);
   if (origin.protocol !== 'https:' || origin.username || origin.password
     || origin.pathname !== '/' || origin.search || origin.hash) throw new Error('HTTPS origin required');
-  if (!Number.isSafeInteger(maxTotalBytes) || maxTotalBytes < 1 || maxTotalBytes > LIMIT) throw new Error('Quota invalid');
+  if (!Number.isSafeInteger(maxTotalBytes) || maxTotalBytes < 1 || maxTotalBytes > LIMIT)
+    throw new Error('Quota invalid');
   const ready = mkdir(root, { recursive: true, mode: 0o700 });
-  let queue = Promise.resolve();
-  let windowStart = 0; let attempts = 0;
+  const upload = createUploader(root, maxTotalBytes);
+  const rateAllowed = rateLimiter();
   return createServer(async (req, res) => {
     try {
       await ready;
-      if (req.url === '/healthz' && req.method === 'GET') return reply(res, 200, { status: 'ok' });
-      const name = NAME.exec(req.url || '');
-      if (name && (req.method === 'GET' || req.method === 'HEAD')) {
-        try {
-          const filepath = path.join(root, name[1] + '.' + name[2]);
-          const info = await lstat(filepath);
-          if (!info.isFile()) throw new Error('Invalid file');
-          const etag = '"' + name[1] + '"';
-          const headers = { 'Content-Type': MIME[name[2]], 'Content-Length': info.size,
-            'Cache-Control': 'public, max-age=31536000, immutable', ETag: etag,
-            'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'cross-origin',
-            'Content-Security-Policy': "default-src 'none'; sandbox" };
-          if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); return res.end(); }
-          res.writeHead(200, headers);
-          if (req.method === 'HEAD') return res.end();
-          return createReadStream(filepath, { flags: constants.O_RDONLY | constants.O_NOFOLLOW })
-            .on('error', () => res.destroy()).pipe(res);
-        } catch {
-          return reply(res, 404, { error: 'not_found' });
-        }
+      if (req.method === 'POST') {
+        return await serveUpload(req, res, { token, origin, upload, rateAllowed });
       }
-      if (req.url === '/v1/media' && req.method === 'POST') {
-        if (!authorized(req.headers.authorization, token)) return reply(res, 401, { error: 'unauthorized' });
-        if (Date.now() - windowStart > 60_000) { windowStart = Date.now(); attempts = 0; }
-        if (++attempts > 10) { res.setHeader('Retry-After', '60'); return reply(res, 429, { error: 'rate_limited' }); }
-        if (!/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type'] || ''))
-          return reply(res, 415, { error: 'unsupported_type' });
-        const upload = imageInput(await body(req));
-        if (!upload) return reply(res, 422, { error: 'invalid_image' });
-        const hash = createHash('sha256').update(upload.data).digest('hex');
-        const name = hash + '.' + upload.ext;
-        const dest = path.join(root, name);
-        const write = async () => {
-          try { if ((await stat(dest)).isFile()) return false; } catch (e) { if (e.code !== 'ENOENT') throw e; }
-          if ((await usedBytes(root)) + upload.data.length > maxTotalBytes) {
-            const e = new Error('quota_exceeded'); e.status = 507; throw e;
-          }
-          const temp = path.join(root, '.pending-' + randomUUID());
-          try {
-            const fd = await open(temp, 'wx', 0o600);
-            try { await fd.writeFile(upload.data); await fd.sync(); } finally { await fd.close(); }
-            await rename(temp, dest);
-          } finally { await unlink(temp).catch(() => {}); }
-          return true;
-        };
-        const p = queue.then(write, write);
-        queue = p.then(() => {}, () => {});
-        const created = await p;
-        return reply(res, created ? 201 : 200, {
-          url: new URL('/files/' + name, origin).href, sha256: hash,
-          mimeType: upload.mimeType, bytes: upload.data.length, created,
-        });
-      }
+      if (req.method === 'GET' || req.method === 'HEAD') return await servePublic(req, res, root);
       return reply(res, 404, { error: 'not_found' });
-    } catch (e) {
+    } catch (error) {
       if (res.headersSent) return res.destroy();
-      return reply(res, e.status === 413 || e.status === 507 ? e.status : 500,
-        { error: e.status === 413 || e.status === 507 ? e.message : 'internal_error' });
+      const status = error.status === 413 || error.status === 507 ? error.status : 500;
+      return reply(res, status, { error: status === 500 ? 'internal_error' : error.message });
     }
   });
 }
