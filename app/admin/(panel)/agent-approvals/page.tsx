@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { agentContentProposals } from '@/lib/db/schema';
 import { validateProposal } from '@/lib/agent-api/proposals';
+import { isPersistentProposalExpiry } from '@/lib/agent-api/proposal-expiration';
 import { isAgentWriteConfigured } from '@/lib/agent-api/write-policy';
 import { approveProposal, rejectProposal } from './actions';
 import styles from '@/styles/Admin.module.css';
@@ -83,7 +84,8 @@ export default async function AgentApprovalsPage() {
               <span>Agent: <strong>{item.actorId}</strong></span>
               <span>Revision: <strong>{item.expectedRevision}</strong></span>
               <span>Requested: {item.createdAt.toLocaleString('en-GB', { timeZone: 'UTC' })} UTC</span>
-              <span>Expires: {item.expiresAt.toLocaleString('en-GB', { timeZone: 'UTC' })} UTC</span>
+              <span>{isPersistentProposalExpiry(item.expiresAt)
+                ? 'Does not expire' : `Expires: ${item.expiresAt.toLocaleString('en-GB', { timeZone: 'UTC' })} UTC`}</span>
               <code>{item.resource}</code>
             </div>
             {!valid && (

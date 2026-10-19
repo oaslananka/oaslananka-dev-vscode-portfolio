@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { agentContentProposals } from '@/lib/db/schema';
 import { approvalFingerprint } from '@/lib/agent-api/approval';
+import { PERSISTENT_PROPOSAL_EXPIRY } from '@/lib/agent-api/proposal-expiration';
 import { verifyAgentBearer } from '@/lib/agent-api/auth';
 import { AgentNotFoundError, agentJson } from '@/lib/agent-api/response';
 import {
@@ -19,7 +20,6 @@ export const dynamic = 'force-dynamic';
 const proposalPolicy: RateLimitPolicy = {
   scope: 'agent-proposal', windowMs: 60 * 60 * 1000, maxAttempts: 30,
 };
-const LIFETIME_MS = 15 * 60 * 1000;
 
 
 async function parseProposalPayload(request: Request): Promise<{
@@ -75,7 +75,7 @@ export async function POST(request: Request): Promise<Response> {
     await validateProposal(resource, revision, patch);
     await db.insert(agentContentProposals).values({
       requestId, actorId, resource, expectedRevision: revision, patch, fingerprint,
-      expiresAt: new Date(Date.now() + LIFETIME_MS),
+      expiresAt: PERSISTENT_PROPOSAL_EXPIRY,
     }).onConflictDoNothing();
 
     const [saved] = await db.select().from(agentContentProposals)
