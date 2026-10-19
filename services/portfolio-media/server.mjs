@@ -26,46 +26,57 @@ function authorized(value, expected) {
 function dimensions(w, h) {
   return w > 0 && h > 0 && w <= 8192 && h <= 8192 && w * h <= 20_000_000;
 }
-function validImage(b, mime) {
-  if (mime === 'image/png') return b.length >= 45
+function validPng(b) {
+  return b.length >= 45
     && b.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-    && b.toString('ascii', 12, 16) === 'IHDR' && b.readUInt32BE(8) === 13
+    && b.toString('ascii', 12, 16) === 'IHDR'
+    && b.readUInt32BE(8) === 13
     && dimensions(b.readUInt32BE(16), b.readUInt32BE(20))
     && b.subarray(-8, -4).toString('ascii') === 'IEND';
-  if (mime === 'image/jpeg') {
-    if (b.length < 24 || b[0] !== 255 || b[1] !== 216 || b.at(-2) !== 255 || b.at(-1) !== 217) return false;
-    for (let i = 2; i < b.length - 10;) {
-      if (b[i++] !== 255) return false;
-      while (b[i] === 255) i++;
-      const marker = b[i++];
-      if (marker === 0xda || marker === 0xd9) break;
-      if (marker === 0x00 || marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd7)) continue;
-      if (i + 2 > b.length) return false;
-      const size = b.readUInt16BE(i);
-      if (size < 2 || i + size > b.length) return false;
-      if ([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(marker))
-        return size >= 7 && dimensions(b.readUInt16BE(i + 3), b.readUInt16BE(i + 5));
-      i += size;
+}
+const JPEG_FRAME_MARKERS = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+function validJpeg(b) {
+  if (b.length < 24 || b[0] !== 255 || b[1] !== 216 || b.at(-2) !== 255 || b.at(-1) !== 217) return false;
+  for (let i = 2; i < b.length - 10;) {
+    if (b[i++] !== 255) return false;
+    while (b[i] === 255) i++;
+    const marker = b[i++];
+    if (marker === 0xda || marker === 0xd9) break;
+    if (marker === 0x00 || marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    if (i + 2 > b.length) return false;
+    const length = b.readUInt16BE(i);
+    if (length < 2 || i + length > b.length) return false;
+    if (JPEG_FRAME_MARKERS.has(marker)) {
+      return length >= 7 && dimensions(b.readUInt16BE(i + 3), b.readUInt16BE(i + 5));
     }
-    return false;
-  }
-  if (mime === 'image/webp') {
-    if (b.length < 30 || b.toString('ascii', 0, 4) !== 'RIFF'
-      || b.toString('ascii', 8, 12) !== 'WEBP' || b.readUInt32LE(4) !== b.length - 8) return false;
-    const kind = b.toString('ascii', 12, 16);
-    if (kind === 'VP8X') return dimensions(1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3));
-    if (kind === 'VP8 ') return dimensions(b.readUInt16LE(26) & 16383, b.readUInt16LE(28) & 16383);
-    if (kind === 'VP8L' && b[20] === 47) return dimensions(
-      1 + (((b[22] & 63) << 8) | b[21]),
-      1 + (((b[24] & 15) << 10) | (b[23] << 2) | ((b[22] & 192) >> 6)));
+    i += length;
   }
   return false;
+}
+function validWebp(b) {
+  if (b.length < 30 || b.toString('ascii', 0, 4) !== 'RIFF'
+    || b.toString('ascii', 8, 12) !== 'WEBP' || b.readUInt32LE(4) !== b.length - 8) return false;
+  const kind = b.toString('ascii', 12, 16);
+  if (kind === 'VP8X') return dimensions(1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3));
+  if (kind === 'VP8 ') return dimensions(b.readUInt16LE(26) & 16383, b.readUInt16LE(28) & 16383);
+  if (kind === 'VP8L' && b[20] === 47) return dimensions(
+    1 + (((b[22] & 63) << 8) | b[21]),
+    1 + (((b[24] & 15) << 10) | (b[23] << 2) | ((b[22] & 192) >> 6)));
+  return false;
+}
+function validImage(data, mime) {
+  switch (mime) {
+    case 'image/png': return validPng(data);
+    case 'image/jpeg': return validJpeg(data);
+    case 'image/webp': return validWebp(data);
+    default: return false;
+  }
 }
 async function body(req) {
   let size = 0; const chunks = [];
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 2_900_000) { const err = Error('too_large'); err.status = 413; throw err; }
+    if (size > 2_900_000) { const err = new Error('too_large'); err.status = 413; throw err; }
     chunks.push(chunk);
   }
   return Buffer.concat(chunks).toString('utf8');
@@ -92,12 +103,12 @@ async function usedBytes(root) {
   return total;
 }
 export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }) {
-  if (!path.isAbsolute(root || '')) throw Error('Storage must be absolute');
-  if (Buffer.byteLength(token || '') < 32) throw Error('A separate upload token is required');
+  if (!path.isAbsolute(root || '')) throw new Error('Storage must be absolute');
+  if (Buffer.byteLength(token || '') < 32) throw new Error('A separate upload token is required');
   const origin = new URL(publicOrigin);
   if (origin.protocol !== 'https:' || origin.username || origin.password
-    || origin.pathname !== '/' || origin.search || origin.hash) throw Error('HTTPS origin required');
-  if (!Number.isSafeInteger(maxTotalBytes) || maxTotalBytes < 1 || maxTotalBytes > LIMIT) throw Error('Quota invalid');
+    || origin.pathname !== '/' || origin.search || origin.hash) throw new Error('HTTPS origin required');
+  if (!Number.isSafeInteger(maxTotalBytes) || maxTotalBytes < 1 || maxTotalBytes > LIMIT) throw new Error('Quota invalid');
   const ready = mkdir(root, { recursive: true, mode: 0o700 });
   let queue = Promise.resolve();
   let windowStart = 0; let attempts = 0;
@@ -110,7 +121,7 @@ export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }
         try {
           const filepath = path.join(root, name[1] + '.' + name[2]);
           const info = await lstat(filepath);
-          if (!info.isFile()) throw Error('Invalid file');
+          if (!info.isFile()) throw new Error('Invalid file');
           const etag = '"' + name[1] + '"';
           const headers = { 'Content-Type': MIME[name[2]], 'Content-Length': info.size,
             'Cache-Control': 'public, max-age=31536000, immutable', ETag: etag,
@@ -139,7 +150,7 @@ export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }
         const write = async () => {
           try { if ((await stat(dest)).isFile()) return false; } catch (e) { if (e.code !== 'ENOENT') throw e; }
           if ((await usedBytes(root)) + upload.data.length > maxTotalBytes) {
-            const e = Error('quota_exceeded'); e.status = 507; throw e;
+            const e = new Error('quota_exceeded'); e.status = 507; throw e;
           }
           const temp = path.join(root, '.pending-' + randomUUID());
           try {
@@ -170,4 +181,3 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     token: process.env.MEDIA_UPLOAD_TOKEN, publicOrigin: process.env.MEDIA_PUBLIC_ORIGIN,
   }).listen(Number(process.env.PORT || 8080), '0.0.0.0', () => process.stdout.write('media origin ready\n'));
 }
-
