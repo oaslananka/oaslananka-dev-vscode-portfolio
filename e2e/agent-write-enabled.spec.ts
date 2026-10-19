@@ -64,6 +64,61 @@ async function loginAndApprove(
   };
 }
 
+test('pending owner review remains available long after creation', async ({ request, page }) => {
+  const client = await connectDisposableDatabase();
+  const slug = 'agent-persistent-' + randomUUID().slice(0, 13);
+  const key = randomUUID();
+  const path = '/api/agent/v1/projects/' + slug;
+  let projectId: number | undefined;
+  try {
+    const created = await client.query<{ id: number }>(
+      'INSERT INTO projects (slug, title, description) VALUES ($1, $2, $3) RETURNING id',
+      [slug, 'Durable review fixture', 'Before'],
+    );
+    projectId = created.rows[0].id;
+    const sent = await request.post('/api/agent/v1/proposals', {
+      headers: { Authorization: agentKey, 'If-Match': '"1"', 'Idempotency-Key': key },
+      data: { resource: path, patch: { description: 'After owner approval' } },
+    });
+    expect(sent.status(), await sent.text()).toBe(202);
+    const stored = await client.query<{ expires_at: Date }>(
+      'SELECT expires_at FROM agent_content_proposals WHERE request_id = $1', [key],
+    );
+    expect(stored.rows[0].expires_at.toISOString()).toBe('9999-12-31T23:59:59.000Z');
+    await client.query(
+      "UPDATE agent_content_proposals SET created_at = now() - interval '31 days' WHERE request_id = $1",
+      [key],
+    );
+    const pending = await request.get('/api/agent/v1/proposals/' + key, {
+      headers: { Authorization: agentKey },
+    });
+    expect((await pending.json()).status).toBe('pending');
+
+    await page.goto('/admin/login');
+    await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page).toHaveURL(/\\/admin$/);
+    await page.goto('/admin/agent-approvals');
+    const preview = page.locator('section').filter({ hasText: path });
+    await expect(preview).toBeVisible();
+    await expect(preview.getByText('Does not expire')).toBeVisible();
+    await preview.getByLabel('I reviewed the exact changes above.').check();
+    await preview.getByRole('button', { name: 'Approve this change' }).click();
+
+    const approved = await request.get('/api/agent/v1/proposals/' + key, {
+      headers: { Authorization: agentKey },
+    });
+    const outcome = await approved.json();
+    expect(outcome.status).toBe('approved');
+    expect(outcome.expiresInSeconds).toBe(180);
+    expect(typeof outcome.approval).toBe('string');
+  } finally {
+    await client.query('DELETE FROM agent_content_proposals WHERE request_id = $1', [key]);
+    if (projectId !== undefined) await client.query('DELETE FROM projects WHERE id = $1', [projectId]);
+    await client.end();
+  }
+});
+
 test('actor-attributed writes are transactional, idempotent and reject stale revisions', async ({ request, page }) => {
   const client = await connectDisposableDatabase();
 
