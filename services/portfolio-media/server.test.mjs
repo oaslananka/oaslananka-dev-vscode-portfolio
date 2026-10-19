@@ -69,4 +69,3 @@ test('quota rejects and does not persist images', async () => {
     assert.equal((await r.json()).error, 'quota_exceeded');
   } finally { await f.close(); }
 });
-
