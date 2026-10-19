@@ -246,6 +246,7 @@ export default function ConsentManager({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const panelRef = useRef<HTMLElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const lastPageviewPathname = useRef(pathname);
   const isAdminRoute = pathname.startsWith('/admin');
   const hydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -267,6 +268,24 @@ export default function ConsentManager({
       updateMetaConsent(choice);
     }
   }, [choice, gaId, isAdminRoute]);
+
+  useEffect(() => {
+    const previousPathname = lastPageviewPathname.current;
+    lastPageviewPathname.current = pathname;
+
+    // The GoogleAnalytics script sends the first page_view on initial load.
+    // Client-side Next.js navigation does not reliably emit subsequent views.
+    // Report only real path changes after explicit analytics consent.
+    if (pathname === previousPathname || choice !== 'analytics' || !gaId || isAdminRoute) {
+      return;
+    }
+
+    (window as TrackingWindow).gtag?.('event', 'page_view', {
+      page_path: pathname,
+      page_location: window.location.href,
+      send_to: gaId,
+    });
+  }, [pathname, choice, gaId, isAdminRoute]);
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
