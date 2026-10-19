@@ -8,12 +8,40 @@ export const dynamic = 'force-dynamic';
 const MAX_REQUEST_BYTES = 2_900_000;
 const MAX_BASE64_LENGTH = Math.ceil((2 * 1024 * 1024) / 3) * 4 + 4;
 const MEDIA_URL = 'https://media.oaslananka.dev/v1/media';
-const PUBLIC_URL_PATTERN = /^https:\/\/media\.oaslananka\.dev\/files\/[a-f0-9]{64}\.(png|jpg|webp)$/;
-const ENCODED_IMAGE_PATTERN = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
 
 interface MediaUpload {
   mimeType: 'image/png' | 'image/jpeg' | 'image/webp';
   contentBase64: string;
+}
+
+function validBase64(value: string): boolean {
+  if (value.length === 0 || value.length > MAX_BASE64_LENGTH || value.length % 4 !== 0) {
+    return false;
+  }
+  let padding = false;
+  let paddingCount = 0;
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code === 61) {
+      padding = true;
+      if (++paddingCount > 2) return false;
+      continue;
+    }
+    if (padding || !((code >= 65 && code <= 90)
+      || (code >= 97 && code <= 122)
+      || (code >= 48 && code <= 57)
+      || code === 43 || code === 47)) return false;
+  }
+  return true;
+}
+
+function validDigest(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length !== 64) return false;
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (!((code >= 48 && code <= 57) || (code >= 97 && code <= 102))) return false;
+  }
+  return true;
 }
 
 function isMediaUpload(value: unknown): value is MediaUpload {
@@ -24,8 +52,7 @@ function isMediaUpload(value: unknown): value is MediaUpload {
   return (record.mimeType === 'image/png'
     || record.mimeType === 'image/jpeg' || record.mimeType === 'image/webp')
     && typeof record.contentBase64 === 'string'
-    && record.contentBase64.length <= MAX_BASE64_LENGTH
-    && ENCODED_IMAGE_PATTERN.test(record.contentBase64);
+    && validBase64(record.contentBase64);
 }
 
 async function readMediaBody(body: ReadableStream<Uint8Array> | null): Promise<MediaUpload | null> {
@@ -60,8 +87,10 @@ function validMediaResult(value: unknown, input: MediaUpload): value is {
 } {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const media = value as Record<string, unknown>;
-  return typeof media.url === 'string' && PUBLIC_URL_PATTERN.test(media.url)
-    && typeof media.sha256 === 'string' && /^[a-f0-9]{64}$/.test(media.sha256)
+  const extension = input.mimeType === 'image/jpeg' ? 'jpg'
+    : input.mimeType === 'image/png' ? 'png' : 'webp';
+  return validDigest(media.sha256)
+    && media.url === `https://media.oaslananka.dev/files/${media.sha256}.${extension}`
     && media.mimeType === input.mimeType
     && typeof media.bytes === 'number' && Number.isSafeInteger(media.bytes)
     && media.bytes > 0 && media.bytes <= 2 * 1024 * 1024
