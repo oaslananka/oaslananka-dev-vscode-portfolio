@@ -1,5 +1,6 @@
 export const ALLOWED_REMOTE_IMAGE_HOSTNAMES = [
   'avatars.githubusercontent.com',
+  'media.oaslananka.dev',
 ] as const;
 
 const ALLOWED_REMOTE_IMAGE_HOSTNAME_SET = new Set<string>(
