@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { createHash, timingSafeEqual, randomUUID } from 'node:crypto';
-import { constants } from 'node:fs';
-import { mkdir, open, readdir, stat, rename, unlink } from 'node:fs/promises';
+import { createReadStream, constants } from 'node:fs';
+import { mkdir, open, readdir, stat, lstat, rename, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -107,22 +107,21 @@ export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }
       if (req.url === '/healthz' && req.method === 'GET') return reply(res, 200, { status: 'ok' });
       const name = NAME.exec(req.url || '');
       if (name && (req.method === 'GET' || req.method === 'HEAD')) {
-        let fd;
         try {
-          fd = await open(path.join(root, name[1] + '.' + name[2]), constants.O_RDONLY | constants.O_NOFOLLOW);
-          const info = await fd.stat();
+          const filepath = path.join(root, name[1] + '.' + name[2]);
+          const info = await lstat(filepath);
           if (!info.isFile()) throw Error('Invalid file');
           const etag = '"' + name[1] + '"';
           const headers = { 'Content-Type': MIME[name[2]], 'Content-Length': info.size,
             'Cache-Control': 'public, max-age=31536000, immutable', ETag: etag,
             'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'cross-origin',
             'Content-Security-Policy': "default-src 'none'; sandbox" };
-          if (req.headers['if-none-match'] === etag) { await fd.close(); res.writeHead(304, headers); return res.end(); }
+          if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); return res.end(); }
           res.writeHead(200, headers);
-          if (req.method === 'HEAD') { await fd.close(); return res.end(); }
-          return fd.createReadStream().on('error', () => res.destroy()).pipe(res);
+          if (req.method === 'HEAD') return res.end();
+          return createReadStream(filepath, { flags: constants.O_RDONLY | constants.O_NOFOLLOW })
+            .on('error', () => res.destroy()).pipe(res);
         } catch {
-          if (fd) await fd.close().catch(() => {});
           return reply(res, 404, { error: 'not_found' });
         }
       }
