@@ -25,4 +25,3 @@ test('public content policy allows only the exact media origin', () => {
   assert.match(csp, /img-src [^;]*https:\/\/media\.oaslananka\.dev/);
   assert.doesNotMatch(csp, /https:\/\/\*\.oaslananka\.dev/);
 });
-
