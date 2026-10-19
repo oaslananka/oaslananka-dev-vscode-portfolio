@@ -204,9 +204,14 @@ function PrivacyPanel({
       </div>
 
       <p className={styles.copy}>
-        Optional analytics help measure which work is useful. They stay off
-        until you allow them; essential security and contact features
-        continue either way. <Link href="/privacy">Read the privacy notice</Link>.
+        <span className={styles.desktopCopy}>
+          Optional analytics help measure which work is useful. They stay off
+          until you allow them; essential security and contact features
+          continue either way. <Link href="/privacy">Read the privacy notice</Link>.
+        </span>
+        <span className={styles.mobileCopy}>
+          Analytics stay off unless you allow them. <Link href="/privacy">Privacy notice</Link>.
+        </span>
       </p>
 
       <div className={styles.actions}>

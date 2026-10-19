@@ -24,15 +24,22 @@ export default async function ProjectsPage() {
     getProjects(),
     getPublishedPosts(),
   ]);
-  const featuredProjects = projects.filter((project) => project.featured);
-  const otherProjects = projects.filter((project) => !project.featured);
+  const visualProjectSlugs = ['boardreadyops', 'zaptrace', 'fovux'];
+  const visualProjects = visualProjectSlugs.flatMap((slug) =>
+    projects.filter((project) => project.slug === slug && project.coverImage));
+  const visualProjectIds = new Set(visualProjects.map((project) => project.slug));
+  const featuredProjects = projects.filter((project) =>
+    project.featured && !visualProjectIds.has(project.slug));
+  const otherProjects = projects.filter((project) =>
+    !project.featured && !visualProjectIds.has(project.slug));
 
+  const displayedProjects = [...visualProjects, ...featuredProjects, ...otherProjects];
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     '@id': `${absoluteUrl('/projects')}#item-list`,
     name: 'Selected engineering projects',
-    itemListElement: projects.map((project, i) => ({
+    itemListElement: displayedProjects.map((project, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       item: {
@@ -75,11 +82,27 @@ export default async function ProjectsPage() {
           </div>
         </header>
 
-        <ContentDomainGrid
-          projects={projects}
-          posts={posts}
-          headingId="project-domains-title"
-        />
+        {visualProjects.length > 0 ? (
+          <section className={styles.section} aria-labelledby="product-previews-title">
+            <div className={styles.sectionHeading}>
+              <div>
+                <p className={styles.sectionEyebrow}>Inside the products</p>
+                <h2 id="product-previews-title" className={styles.sectionTitle}>
+                  See the engineering interfaces
+                </h2>
+              </div>
+              <p className={styles.sectionCopy}>
+                Real source-based screens and clearly labelled demonstration data.
+              </p>
+            </div>
+            <div className={styles.featuredGrid}>
+              {visualProjects.map((project, index) => (
+                <ProjectCard key={project.slug} project={project}
+                  index={index + 1} headingLevel={3} featured />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {featuredProjects.length > 0 ? (
           <section
@@ -137,6 +160,12 @@ export default async function ProjectsPage() {
             </div>
           </section>
         ) : null}
+
+        <ContentDomainGrid
+          projects={projects}
+          posts={posts}
+          headingId="project-domains-title"
+        />
 
         <footer className={styles.footer}>
           <div className={styles.footerLine} />
