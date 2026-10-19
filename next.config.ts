@@ -50,6 +50,9 @@ const nextConfig: NextConfig = {
     remotePatterns: ALLOWED_REMOTE_IMAGE_HOSTNAMES.map((hostname) => ({
       protocol: 'https' as const,
       hostname,
+      ...(hostname === 'media.oaslananka.dev'
+        ? { port: '', pathname: '/files/**' }
+        : {}),
     })),
   },
   async headers() {
