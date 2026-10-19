@@ -11,6 +11,8 @@ export type DeploymentProvider = 'vercel' | 'generic';
 
 export interface DeploymentEnvironmentVariables {
   ALLOW_DEFAULT_CONTENT?: string;
+  DATABASE_URL?: string;
+  DATABASE_URL_UNPOOLED?: string;
   NODE_ENV?: string;
   VERCEL_ENV?: string;
 }
@@ -90,13 +92,19 @@ export function isEnvironmentFlagEnabled(value: string | undefined): boolean {
   return value?.trim().toLowerCase() === 'true';
 }
 
-/** Bundled placeholder content is local/test-only and always explicit. */
+/**
+ * Local/test fallbacks require explicit opt-in. On an isolated Vercel preview
+ * without database credentials, use bundled sample data for UI review only.
+ * Production is always fail-closed; preview robots disallow indexing, and the
+ * layout visibly labels all sample content.
+ */
 export function allowsBundledDefaultContent(
   env: DeploymentEnvironmentVariables = process.env,
 ): boolean {
   const deployment = resolveDeploymentEnvironment(env);
-  return (
-    (deployment.isDevelopment || deployment.isTest) &&
-    isEnvironmentFlagEnabled(env.ALLOW_DEFAULT_CONTENT)
-  );
+  if (deployment.isProduction) return false;
+  if (deployment.isPreview) {
+    return !env.DATABASE_URL?.trim() && !env.DATABASE_URL_UNPOOLED?.trim();
+  }
+  return isEnvironmentFlagEnabled(env.ALLOW_DEFAULT_CONTENT);
 }

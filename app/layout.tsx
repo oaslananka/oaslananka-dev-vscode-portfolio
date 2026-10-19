@@ -6,6 +6,7 @@ import AgentDiscoveryLink from '@/components/AgentDiscoveryLink';
 import ConsentManager from '@/components/ConsentManager';
 import JsonLd from '@/components/JsonLd';
 import { getProfile, getSettings } from '@/lib/content';
+import { allowsBundledDefaultContent, isPreviewDeployment } from '@/lib/deployment-environment';
 import { buildRootMetadata, personJsonLd, websiteJsonLd } from '@/lib/seo';
 import { GA_ID, GTM_ID, META_PIXEL_ID } from '@/lib/site-config';
 import { DEFAULT_THEME, isThemeKey } from '@/lib/themes';
@@ -45,6 +46,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
+  const showPreviewFixtures = isPreviewDeployment() && allowsBundledDefaultContent();
   const defaultTheme = isThemeKey(settings.defaultTheme)
     ? settings.defaultTheme
     : DEFAULT_THEME;
@@ -63,6 +65,24 @@ export default async function RootLayout({
         <JsonLd data={websiteJsonLd(settings, profile)} />
       </head>
       <body>
+        {showPreviewFixtures ? (
+          <div
+            role="status"
+            aria-label="Preview sample content notice"
+            style={{
+              position: 'relative',
+              zIndex: 100,
+              padding: '9px 16px',
+              background: '#58401c',
+              color: '#fff',
+              fontSize: '13px',
+              textAlign: 'center',
+              fontWeight: 700,
+            }}
+          >
+            PREVIEW — Demonstration content only; no production database is connected.
+          </div>
+        ) : null}
         {children}
         <ConsentManager
           gaId={GA_ID}
