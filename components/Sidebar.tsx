@@ -74,6 +74,7 @@ const Sidebar = () => {
           className={styles.icon}
           aria-hidden="true"
         />
+        <span aria-hidden="true" className={styles.mobileLabel}>{label}</span>
       </Link>
     );
   };

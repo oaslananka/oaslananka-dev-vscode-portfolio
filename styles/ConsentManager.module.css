@@ -1,10 +1,15 @@
 .panel {
   position: fixed;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 20px;
   z-index: 900;
   right: max(0.75rem, env(safe-area-inset-right));
   bottom: calc(25px + 0.75rem + env(safe-area-inset-bottom));
-  width: min(38rem, calc(100vw - 1.5rem));
-  padding: 0.9rem;
+  width: min(42rem, calc(100vw - 1.5rem));
+  padding: 0.8rem 1rem;
   color: var(--text-primary, var(--text-color));
   background: var(--surface-overlay, var(--explorer-bg));
   border: 1px solid var(--border-color, var(--explorer-border));
@@ -14,6 +19,8 @@
 }
 
 .headingRow {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
@@ -43,7 +50,9 @@
 }
 
 .copy {
-  margin-top: 0.65rem;
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 0.28rem;
   color: var(--text-muted, #b6bec9);
   font-size: 0.8rem;
   line-height: 1.55;
@@ -65,10 +74,13 @@
 }
 
 .actions {
+  grid-column: 2;
+  grid-row: 1 / 3;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 0.55rem;
-  margin-top: 0.8rem;
+  gap: 0.5rem;
+  margin: 0;
 }
 
 .primaryButton,
@@ -145,8 +157,9 @@
 
 @media screen and (max-width: 600px) {
   .panel {
+    display: block;
     right: 0.5rem;
-    bottom: calc(48px + 0.5rem + env(safe-area-inset-bottom));
+    bottom: calc(64px + 0.5rem + env(safe-area-inset-bottom));
     width: calc(100vw - 1rem);
     padding: 0.7rem;
   }

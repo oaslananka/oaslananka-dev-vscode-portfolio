@@ -49,6 +49,9 @@
 .card:hover .image {
   transform: scale(1.015);
 }
+.card:focus-visible .image {
+  transform: scale(1.015);
+}
 
 .mediaFallback {
   width: 100%;
@@ -165,7 +168,8 @@
   transition: transform 160ms ease;
 }
 
-.card:hover .action svg {
+.card:hover .action svg,
+.card:focus-visible .action svg {
   transform: translateX(3px);
 }
 
