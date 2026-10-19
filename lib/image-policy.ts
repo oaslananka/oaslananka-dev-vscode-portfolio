@@ -19,6 +19,11 @@ export function isAllowedImageSource(value: string): boolean {
 
   try {
     const url = new URL(source);
+    if (url.hostname === 'media.oaslananka.dev') {
+      return url.protocol === 'https:' && !url.username && !url.password
+        && !url.port && !url.search && !url.hash
+        && /^\/files\/[a-f0-9]{64}\.(png|jpg|webp)$/.test(url.pathname);
+    }
     return (
       url.protocol === 'https:' &&
       !url.username &&
