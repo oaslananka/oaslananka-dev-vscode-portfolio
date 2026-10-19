@@ -19,7 +19,7 @@ const SHARED_DIRECTIVES = [
   "object-src 'none'",
   "script-src-attr 'none'",
   "font-src 'self' data:",
-  "img-src 'self' data: blob: https://avatars.githubusercontent.com https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com",
+  "img-src 'self' data: blob: https://avatars.githubusercontent.com https://media.oaslananka.dev https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com",
   "connect-src 'self' https://api.github.com https://github-contributions-api.jogruber.de https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://www.facebook.com https://graph.facebook.com",
   'frame-src https://www.googletagmanager.com https://www.facebook.com',
   "worker-src 'self' blob:",

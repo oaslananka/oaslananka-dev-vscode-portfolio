@@ -83,7 +83,7 @@ test('free required quality checks are documented without Sonar dependency', () 
 
 test('repository exposes one-command deterministic local verification', () => {
   const pkg = JSON.parse(read('package.json')) as { scripts?: Record<string, string> };
-  assert.equal(pkg.scripts?.verify, 'npm run typecheck && npm run lint && npm run test && npm run test:agent-evals');
+  assert.equal(pkg.scripts?.verify, 'npm run typecheck && npm run lint && npm run test && npm run test:media && npm run test:agent-evals');
   for (const content of [read('README.md'), read('AGENTS.md'), read('docs/operations/quality-gate.md')]) {
     assert.match(content, /npm run verify/);
   }
