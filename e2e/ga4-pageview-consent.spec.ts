@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test('GA4 tracks an internal route change only after analytics consent', async ({ page }) => {
+  // CI deliberately omits the production GA measurement ID. Only assert GA4
+  // dispatch in test deployments with a configured test measurement stream.
+  test.skip(!process.env.NEXT_PUBLIC_GA_ID, 'GA4 is intentionally unconfigured for this test deployment.');
   await page.goto('/');
   await page.getByRole('button', { name: 'Allow analytics' }).click();
   await page.locator('a[href="/projects"]').first().click();
