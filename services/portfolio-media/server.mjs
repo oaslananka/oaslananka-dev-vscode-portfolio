@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { createHash, timingSafeEqual, randomUUID } from 'node:crypto';
-import { createReadStream, constants } from 'node:fs';
+import { constants } from 'node:fs';
 import { mkdir, open, readdir, stat, rename, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -120,7 +120,7 @@ export function mediaServer({ root, token, publicOrigin, maxTotalBytes = LIMIT }
           if (req.headers['if-none-match'] === etag) { await fd.close(); res.writeHead(304, headers); return res.end(); }
           res.writeHead(200, headers);
           if (req.method === 'HEAD') { await fd.close(); return res.end(); }
-          return createReadStream('', { fd: fd.fd, autoClose: true }).on('error', () => res.destroy()).pipe(res);
+          return fd.createReadStream().on('error', () => res.destroy()).pipe(res);
         } catch {
           if (fd) await fd.close().catch(() => {});
           return reply(res, 404, { error: 'not_found' });
