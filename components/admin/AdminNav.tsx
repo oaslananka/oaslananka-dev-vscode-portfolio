@@ -32,11 +32,25 @@ export default function AdminNav({ unreadCount = 0 }: { unreadCount?: number }) 
     <nav>
       {links.map(({ href, label, icon: Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href);
+        const className = `${styles.navLink} ${active ? styles.navLinkActive : ''}`;
+        // Keep the owner-approval screen on document navigation. A partial
+        // or stale RSC stream after protected admin authentication can end in
+        // React #412 ("Connection closed") instead of a browser recovery.
+        // Do not prefetch the private, dynamic approval payload.
+        if (href === '/admin/agent-approvals') {
+          return (
+            <a key={href} href={href} className={className}>
+              <Icon size={16} />
+              <span>{label}</span>
+            </a>
+          );
+        }
         return (
           <Link
             key={href}
             href={href}
-            className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`}
+            prefetch={false}
+            className={className}
           >
             <Icon size={16} />
             <span>{label}</span>
