@@ -1,0 +1,34 @@
+# No host ports. Use a dedicated Cloudflare Tunnel hostname after staging checks.
+services:
+  portfolio-media:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-media
+    restart: unless-stopped
+    read_only: true
+    user: "node"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 80
+    mem_limit: 192m
+    cpus: 0.5
+    environment:
+      MEDIA_UPLOAD_TOKEN: "${MEDIA_UPLOAD_TOKEN:?Provide secret from Doppler}"
+      MEDIA_PUBLIC_ORIGIN: "https://media.oaslananka.dev/"
+      MEDIA_STORAGE_DIR: "/data"
+      PORT: "8080"
+    volumes:
+      - portfolio-media-data:/data:rw
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,mode=1777
+    networks:
+      - ops_internal
+volumes:
+  portfolio-media-data:
+networks:
+  ops_internal:
+    external: true
+    name: ops_internal
