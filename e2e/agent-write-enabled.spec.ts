@@ -97,7 +97,7 @@ test('pending owner review remains available long after creation', async ({ requ
     await page.goto('/admin/login');
     await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
-    await expect(page).toHaveURL(/\\/admin$/);
+    await expect(page).toHaveURL(/\/admin$/);
     await page.goto('/admin/agent-approvals');
     const preview = page.locator('section').filter({ hasText: path });
     await expect(preview).toBeVisible();
