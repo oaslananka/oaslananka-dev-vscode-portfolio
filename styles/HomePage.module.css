@@ -23,6 +23,7 @@
 }
 
 .heroLayout,
+.heroLayoutSingle,
 .heroInner,
 .workSection,
 .capabilitySection,
@@ -38,6 +39,9 @@
   grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
   align-items: center;
   gap: clamp(28px, 3.5vw, 56px);
+  width: 100%;
+}
+.heroLayoutSingle {
   width: 100%;
 }
 .heroInner {
@@ -153,10 +157,14 @@
   margin: 0;
   max-width: 900px;
   font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: clamp(40px, 4.2vw, 64px);
+  font-size: 68px;
   font-weight: 760;
   line-height: 1.02;
   letter-spacing: 0;
+}
+
+.nameCompact {
+  font-size: clamp(40px, 4.2vw, 64px);
 }
 
 .role {

@@ -89,7 +89,9 @@ export default async function HomePage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'Home', path: '/' }])} />
 
       <section className={styles.hero} aria-labelledby="home-title">
-        <div className={styles.heroLayout}>
+        <div className={productPreviews.length > 0
+          ? styles.heroLayout
+          : styles.heroLayoutSingle}>
         <div className={styles.heroInner}>
           <div className={styles.eyebrowRow}>
             <span className={styles.prompt} aria-hidden="true">&gt;_</span>
@@ -102,7 +104,9 @@ export default async function HomePage() {
             ) : null}
           </div>
 
-          <h1 id="home-title" className={styles.name}>{profile.name}</h1>
+          <h1 id="home-title" className={productPreviews.length > 0
+            ? `${styles.name} ${styles.nameCompact}`
+            : styles.name}>{profile.name}</h1>
           <p className={styles.role}>{profile.role}</p>
           <p className={styles.description}>{profile.heroDescription}</p>
 
