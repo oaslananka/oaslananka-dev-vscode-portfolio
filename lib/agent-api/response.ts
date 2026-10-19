@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
-import { verifyAgentBearer } from './auth';
+import { verifyAgentContentReader } from './auth';
+import { isAgentWriteConfigured } from './write-policy';
 
 const privateHeaders = {
   'Cache-Control': 'private, no-store',
@@ -22,7 +23,15 @@ export async function agentRead(
   if (!token || Buffer.byteLength(token, 'utf8') < 32) {
     return agentJson({ error: 'Service unavailable' }, 503);
   }
-  if (!verifyAgentBearer(request.headers.get('authorization'), token)) {
+  const writeEnabled = isAgentWriteConfigured({
+    AGENT_CONTENT_WRITE_ENABLED: process.env.AGENT_CONTENT_WRITE_ENABLED,
+    AGENT_API_SECRET_KEY: process.env.AGENT_API_SECRET_KEY,
+    AGENT_API_WRITE_KEY: process.env.AGENT_API_WRITE_KEY,
+    AGENT_WRITE_ACTOR_ID: process.env.AGENT_WRITE_ACTOR_ID,
+  });
+  if (!verifyAgentContentReader(
+    request.headers.get('authorization'), token, process.env.AGENT_API_WRITE_KEY, writeEnabled,
+  )) {
     return Response.json({ error: 'Unauthorized' }, {
       status: 401,
       headers: { ...privateHeaders, 'WWW-Authenticate': 'Bearer' },
