@@ -1,11 +1,10 @@
-import Image from 'next/image';
-
 import {
   resolveVideoAccessibility,
   type ProjectMedia,
 } from '@/lib/project-content';
 
 import styles from '@/styles/ProjectMediaGallery.module.css';
+import ProjectGalleryImage from '@/components/ProjectGalleryImage';
 
 interface ProjectMediaGalleryProps {
   readonly media: readonly ProjectMedia[];
@@ -71,19 +70,7 @@ function GalleryItem({
     <figure className={`${styles.item} ${isFeatured ? styles.featured : ''}`}>
       <div className={styles.frame}>
         {item.type === 'image' ? (
-          <Image
-            src={item.src}
-            alt={item.alt}
-            width={item.width}
-            height={item.height}
-            sizes={
-              isFeatured
-                ? '(max-width: 760px) 100vw, 1100px'
-                : '(max-width: 760px) 100vw, 550px'
-            }
-            className={styles.image}
-            unoptimized={item.src.endsWith('.svg')}
-          />
+          <ProjectGalleryImage item={item} featured={isFeatured} />
         ) : (
           <GalleryVideo
             item={item}

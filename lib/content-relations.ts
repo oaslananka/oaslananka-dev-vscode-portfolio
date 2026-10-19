@@ -14,7 +14,7 @@ export const CONTENT_CLUSTERS: readonly ContentClusterDefinition[] = [
     title: 'AI-assisted EDA and engineering tools',
     description:
       'Inspect-first automation for electronics design, with constrained mutations, native validation and explicit human review boundaries.',
-    projectSlugs: ['kicad-mcp-pro', 'kicad-studio-kit', 'easyeda-mcp-pro'],
+    projectSlugs: ['kicad-mcp-pro', 'kicad-studio-kit', 'easyeda-mcp-pro', 'boardreadyops', 'zaptrace'],
     articleSlugs: [
       'safe-ai-assisted-kicad-workflows',
       'ai-ready-mcp-server-for-kicad',
@@ -25,7 +25,7 @@ export const CONTENT_CLUSTERS: readonly ContentClusterDefinition[] = [
     title: 'Edge AI, computer vision and control',
     description:
       'Perception and on-device inference connected to deterministic tracking, control, safety checks and field-ready operations.',
-    projectSlugs: ['sky-track-vision'],
+    projectSlugs: ['sky-track-vision', 'fovux'],
     articleSlugs: [
       'edge-vision-tracking-control-pipeline',
       'production-first-edge-ai',

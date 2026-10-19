@@ -49,6 +49,10 @@
   line-height: 1.55;
 }
 
+.mobileCopy {
+  display: none;
+}
+
 .copy a {
   color: var(--text-primary, var(--text-color));
   text-decoration: underline;
@@ -141,9 +145,16 @@
 
 @media screen and (max-width: 600px) {
   .panel {
-    right: 0.75rem;
-    bottom: calc(48px + 0.75rem + env(safe-area-inset-bottom));
+    right: 0.5rem;
+    bottom: calc(48px + 0.5rem + env(safe-area-inset-bottom));
+    width: calc(100vw - 1rem);
+    padding: 0.7rem;
   }
+  .desktopCopy { display: none; }
+  .mobileCopy { display: inline; }
+  .copy { margin-top: 0.35rem; font-size: 0.75rem; line-height: 1.4; }
+  .actions { margin-top: 0.5rem; }
+  .headingRow { align-items: center; }
 
   .actions {
     display: grid;

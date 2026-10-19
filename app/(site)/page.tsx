@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   VscArrowRight,
   VscBook,
@@ -80,12 +81,15 @@ export default async function HomePage() {
     ? selectedProjects
     : projects.slice(0, 3);
   const latestPosts = posts.slice(0, 2);
+  const productPreviews = ['boardreadyops', 'zaptrace', 'fovux']
+    .flatMap((slug) => projects.filter((project) => project.slug === slug && project.coverImage));
 
   return (
     <div className={styles.page}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Home', path: '/' }])} />
 
       <section className={styles.hero} aria-labelledby="home-title">
+        <div className={styles.heroLayout}>
         <div className={styles.heroInner}>
           <div className={styles.eyebrowRow}>
             <span className={styles.prompt} aria-hidden="true">&gt;_</span>
@@ -130,6 +134,35 @@ export default async function HomePage() {
             </Link>
             <span>{profile.location}</span>
           </div>
+        </div>
+        {productPreviews.length > 0 ? (
+          <div className={styles.heroVisual} aria-label="Selected product interface previews">
+            <p className={styles.heroVisualLabel}>Inside the tools · Product evidence</p>
+            <div className={styles.heroVisualGrid}>
+              {productPreviews.map((project, index) => (
+                <Link
+                  key={project.slug}
+                  href={`/projects/${project.slug}`}
+                  className={`${styles.heroPreview} ${index === 0 ? styles.heroPreviewFeatured : ''}`}
+                  aria-label={`See ${project.title} engineering case study`}
+                >
+                  <Image
+                    src={project.coverImage}
+                    alt={project.coverImageAlt || `${project.title} product preview`}
+                    fill
+                    sizes={index === 0
+                      ? '(max-width: 900px) 100vw, 520px'
+                      : '(max-width: 900px) 46vw, 260px'}
+                    priority={index === 0}
+                    className={styles.heroPreviewImage}
+                  />
+                  <span className={styles.heroPreviewTitle}>{project.title}</span>
+                </Link>
+              ))}
+            </div>
+            <p className={styles.heroVisualNote}>Source-backed UI and clearly labelled demonstrations, not fabricated results.</p>
+          </div>
+        ) : null}
         </div>
       </section>
 
