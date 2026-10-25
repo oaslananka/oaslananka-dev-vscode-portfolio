@@ -67,12 +67,15 @@ test('content clusters cover every canonical project and article topic', () => {
     [...projects].sort(),
     [
       'adxl355',
+      'boardreadyops',
       'easyeda-mcp-pro',
+      'fovux',
       'iot-cloud-monitor',
       'kicad-mcp-pro',
       'kicad-studio-kit',
       'sismo-smart',
       'sky-track-vision',
+      'zaptrace',
     ],
   );
   assert.deepEqual(

@@ -69,7 +69,7 @@ test('deployment resolver rejects malformed environment values', () => {
   );
 });
 
-test('bundled content requires explicit development or test opt-in', () => {
+test('local/test opt-in and isolated preview fixtures never enable production fallbacks', () => {
   assert.equal(
     allowsBundledDefaultContent({
       NODE_ENV: 'development',
@@ -102,6 +102,29 @@ test('bundled content requires explicit development or test opt-in', () => {
     allowsBundledDefaultContent({
       NODE_ENV: 'production',
       VERCEL_ENV: 'preview',
+    }),
+    true,
+  );
+  assert.equal(
+    allowsBundledDefaultContent({
+      NODE_ENV: 'production',
+      VERCEL_ENV: 'preview',
+      DATABASE_URL: 'postgresql://placeholder.invalid/db',
+    }),
+    false,
+  );
+  assert.equal(
+    allowsBundledDefaultContent({
+      NODE_ENV: 'production',
+      VERCEL_ENV: 'preview',
+      DATABASE_URL_UNPOOLED: 'postgresql://placeholder.invalid/db',
+    }),
+    false,
+  );
+  assert.equal(
+    allowsBundledDefaultContent({
+      NODE_ENV: 'production',
+      VERCEL_ENV: 'production',
       ALLOW_DEFAULT_CONTENT: 'true',
     }),
     false,

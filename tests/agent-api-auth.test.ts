@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 
-import { verifyAgentBearer } from '../lib/agent-api/auth';
+import { verifyAgentBearer, verifyAgentContentReader } from '../lib/agent-api/auth';
 
 const secret = 'a'.repeat(64);
 
@@ -18,6 +18,16 @@ test('agent API bearer parser rejects alternate schemes and malformed headers', 
   for (const header of [null, '', secret, `bearer ${secret}`, `Bearer  ${secret}`, `Bearer ${secret} `, `Bearer ${secret}\nBearer ${secret}`, `Bearer ${'a'.repeat(8200)}`]) {
     assert.equal(verifyAgentBearer(header, secret), false);
   }
+});
+
+test('one write credential can read only when the write facility is enabled', () => {
+  const reader = 'r'.repeat(64);
+  const writer = 'w'.repeat(64);
+  assert.equal(verifyAgentContentReader('Bearer ' + reader, reader, writer, false), true);
+  assert.equal(verifyAgentContentReader('Bearer ' + writer, reader, writer, false), false);
+  assert.equal(verifyAgentContentReader('Bearer ' + writer, reader, writer, true), true);
+  assert.equal(verifyAgentContentReader('Bearer ' + reader, reader, writer, true), true);
+  assert.equal(verifyAgentContentReader('Bearer ' + 'x'.repeat(64), reader, writer, true), false);
 });
 
 test('all agent API reads pass through the same authentication gate', () => {
@@ -42,5 +52,5 @@ test('response layer fails closed and always sets private, non-indexed headers',
   assert.match(source, /'Cache-Control': 'private, no-store'/);
   assert.match(source, /'X-Robots-Tag': 'noindex, nofollow'/);
   assert.match(source, /if \(!db\)/);
-  assert.match(source, /verifyAgentBearer\(/);
+  assert.match(source, /verifyAgentContentReader\(/);
 });

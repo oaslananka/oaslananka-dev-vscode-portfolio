@@ -38,7 +38,7 @@ test('article cards fit a 320px viewport without clipped stats', async ({ page }
       return { left: rect.left, right: rect.right };
     });
     const stats = Array.from(
-      document.querySelectorAll<HTMLElement>('[class*="__stats"]'),
+      document.querySelectorAll<HTMLElement>('a[href^="/articles/"] [class*="stats"]'),
     ).map((item) => ({
       clientWidth: item.clientWidth,
       scrollWidth: item.scrollWidth,

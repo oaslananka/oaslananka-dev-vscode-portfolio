@@ -51,21 +51,25 @@ function assertAtLeast(
 }
 
 test('production dependency ranges remain at or above audited floors', () => {
-  assertAtLeast(manifest.dependencies.next, '16.3.3', 'next');
+  assertAtLeast(manifest.dependencies.next, '16.4.1', 'next');
   assertAtLeast(
     manifest.dependencies['@next/third-parties'],
-    '16.2.12',
+    '16.4.1',
     '@next/third-parties',
   );
   assertAtLeast(manifest.dependencies.react, '19.2.8', 'react');
   assertAtLeast(manifest.dependencies['react-dom'], '19.2.8', 'react-dom');
   assertAtLeast(
     manifest.devDependencies['eslint-config-next'],
-    '16.2.12',
+    '16.4.1',
     'eslint-config-next',
   );
   assertAtLeast(manifest.overrides?.postcss, '8.5.26', 'postcss');
   assertAtLeast(manifest.overrides?.['fast-uri'], '3.1.7', 'fast-uri');
+  assertAtLeast(manifest.dependencies.zod, '4.6.6', 'zod');
+  assert.equal(manifest.dependencies['@next/third-parties'], manifest.dependencies.next);
+  assert.equal(manifest.devDependencies['eslint-config-next'], manifest.dependencies.next);
+  assert.equal(manifest.overrides?.next, '$next');
   assertAtLeast(manifest.overrides?.sharp, '0.35.4', 'sharp');
 });
 
@@ -78,8 +82,9 @@ test('Python CI tooling is wheel-only and hash locked', () => {
   const preCommit = read('.pre-commit-config.yaml');
 
   assert.match(requirements, /^pre-commit==4\.6\.2\s+\\/m);
-  assert.match(requirements, /^virtualenv==21\.7\.13\s+\\/m);
-  assert.match(requirements, /^filelock==3\.32\.5\s+\\/m);
+  assert.match(requirements, /^virtualenv==21\.14\.13\s+\\/m);
+  assert.match(requirements, /^filelock==4\.2\.4\s+\\/m);
+  assert.match(requirements, /^packaging==26\.3\s+\\/m);
   assert.match(requirements, /--hash=sha256:/);
   assert.match(preCommit, /minimum_pre_commit_version: ['"]4\.6\.2['"]/);
   assert.doesNotMatch(preCommit, /id: semgrep/);

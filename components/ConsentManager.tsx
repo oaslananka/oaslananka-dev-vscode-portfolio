@@ -204,9 +204,14 @@ function PrivacyPanel({
       </div>
 
       <p className={styles.copy}>
-        Optional analytics help measure which work is useful. They stay off
-        until you allow them; essential security and contact features
-        continue either way. <Link href="/privacy">Read the privacy notice</Link>.
+        <span className={styles.desktopCopy}>
+          Optional analytics help measure which work is useful. They stay off
+          until you allow them; essential security and contact features
+          continue either way. <Link href="/privacy">Read the privacy notice</Link>.
+        </span>
+        <span className={styles.mobileCopy}>
+          Analytics stay off unless you allow them. <Link href="/privacy">Privacy notice</Link>.
+        </span>
       </p>
 
       <div className={styles.actions}>
@@ -241,6 +246,7 @@ export default function ConsentManager({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const panelRef = useRef<HTMLElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const lastPageviewPathname = useRef(pathname);
   const isAdminRoute = pathname.startsWith('/admin');
   const hydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -262,6 +268,24 @@ export default function ConsentManager({
       updateMetaConsent(choice);
     }
   }, [choice, gaId, isAdminRoute]);
+
+  useEffect(() => {
+    const previousPathname = lastPageviewPathname.current;
+    lastPageviewPathname.current = pathname;
+
+    // The GoogleAnalytics script sends the first page_view on initial load.
+    // Client-side Next.js navigation does not reliably emit subsequent views.
+    // Report only real path changes after explicit analytics consent.
+    if (pathname === previousPathname || choice !== 'analytics' || !gaId || isAdminRoute) {
+      return;
+    }
+
+    (window as TrackingWindow).gtag?.('event', 'page_view', {
+      page_path: pathname,
+      page_location: window.location.href,
+      send_to: gaId,
+    });
+  }, [pathname, choice, gaId, isAdminRoute]);
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {

@@ -47,7 +47,9 @@ submit change proposals until a human explicitly approves each edit.
 1. The agent calls POST /api/agent/v1/proposals with a unique UUIDv4
    Idempotency-Key, If-Match strong revision, and JSON body with resource
    and patch fields. The proposal is validated against the current record
-   but does NOT modify any site content. It expires after 15 minutes.
+   but does NOT modify any site content. New proposals remain available for
+   owner review until approved or rejected, with revision validation at the
+   time of approval. Older expired proposals are not revived.
 2. The owner visits /admin/agent-approvals, protected by the existing
    admin session and Cloudflare access gate, reviews each current and
    proposed field, checks the acknowledgement, and clicks Approve or Reject.
@@ -55,6 +57,8 @@ submit change proposals until a human explicitly approves each edit.
 3. The agent polls GET /api/agent/v1/proposals/{requestId} with its
    separate writer bearer token. Pending, rejected, expired, or approved
    status is returned. Only an approved proposal returns a 3-minute JWT.
+   The writer may request a fresh signed token while the approval and
+   original revision still remain valid.
 4. The agent calls the matching PATCH with identical revision, request ID
    and exact JSON patch plus X-Agent-Approval. The PostgreSQL transaction
    re-verifies that the proposal was approved and is still valid before
