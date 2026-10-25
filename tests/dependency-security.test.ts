@@ -108,7 +108,7 @@ test('security workflow runs the official OSV reusable workflow from an immutabl
   assert.match(securityWorkflow, /^  osv-scanner:$/m);
   assert.match(
     securityWorkflow,
-    /google\/osv-scanner-action\/\.github\/workflows\/osv-scanner-reusable\.yml@a345acffa64b0eaede81a3d9aae6141214d9c8fc # v2\.6\.0/,
+    /google\/osv-scanner-action\/\.github\/workflows\/osv-scanner-reusable\.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2\.7\.0/,
   );
   assert.match(securityWorkflow, /actions: read/);
   assert.match(securityWorkflow, /security-events: write/);
