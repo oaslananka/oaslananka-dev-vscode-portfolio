@@ -9,7 +9,7 @@
   right: max(0.75rem, env(safe-area-inset-right));
   bottom: calc(25px + 0.75rem + env(safe-area-inset-bottom));
   width: min(42rem, calc(100vw - 1.5rem));
-  padding: 0.8rem 1rem;
+  padding: 0.65rem 1rem;
   color: var(--text-primary, var(--text-color));
   background: var(--surface-overlay, var(--explorer-bg));
   border: 1px solid var(--border-color, var(--explorer-border));
@@ -94,8 +94,8 @@
 
 .primaryButton,
 .secondaryButton {
-  min-height: 44px;
-  padding: 0.6rem 0.85rem;
+  min-height: 38px;
+  padding: 0.5rem 0.85rem;
   border-radius: 4px;
   font-size: 0.82rem;
   font-weight: 650;
@@ -176,6 +176,7 @@
 
   .primaryButton,
   .secondaryButton {
+    min-height: 44px;
     min-width: 0;
     white-space: normal;
   }
