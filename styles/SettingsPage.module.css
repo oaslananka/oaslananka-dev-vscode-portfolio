@@ -26,8 +26,8 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: linear-gradient(135deg, rgba(var(--accent-color-rgb), 0.15), rgba(var(--accent-color-rgb), 0.05));
-  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  background: var(--surface-raised, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-color, var(--explorer-border));
   display: flex;
   align-items: center;
   justify-content: center;
