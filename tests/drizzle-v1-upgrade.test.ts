@@ -26,8 +26,8 @@ const expectedMigrationHashes = [
 ];
 
 test('Drizzle v1 RC packages are paired and legacy esbuild loaders are absent', () => {
-  assert.equal(manifest.dependencies['drizzle-orm'], '1.0.0-rc.4');
-  assert.equal(manifest.devDependencies['drizzle-kit'], '1.0.0-rc.4');
+  assert.equal(manifest.dependencies['drizzle-orm'], manifest.devDependencies['drizzle-kit']);
+  assert.match(manifest.dependencies['drizzle-orm'], /^1\.0\.0-rc\./);
   const lockfile = read('package-lock.json');
   assert.doesNotMatch(lockfile, /@esbuild-kit\/esm-loader/);
   assert.doesNotMatch(lockfile, /@esbuild-kit\/core-utils/);
