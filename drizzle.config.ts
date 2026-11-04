@@ -24,6 +24,5 @@ export default defineConfig({
     table: '__drizzle_migrations',
     schema: 'drizzle',
   },
-  strict: true,
   verbose: true,
 });
