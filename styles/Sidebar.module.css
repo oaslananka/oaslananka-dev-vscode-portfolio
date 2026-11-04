@@ -90,7 +90,7 @@
     justify-content: center;
     gap: 3px;
     padding-block: 4px;
-    font-size: 10px;
+    font-size: 12px;
     text-decoration: none;
   }
 
@@ -102,7 +102,7 @@
   .mobileLabel {
     display: block;
     color: var(--text-muted, #b6bec9);
-    font: 600 10px/1.2 var(--font-sans);
+    font: 600 12px/1.2 var(--font-sans);
     white-space: nowrap;
   }
 
