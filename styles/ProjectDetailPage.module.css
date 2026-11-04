@@ -39,7 +39,7 @@
   margin: 0 0 9px;
   color: var(--accent-color);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.5;
   text-transform: uppercase;
@@ -79,7 +79,7 @@
   border: 1px solid var(--border-color, var(--explorer-border));
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.4;
 }
 

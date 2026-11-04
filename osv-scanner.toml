@@ -1,1 +1,10 @@
-# OSV Scanner configuration. No vulnerability exceptions are active.
+# OSV Scanner configuration.
+# https://google.github.io/osv-scanner/configuration/
+
+[[IgnoredVulns]]
+id = "GHSA-3g3m-2fjr-6pw4"
+reason = "Transitive dependency in @sentry/bundler-plugins and c8 with no upstream fix available without breaking changes"
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+reason = "Transitive dev dependency in eslint and typescript-eslint with no upstream fix available without breaking changes"
