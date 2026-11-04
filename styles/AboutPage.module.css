@@ -31,13 +31,13 @@
   width: 72px;
   height: 72px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent-color), rgba(var(--accent-color-rgb), 0.7));
+  background: var(--accent-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   font-weight: 700;
-  color: white;
+  color: var(--accent-contrast-text, #0a0e14);
   flex-shrink: 0;
 }
 
@@ -92,11 +92,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 8px;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-raised, rgba(255, 255, 255, 0.03));
   border: 1px solid var(--explorer-border);
   transition: all 0.2s ease;
   text-decoration: none;
@@ -185,7 +185,7 @@
   padding: 4px 10px;
   background: rgba(var(--accent-color-rgb), 0.1);
   color: var(--accent-color);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   border-radius: 4px;
   font-family: var(--font-mono);
@@ -253,7 +253,7 @@
 
 .skillTitle {
   margin: 0 0 12px 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;

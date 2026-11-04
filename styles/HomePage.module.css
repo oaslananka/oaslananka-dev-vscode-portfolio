@@ -16,7 +16,7 @@
 }
 
 .hero {
-  min-height: min(620px, calc(100dvh - 150px));
+  min-height: calc(100dvh - 95px);
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--explorer-border);
@@ -57,7 +57,7 @@
 .heroVisualNote {
   color: var(--text-muted, #b6bec9);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 .heroVisualLabel {
@@ -250,7 +250,7 @@
   margin-top: 28px;
   color: var(--text-muted, rgba(255, 255, 255, 0.48));
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .heroLinks a {
@@ -285,7 +285,7 @@
   margin: 0 0 8px;
   color: var(--accent-color);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -295,7 +295,7 @@
   margin: 0;
   max-width: 760px;
   font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 30px;
+  font-size: clamp(22px, 2.5vw, 28px);
   line-height: 1.25;
   letter-spacing: 0;
 }
@@ -346,7 +346,7 @@
 .capabilityTop span {
   color: var(--text-muted, rgba(255, 255, 255, 0.48));
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .capability h3,
@@ -384,7 +384,7 @@
 .principleNumber {
   color: var(--accent-color);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -424,9 +424,10 @@
 }
 
 .articleLink > div > span {
-  color: #70a5eb;
+  color: var(--accent-color);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -475,6 +476,12 @@
     border-left: 0;
     border-top: 1px solid var(--explorer-border);
   }
+
+  .contactSection {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: flex-start;
+  }
 }
 
 @media (max-width: 640px) {
@@ -500,8 +507,8 @@
   }
 
   .role {
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 18px;
+    line-height: 1.4;
   }
 
   .description {
@@ -522,7 +529,8 @@
 
   .sectionHeader h2,
   .contactSection h2 {
-    font-size: 24px;
+    font-size: clamp(19px, 5vw, 22px);
+    line-height: 1.25;
   }
 
   .workSection,
@@ -589,7 +597,7 @@
 .deliveryStage > span {
   color: var(--accent-color);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 

@@ -31,7 +31,7 @@
   flex-shrink: 0;
   margin-top: 4px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   font-weight: 500;
   transition: all 0.3s ease;
@@ -121,7 +121,7 @@
   align-items: center;
   min-width: 0;
   gap: 5px;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
   color: var(--text-muted);
   transition: color 0.2s ease;
