@@ -13,7 +13,7 @@
   margin: 0 0 8px;
   color: var(--accent-color);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.5;
   text-transform: uppercase;
@@ -72,7 +72,7 @@
   padding: 14px 16px 16px;
   color: var(--text-muted, #b6bec9);
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -180,10 +180,10 @@
   max-width: 800px;
   margin: 12px 0 0;
   color: #d4dce7;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 @media (max-width: 700px) {
   .lightbox { padding: 8px; max-height: 90dvh; }
-  .lightboxActions { font-size: 11px; }
+  .lightboxActions { font-size: 13px; }
 }
