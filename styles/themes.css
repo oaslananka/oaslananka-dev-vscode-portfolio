@@ -52,6 +52,7 @@
   --text-color: #efefef;
   --accent-color: #bd93f9;
   --accent-color-rgb: 189, 147, 249;
+  --accent-contrast-text: #282a36;
   --titlebar-bg: #1e1f29;
   --sidebar-bg: #343746;
   --sidebar-hover-bg: #3c3d51;
@@ -73,6 +74,13 @@
   --terminal-bg: #21222c;
   --terminal-header-bg: #191a21;
   --terminal-border: #191a21;
+  --surface-canvas: var(--main-bg);
+  --surface-raised: var(--sidebar-bg);
+  --surface-overlay: var(--explorer-bg);
+  --surface-hover: var(--sidebar-hover-bg);
+  --border-color: var(--explorer-border);
+  --text-primary: var(--text-color);
+  --text-muted: #9aa5ce;
 }
 
 /* Ayu Dark */
@@ -82,18 +90,19 @@
   --text-color: #efefef;
   --accent-color: #e6b450;
   --accent-color-rgb: 230, 180, 80;
+  --accent-contrast-text: #0a0e14;
   --titlebar-bg: #1f2428;
   --sidebar-bg: #0a0e14;
   --sidebar-hover-bg: #00010a;
   --explorer-bg: #0a0e14;
   --explorer-hover-bg: #00010a;
-  --explorer-border: transparent;
+  --explorer-border: #1b212c;
   --tabs-bg: #0a0e14;
   --tab-bg: #0a0e14;
   --tab-active-bg: #0a0e14;
-  --tab-border: transparent;
+  --tab-border: #1b212c;
   --bottombar-bg: #0a0e14;
-  --bottombar-border: transparent;
+  --bottombar-border: #1b212c;
   --button-bg: #e6b450;
   --button-text: #0a0e14;
   --bottombar-hover-bg: #4f4f52;
@@ -102,7 +111,14 @@
   --article-bg: #10121a;
   --terminal-bg: #0a0e14;
   --terminal-header-bg: #0a0e14;
-  --terminal-border: transparent;
+  --terminal-border: #1b212c;
+  --surface-canvas: var(--main-bg);
+  --surface-raised: #121820;
+  --surface-overlay: #101620;
+  --surface-hover: #171f2a;
+  --border-color: #1b212c;
+  --text-primary: var(--text-color);
+  --text-muted: #8a9199;
 }
 
 /* Ayu Mirage */
@@ -112,18 +128,19 @@
   --text-color: #efefef;
   --accent-color: #e6b450;
   --accent-color-rgb: 230, 180, 80;
+  --accent-contrast-text: #1f2430;
   --titlebar-bg: #1f2428;
   --sidebar-bg: #1f2430;
   --sidebar-hover-bg: #191e2a;
   --explorer-bg: #1f2430;
   --explorer-hover-bg: #191e2a;
-  --explorer-border: transparent;
+  --explorer-border: #151a24;
   --tabs-bg: #1f2430;
   --tab-bg: #1f2430;
   --tab-active-bg: #1f2430;
-  --tab-border: transparent;
+  --tab-border: #151a24;
   --bottombar-bg: #1f2430;
-  --bottombar-border: transparent;
+  --bottombar-border: #151a24;
   --button-bg: #e6b450;
   --button-text: #1f2430;
   --bottombar-hover-bg: #4f4f52;
@@ -132,7 +149,14 @@
   --article-bg: #252e3d;
   --terminal-bg: #1f2430;
   --terminal-header-bg: #1f2430;
-  --terminal-border: transparent;
+  --terminal-border: #151a24;
+  --surface-canvas: var(--main-bg);
+  --surface-raised: #262c3a;
+  --surface-overlay: #232834;
+  --surface-hover: #2d3444;
+  --border-color: #151a24;
+  --text-primary: var(--text-color);
+  --text-muted: #959da6;
 }
 
 /* Nord */
@@ -142,6 +166,7 @@
   --text-color: #efefef;
   --accent-color: #88c0d0;
   --accent-color-rgb: 136, 192, 208;
+  --accent-contrast-text: #2e3440;
   --titlebar-bg: #1f2428;
   --sidebar-bg: #2e3440;
   --sidebar-hover-bg: #434c5e;
@@ -151,9 +176,9 @@
   --tabs-bg: #2e3440;
   --tab-bg: #2e3440;
   --tab-active-bg: #3b4252;
-  --tab-border: transparent;
+  --tab-border: #3b4252;
   --bottombar-bg: #3b4252;
-  --bottombar-border: transparent;
+  --bottombar-border: #3b4252;
   --button-bg: #434c5e;
   --button-text: #d8dee9;
   --bottombar-hover-bg: #4f4f52;
@@ -162,30 +187,38 @@
   --article-bg: #363f50;
   --terminal-bg: #2e3440;
   --terminal-header-bg: #3b4252;
-  --terminal-border: transparent;
+  --terminal-border: #3b4252;
+  --surface-canvas: var(--main-bg);
+  --surface-raised: #3b4252;
+  --surface-overlay: #3b4252;
+  --surface-hover: #434c5e;
+  --border-color: rgba(136, 192, 208, 0.2);
+  --text-primary: var(--text-color);
+  --text-muted: #d8dee9;
 }
 
 /* Night Owl */
 [data-theme='night-owl'] {
   --main-bg: #011627;
   --bg-text: #031d33;
-  --text-color: #89a4bb;
-  --accent-color: rgb(95, 126, 151);
-  --accent-color-rgb: 95, 126, 151;
+  --text-color: #d6deeb;
+  --accent-color: #82aaff;
+  --accent-color-rgb: 130, 170, 255;
+  --accent-contrast-text: #011627;
   --titlebar-bg: #011627;
   --sidebar-bg: #011627;
   --sidebar-hover-bg: #0e293f;
   --explorer-bg: #011627;
   --explorer-hover-bg: #0e293f;
-  --explorer-border: transparent;
+  --explorer-border: #1b3a56;
   --tabs-bg: #011627;
   --tab-bg: #01111d;
   --tab-active-bg: #0b2942;
   --tab-border: rgb(39, 43, 59);
   --bottombar-bg: #011627;
   --bottombar-border: #262a39;
-  --button-bg: rgb(95, 126, 151);
-  --button-text: #fff;
+  --button-bg: #82aaff;
+  --button-text: #011627;
   --bottombar-hover-bg: #1b222f;
   --scrollbar-track-bg: #011627;
   --scrollbar-thumb-bg: #043254;
@@ -193,4 +226,11 @@
   --terminal-bg: #011627;
   --terminal-header-bg: #011627;
   --terminal-border: #262a39;
+  --surface-canvas: var(--main-bg);
+  --surface-raised: #0b2942;
+  --surface-overlay: #0b2942;
+  --surface-hover: #0e293f;
+  --border-color: #1b3a56;
+  --text-primary: #d6deeb;
+  --text-muted: #89a4bb;
 }
