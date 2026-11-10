@@ -1,6 +1,6 @@
 # Actual Neon live branch — backups and protection (#42)
 
-Status: operational decision pending (2026-10-19). **This document is NOT evidence that branch protection or recurring backups are enabled.**
+Status (2026-11-10): **Free encrypted recurring backups and independent recovery verified. Neon-native protected branch remains OFF.** Paid plans and new recurring charges are explicitly rejected by the owner.
 
 ## Verified state
 
@@ -18,41 +18,54 @@ seconds (six hours), and the only native manual snapshot was
 isolated restore test previously matched the source. These observations
 are time-bound: check the live service before acting.
 
-## Supported choices
+## Approved approach: existing free resources only
 
-**Preferred for integrated protection:** Have the account owner authorize
-switching Neon to a suitable metered paid plan (current Neon documentation
-says protected branches exist on paid plans and Launch supports scheduled
-snapshots). Obtain a pricing estimate and confirm feature entitlements in
-the organization's own dashboard before agreeing to charges. After the
-owner's explicit plan-change authorization:
+Paid Neon branch protection and scheduled snapshots were evaluated earlier
+but explicitly rejected by the owner. They are not authorized alternatives.
+The current approved solution uses the existing encrypted logical backup,
+off-device mirror, independent recovery keys and hourly alerts.
 
-1. Confirm that the Vercel and Doppler production project, branch, compute,
-   database pins all match an actual read-only PostgreSQL session.
-2. Protect ONLY the pinned *actual live branch*, not the Neon default.
-   Re-read branch metadata and verify `protected=true`. Confirm production
-   service connectivity; never try a destructive deletion as a "test".
-3. Configure automated **daily** snapshots with a proposed **7-day
-   retention**. This is a proposed policy, not a previously approved
-   schedule. Read back the actual schedule.
-4. Wait for a completed scheduled snapshot. Restore it to an isolated
-   temporary branch WITHOUT finalizing or changing live computes. Compare
-   schemas, migration journal, row counts, content and audit digests.
-5. Retain the known-good manual snapshot until its replacement and restore
-   are independently verified. Only then consider cleanup with permission.
+## Current free backup acceptance (2026-11-10)
 
-**Without a paid Neon plan:** Keep the existing verified snapshot and the
-six-hour PITR window. Regular backups must instead use a **separate
-persistently stored encrypted logical backup**, not the existing
-`db:restore-drill` script alone: that script intentionally deletes its
-temporary dump after verifying restoration. An acceptable self-managed job
-must use an approved restricted host, least-privilege read-only backup
-credentials, version-matched `pg_dump`, authenticated encryption,
-durable off-site storage, defined retention, monitoring/alerts and a
-recurring independent restore drill. An archive retained on the same
-machine or an unencrypted CI artifact is not a reliable recovery copy.
-Do not start the schedule until an appropriate storage sink, encryption
-key custody and retention policy have been approved.
+The project now uses the *already available* backup host and recovery
+machines. No new paid service or Neon plan upgrade is authorized.
+
+- A daily read-only `pg_dump` is taken only after checking the exact
+  Vercel/Doppler **serving** Neon branch, not the Neon default. The
+  PostgreSQL archive is verified, encrypted with `age`, and retained
+  on the existing backup host (up to 30 recent encrypted archives).
+- Another machine mirrors the encrypted archives daily, checks SHA-256
+  and freshness, and runs hourly health checks. Its hourly monitor
+  now also attempts to **decrypt the entire newest archive** with its
+  locally held recovery identity. A missing private key and a
+  tampered ciphertext with a recomputed checksum both caused the
+  expected alert in isolated dry-run negative tests.
+- The backup recipient list retains the historical SSH public
+  recipient and adds distinct `age` public recipients for two
+  owner-controlled recovery devices. **No private key has been
+  transferred to the backup host.** The two machines independently
+  decrypted the same real three-recipient archive.
+- A new mirrored archive was decrypted and restored into an isolated
+  PostgreSQL 18 container with `--network none`. It contained
+  16 migrations, 10 projects, 6 posts, 14 agent write requests,
+  and 11 proposals. All five counts matched separate read-only
+  queries against the identity-checked live source. The temporary
+  container was removed. The second recovery machine's full
+  PostgreSQL restore is **NOT VERIFIED** because its Docker engine
+  was unavailable; authenticated decryption was verified.
+- **Legacy warning:** archives encrypted before new recipients
+  were added still require the original SSH private identity,
+  which was not found in the latest inventory. They were not
+  altered or deleted and must not be described as recoverable.
+  Adding new recipients does not retroactively unlock old files.
+
+Always verify current backup/mirror timers and decryptability before
+risky migrations. Never copy private identities to CI, the backup
+host, repository files or issue comments. Keep the existing Neon
+native manual snapshot. The real live branch remains
+`protected=false` on the Free plan; endpoint restrictions are not
+native branch protection. No change to production Neon branch,
+endpoint, credentials, or data is needed for this recovery path.
 
 ## Release rules
 
