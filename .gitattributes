@@ -2,3 +2,4 @@
 lib/db/migrations/**/migration.sql text eol=lf
 .github/workflows/*.yml text eol=lf
 *.sh text eol=lf
+lib/db/migrations/**/snapshot.json text eol=lf

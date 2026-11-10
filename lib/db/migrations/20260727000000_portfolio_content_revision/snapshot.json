@@ -1,1356 +1,578 @@
 {
-  "version": "8",
+  "type": "diff",
+  "version": "9",
   "dialect": "postgres",
   "id": "90045525-cc59-4ec2-8b31-edbfed8601f8",
   "prevIds": [
     "e2878b85-fc4f-485b-ba14-6194fb54eed0"
   ],
-  "ddl": [
-    {
-      "isRlsEnabled": false,
-      "name": "contact_messages",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "login_attempts",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "posts",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "profile",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "projects",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "site_settings",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "email",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'other'",
-      "generated": null,
-      "identity": null,
-      "name": "inquiry_type",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "organization",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "message",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "read",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'disabled'",
-      "generated": null,
-      "identity": null,
-      "name": "notification_status",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "notification_provider_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "notification_attempts",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "notification_last_error",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "notification_last_attempt_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "notification_next_attempt_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "notification_claim_token",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "notification_claim_expires_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now() + interval '12 months'",
-      "generated": null,
-      "identity": null,
-      "name": "retention_expires_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "login_attempts"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "ip",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "login_attempts"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "login_attempts"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "slug",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "title",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "excerpt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "body",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "cover_image",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "tags",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "published",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "published_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "posts"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "role",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tagline",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'Hello, I''m'",
-      "generated": null,
-      "identity": null,
-      "name": "greeting",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "hero_description",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "location",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "email",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "avatar_url",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "resume_url",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "true",
-      "generated": null,
-      "identity": null,
-      "name": "available_for_work",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "bio",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "socials",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "skills",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "experience",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "education",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "writing",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "profile"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "slug",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "title",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "long_description",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "role",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "logo",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "cover_image",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "cover_image_alt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "link",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "repo",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "tags",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "outcomes",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "media",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "links",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "featured",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "sort_order",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "site_title",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "site_description",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
-      "name": "keywords",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'github-dark'",
-      "generated": null,
-      "identity": null,
-      "name": "default_theme",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "og_heading",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "retention_expires_at",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "profile",
+        "education"
       ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "contact_messages_retention_expires_at_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "contact_messages"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "notification_status",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "notification_next_attempt_at",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "notification_claim_expires_at",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
+      "writes": [
+        "s|col|public.profile.education",
+        "n|col|public.profile.education",
+        "e|col|public.profile.education"
       ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "contact_messages_notification_delivery_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "contact_messages"
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public"
+      ]
     },
     {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "ip",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "created_at",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
       ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "login_attempts_identity_created_at_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "login_attempts"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "created_at",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
+      "writes": [
+        "s|ck|public.profile.profile_education_shape_check",
+        "n|ck|public.profile.profile_education_shape_check",
+        "e|ck|public.profile.profile_education_shape_check",
+        "n|con|public.profile.profile_education_shape_check"
       ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "login_attempts_created_at_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "login_attempts"
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.education"
+      ]
     },
     {
-      "columns": [
-        "id"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "contact_messages"
       ],
-      "nameExplicit": false,
-      "name": "contact_messages_pkey",
-      "schema": "public",
-      "table": "contact_messages",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
+      "writes": [
+        "s|ck|public.contact_messages.contact_messages_inquiry_type_check"
       ],
-      "nameExplicit": false,
-      "name": "login_attempts_pkey",
-      "schema": "public",
-      "table": "login_attempts",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
+      "reads": [
+        "n|tbl|public.contact_messages",
+        "n|sch|public",
+        "n|col|public.contact_messages.inquiry_type",
+        "e|col|public.contact_messages.inquiry_type"
       ],
-      "nameExplicit": false,
-      "name": "posts_pkey",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "pks"
+      "sqlHash": "be1456a3e127219f"
     },
     {
-      "columns": [
-        "id"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "contact_messages"
       ],
-      "nameExplicit": false,
-      "name": "profile_pkey",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
+      "writes": [
+        "s|ck|public.contact_messages.contact_messages_notification_status_check"
       ],
-      "nameExplicit": false,
-      "name": "projects_pkey",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
+      "reads": [
+        "n|tbl|public.contact_messages",
+        "n|sch|public",
+        "n|col|public.contact_messages.notification_status",
+        "e|col|public.contact_messages.notification_status"
       ],
-      "nameExplicit": false,
-      "name": "site_settings_pkey",
-      "schema": "public",
-      "table": "site_settings",
-      "entityType": "pks"
+      "sqlHash": "47602b6902bc578e"
     },
     {
-      "nameExplicit": false,
-      "columns": [
-        "slug"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "contact_messages"
       ],
-      "nullsNotDistinct": false,
-      "name": "posts_slug_unique",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "slug"
+      "writes": [
+        "s|ck|public.contact_messages.contact_messages_notification_attempts_check"
       ],
-      "nullsNotDistinct": false,
-      "name": "projects_slug_unique",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "uniques"
+      "reads": [
+        "n|tbl|public.contact_messages",
+        "n|sch|public",
+        "n|col|public.contact_messages.notification_attempts",
+        "e|col|public.contact_messages.notification_attempts"
+      ],
+      "sqlHash": "91b058d23710d9eb"
     },
     {
-      "value": "\"inquiry_type\" in ('project', 'role', 'collaboration', 'other')",
-      "name": "contact_messages_inquiry_type_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "contact_messages"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "contact_messages"
+      ],
+      "writes": [
+        "s|ck|public.contact_messages.contact_messages_retention_window_check"
+      ],
+      "reads": [
+        "n|tbl|public.contact_messages",
+        "n|sch|public",
+        "n|col|public.contact_messages.retention_expires_at",
+        "n|col|public.contact_messages.created_at",
+        "e|col|public.contact_messages.retention_expires_at",
+        "e|col|public.contact_messages.created_at"
+      ],
+      "sqlHash": "16a882d85832e9c7"
     },
     {
-      "value": "\"notification_status\" in ('pending', 'sent', 'failed', 'disabled')",
-      "name": "contact_messages_notification_status_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "contact_messages"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "posts"
+      ],
+      "writes": [
+        "s|ck|public.posts.posts_published_at_finite_check"
+      ],
+      "reads": [
+        "n|tbl|public.posts",
+        "n|sch|public",
+        "n|col|public.posts.published_at",
+        "e|col|public.posts.published_at"
+      ],
+      "sqlHash": "d939327feb668401"
     },
     {
-      "value": "\"notification_attempts\" between 0 and 1000",
-      "name": "contact_messages_notification_attempts_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "contact_messages"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "posts"
+      ],
+      "writes": [
+        "s|ck|public.posts.posts_tags_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.posts",
+        "n|sch|public",
+        "n|col|public.posts.tags",
+        "e|col|public.posts.tags"
+      ],
+      "sqlHash": "1e97b13f384b64e6"
     },
     {
-      "value": "\"retention_expires_at\" > \"created_at\"",
-      "name": "contact_messages_retention_window_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "contact_messages"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|ck|public.profile.profile_singleton_id_check"
+      ],
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.id",
+        "e|col|public.profile.id"
+      ],
+      "sqlHash": "27eed28957e68db5"
     },
     {
-      "value": "isfinite(\"published_at\")",
-      "name": "posts_published_at_finite_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "posts"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|ck|public.profile.profile_bio_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.bio",
+        "e|col|public.profile.bio"
+      ],
+      "sqlHash": "61a374815cbd3d2d"
     },
     {
-      "value": "jsonb_typeof(\"tags\") = 'array' and jsonb_array_length(\"tags\") <= 20",
-      "name": "posts_tags_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "posts"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|ck|public.profile.profile_socials_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.socials",
+        "e|col|public.profile.socials"
+      ],
+      "sqlHash": "68e26f7c270d925b"
     },
     {
-      "value": "\"id\" = 1",
-      "name": "profile_singleton_id_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|ck|public.profile.profile_skills_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.skills",
+        "e|col|public.profile.skills"
+      ],
+      "sqlHash": "4ace5623b01ad2da"
     },
     {
-      "value": "jsonb_typeof(\"bio\") = 'array' and jsonb_array_length(\"bio\") <= 12",
-      "name": "profile_bio_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|ck|public.profile.profile_experience_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.experience",
+        "e|col|public.profile.experience"
+      ],
+      "sqlHash": "55d0182f25e3fa81"
     },
     {
-      "value": "jsonb_typeof(\"socials\") = 'array' and jsonb_array_length(\"socials\") <= 20",
-      "name": "profile_socials_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|ck|public.profile.profile_writing_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.profile",
+        "n|sch|public",
+        "n|col|public.profile.writing",
+        "e|col|public.profile.writing"
+      ],
+      "sqlHash": "21c50dae6bb996eb"
     },
     {
-      "value": "jsonb_typeof(\"skills\") = 'array' and jsonb_array_length(\"skills\") <= 20",
-      "name": "profile_skills_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "projects"
+      ],
+      "writes": [
+        "s|ck|public.projects.projects_sort_order_check"
+      ],
+      "reads": [
+        "n|tbl|public.projects",
+        "n|sch|public",
+        "n|col|public.projects.sort_order",
+        "e|col|public.projects.sort_order"
+      ],
+      "sqlHash": "b53fe5aa26242a52"
     },
     {
-      "value": "jsonb_typeof(\"experience\") = 'array' and jsonb_array_length(\"experience\") <= 30",
-      "name": "profile_experience_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "projects"
+      ],
+      "writes": [
+        "s|ck|public.projects.projects_tags_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.projects",
+        "n|sch|public",
+        "n|col|public.projects.tags",
+        "e|col|public.projects.tags"
+      ],
+      "sqlHash": "072c8b7e46c1c89c"
     },
     {
-      "value": "jsonb_typeof(\"education\") = 'array' and jsonb_array_length(\"education\") <= 10",
-      "name": "profile_education_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "projects"
+      ],
+      "writes": [
+        "s|ck|public.projects.projects_outcomes_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.projects",
+        "n|sch|public",
+        "n|col|public.projects.outcomes",
+        "e|col|public.projects.outcomes"
+      ],
+      "sqlHash": "045ea5f7a7bae063"
     },
     {
-      "value": "jsonb_typeof(\"writing\") = 'array' and jsonb_array_length(\"writing\") <= 30",
-      "name": "profile_writing_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "profile"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "projects"
+      ],
+      "writes": [
+        "s|ck|public.projects.projects_media_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.projects",
+        "n|sch|public",
+        "n|col|public.projects.media",
+        "e|col|public.projects.media"
+      ],
+      "sqlHash": "915e42a9e749d8b6"
     },
     {
-      "value": "\"sort_order\" between -10000 and 10000",
-      "name": "projects_sort_order_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "projects"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "projects"
+      ],
+      "writes": [
+        "s|ck|public.projects.projects_links_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.projects",
+        "n|sch|public",
+        "n|col|public.projects.links",
+        "e|col|public.projects.links"
+      ],
+      "sqlHash": "f7abfc65b1743e7c"
     },
     {
-      "value": "jsonb_typeof(\"tags\") = 'array' and jsonb_array_length(\"tags\") <= 20",
-      "name": "projects_tags_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "projects"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "site_settings"
+      ],
+      "writes": [
+        "s|ck|public.site_settings.site_settings_singleton_id_check"
+      ],
+      "reads": [
+        "n|tbl|public.site_settings",
+        "n|sch|public",
+        "n|col|public.site_settings.id",
+        "e|col|public.site_settings.id"
+      ],
+      "sqlHash": "fa9cf56f06563fd2"
     },
     {
-      "value": "jsonb_typeof(\"outcomes\") = 'array' and jsonb_array_length(\"outcomes\") <= 8",
-      "name": "projects_outcomes_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "projects"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "site_settings"
+      ],
+      "writes": [
+        "s|ck|public.site_settings.site_settings_keywords_shape_check"
+      ],
+      "reads": [
+        "n|tbl|public.site_settings",
+        "n|sch|public",
+        "n|col|public.site_settings.keywords",
+        "e|col|public.site_settings.keywords"
+      ],
+      "sqlHash": "aa2ca2bbbb5a673b"
     },
     {
-      "value": "jsonb_typeof(\"media\") = 'array' and jsonb_array_length(\"media\") <= 12",
-      "name": "projects_media_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "value": "jsonb_typeof(\"links\") = 'array' and jsonb_array_length(\"links\") <= 12",
-      "name": "projects_links_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "projects"
-    },
-    {
-      "value": "\"id\" = 1",
-      "name": "site_settings_singleton_id_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "value": "jsonb_typeof(\"keywords\") = 'array' and jsonb_array_length(\"keywords\") <= 20",
-      "name": "site_settings_keywords_shape_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "site_settings"
-    },
-    {
-      "value": "\"default_theme\" in ('github-dark', 'dracula', 'ayu-dark', 'ayu-mirage', 'nord', 'night-owl')",
-      "name": "site_settings_theme_check",
-      "entityType": "checks",
-      "schema": "public",
-      "table": "site_settings"
+      "statementType": "alter_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "site_settings"
+      ],
+      "writes": [
+        "s|ck|public.site_settings.site_settings_theme_check"
+      ],
+      "reads": [
+        "n|tbl|public.site_settings",
+        "n|sch|public",
+        "n|col|public.site_settings.default_theme",
+        "e|col|public.site_settings.default_theme"
+      ],
+      "sqlHash": "1b19210e40be4f36"
     }
   ],
-  "renames": []
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "profile",
+        "name": "education",
+        "type": "jsonb",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'[]'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "profile",
+        "name": "profile_education_shape_check",
+        "value": "jsonb_typeof(\"education\") = 'array' and jsonb_array_length(\"education\") <= 10",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"contact_messages\",\"contact_messages_inquiry_type_check\"]",
+      "set": {
+        "value": "\"inquiry_type\" in ('project', 'role', 'collaboration', 'other')"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"contact_messages\",\"contact_messages_notification_status_check\"]",
+      "set": {
+        "value": "\"notification_status\" in ('pending', 'sent', 'failed', 'disabled')"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"contact_messages\",\"contact_messages_notification_attempts_check\"]",
+      "set": {
+        "value": "\"notification_attempts\" between 0 and 1000"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"contact_messages\",\"contact_messages_retention_window_check\"]",
+      "set": {
+        "value": "\"retention_expires_at\" > \"created_at\""
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"posts\",\"posts_published_at_finite_check\"]",
+      "set": {
+        "value": "isfinite(\"published_at\")"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"posts\",\"posts_tags_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"tags\") = 'array' and jsonb_array_length(\"tags\") <= 20"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"profile\",\"profile_singleton_id_check\"]",
+      "set": {
+        "value": "\"id\" = 1"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"profile\",\"profile_bio_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"bio\") = 'array' and jsonb_array_length(\"bio\") <= 12"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"profile\",\"profile_socials_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"socials\") = 'array' and jsonb_array_length(\"socials\") <= 20"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"profile\",\"profile_skills_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"skills\") = 'array' and jsonb_array_length(\"skills\") <= 20"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"profile\",\"profile_experience_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"experience\") = 'array' and jsonb_array_length(\"experience\") <= 30"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"profile\",\"profile_writing_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"writing\") = 'array' and jsonb_array_length(\"writing\") <= 30"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"projects\",\"projects_sort_order_check\"]",
+      "set": {
+        "value": "\"sort_order\" between -10000 and 10000"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"projects\",\"projects_tags_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"tags\") = 'array' and jsonb_array_length(\"tags\") <= 20"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"projects\",\"projects_outcomes_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"outcomes\") = 'array' and jsonb_array_length(\"outcomes\") <= 8"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"projects\",\"projects_media_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"media\") = 'array' and jsonb_array_length(\"media\") <= 12"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"projects\",\"projects_links_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"links\") = 'array' and jsonb_array_length(\"links\") <= 12"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"site_settings\",\"site_settings_singleton_id_check\"]",
+      "set": {
+        "value": "\"id\" = 1"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"site_settings\",\"site_settings_keywords_shape_check\"]",
+      "set": {
+        "value": "jsonb_typeof(\"keywords\") = 'array' and jsonb_array_length(\"keywords\") <= 20"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "checks\u0000[\"public\",\"site_settings\",\"site_settings_theme_check\"]",
+      "set": {
+        "value": "\"default_theme\" in ('github-dark', 'dracula', 'ayu-dark', 'ayu-mirage', 'nord', 'night-owl')"
+      }
+    }
+  ]
 }
