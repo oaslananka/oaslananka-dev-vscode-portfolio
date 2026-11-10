@@ -201,3 +201,31 @@ test('coverage policy includes the perimeter verifier', async () => {
     /--include='lib\/admin-access\.ts'/,
   );
 });
+
+test('dedicated admin hostname root lands on protected dashboard, not public home', async () => {
+  await withAccessEnvironment(async () => {
+    const response = await proxy(
+      new NextRequest('https://admin.oaslananka.dev/?utm_source=bookmark'),
+    );
+    assert.equal(response.status, 307);
+    assert.equal(
+      response.headers.get('location'),
+      'https://admin.oaslananka.dev/admin?utm_source=bookmark',
+    );
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+
+    // Redirect target must still require Cloudflare Access, even before CMS login.
+    const protectedResponse = await proxy(
+      new NextRequest('https://admin.oaslananka.dev/admin'),
+    );
+    assert.equal(protectedResponse.status, 403);
+  });
+});
+
+test('public portfolio homepage stays public when admin host is configured', async () => {
+  await withAccessEnvironment(async () => {
+    const response = await proxy(new NextRequest('https://www.oaslananka.dev/'));
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('location'), null);
+  });
+});

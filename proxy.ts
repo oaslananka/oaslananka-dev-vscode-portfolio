@@ -92,6 +92,21 @@ function publicPageResponse(request: NextRequest, canonicalPath: string) {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // The dedicated admin hostname should land in the protected dashboard,
+  // not the public portfolio home. /admin still enforces both access checks.
+  const adminHost = process.env.ADMIN_ACCESS_HOST?.trim().toLowerCase();
+  if (
+    pathname === '/' &&
+    adminHost &&
+    request.nextUrl.hostname.toLowerCase() === adminHost
+  ) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = '/admin';
+    const redirect = NextResponse.redirect(dashboardUrl, 307);
+    redirect.headers.set('Cache-Control', 'no-store');
+    return redirect;
+  }
+
   if (MACHINE_MARKDOWN_PATHS.has(pathname)) {
     return NextResponse.next();
   }
