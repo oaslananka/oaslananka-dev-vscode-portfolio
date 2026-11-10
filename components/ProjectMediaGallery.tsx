@@ -9,12 +9,14 @@ import ProjectGalleryImage from '@/components/ProjectGalleryImage';
 interface ProjectMediaGalleryProps {
   readonly media: readonly ProjectMedia[];
   readonly coverImage?: string;
+  readonly compact?: boolean;
 }
 
 interface GalleryItemProps {
   readonly item: ProjectMedia;
   readonly index: number;
   readonly totalCount: number;
+  readonly compact: boolean;
 }
 
 function GalleryVideo({
@@ -60,8 +62,9 @@ function GalleryItem({
   item,
   index,
   totalCount,
+  compact,
 }: GalleryItemProps) {
-  const isFeatured = totalCount % 2 === 1 && index === 0;
+  const isFeatured = !compact && totalCount % 2 === 1 && index === 0;
   const silent = item.type === 'video' && resolveVideoAccessibility(item).audio === 'none';
   const captionId = `project-media-caption-${index}`;
   const hasCaption = Boolean(item.caption) || silent;
@@ -92,6 +95,7 @@ function GalleryItem({
 export default function ProjectMediaGallery({
   media,
   coverImage = '',
+  compact = false,
 }: ProjectMediaGalleryProps) {
   const galleryItems = media.filter(
     (item) => item.type === 'video' || item.src !== coverImage,
@@ -100,7 +104,7 @@ export default function ProjectMediaGallery({
   if (galleryItems.length === 0) return null;
 
   return (
-    <section className={styles.section} aria-labelledby="project-gallery-title">
+    <section id="project-gallery" className={compact ? [styles.section, styles.compact].join(" ") : styles.section} aria-labelledby="project-gallery-title">
       <header className={styles.header}>
         <p className={styles.eyebrow}>Product evidence</p>
         <h2 id="project-gallery-title" className={styles.title}>
@@ -115,6 +119,7 @@ export default function ProjectMediaGallery({
             item={item}
             index={index}
             totalCount={galleryItems.length}
+            compact={compact}
           />
         ))}
       </div>
