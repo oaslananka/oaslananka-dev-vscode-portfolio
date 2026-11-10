@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   allowsBundledDefaultContent,
+  getPreviewSourceProvenance,
   isPreviewDeployment,
   isProductionDeployment,
   resolveDeploymentEnvironment,
@@ -223,4 +224,34 @@ test('database preflight runs only for production builds', async () => {
     buildScriptsForEnvironment({ NODE_ENV: 'test' }),
     ['build:next'],
   );
+});
+
+test('Preview build evidence clearly distinguishes demo content from unverified connected data', () => {
+  assert.equal(getPreviewSourceProvenance({ NODE_ENV: 'production' }), null);
+  assert.deepEqual(getPreviewSourceProvenance({
+    VERCEL_ENV: 'preview',
+    NODE_ENV: 'production',
+  }), {
+    source: 'bundled-demo',
+    branchAncestry: 'not-applicable',
+    liveDataParity: 'no',
+    notice: 'PREVIEW — Demonstration content only; no production database is connected.',
+  });
+  assert.deepEqual(getPreviewSourceProvenance({
+    VERCEL_ENV: 'preview',
+    DATABASE_URL_UNPOOLED: 'postgresql://private-user:secret@private-host/db',
+  }), {
+    source: 'database-unverified',
+    branchAncestry: 'not-verified',
+    liveDataParity: 'not-verified',
+    notice: 'PREVIEW — Database source and live-data parity NOT VERIFIED.',
+  });
+  const evidence = getPreviewSourceProvenance({
+    VERCEL_ENV: 'preview',
+    DATABASE_URL: 'postgresql://private-user:secret@private-host/db',
+  });
+  assert.ok(evidence);
+  assert.equal(evidence.source, 'database-unverified');
+  assert.ok(!JSON.stringify(evidence).includes('private-host'));
+  assert.ok(!JSON.stringify(evidence).includes('secret'));
 });
