@@ -1,5 +1,7 @@
 # VS Code Portfolio
 
+[![GitGem](https://gitgem.org/api/badge/github/oaslananka/oaslananka-dev-vscode-portfolio.svg)](https://gitgem.org/github/oaslananka/oaslananka-dev-vscode-portfolio)
+
 A Visual Studio Code–themed developer portfolio with a **live admin panel**, built with Next.js 16, React 19, Neon Postgres, and Vercel.
 
 ## Features
