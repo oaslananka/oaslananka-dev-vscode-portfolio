@@ -35,3 +35,12 @@ test('projects show product imagery before domain navigation when present', asyn
     expect(positions[0]).toBeLessThan(positions[1]);
   }
 });
+
+test('homepage puts selected work before supplementary screenshots, without a hero collage', async ({ page }) => {
+  await page.goto('/');
+  const hero = page.locator('section[aria-labelledby="home-title"]');
+  await expect(hero.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(hero.locator('img')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'View selected work' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Systems with visible engineering evidence' })).toBeVisible();
+});

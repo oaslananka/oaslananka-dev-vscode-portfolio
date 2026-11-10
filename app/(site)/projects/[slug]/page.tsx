@@ -99,6 +99,7 @@ export default async function ProjectDetailPage({
     .map((item) => item.project);
 
   const relatedPosts = relatedPostsForProject(project, posts, 3);
+  const compactEvidence = slug === 'fovux' || slug === 'zaptrace';
 
   const coverMedia = project.media.find(
     (item) => item.type === 'image' && item.src === project.coverImage,
@@ -137,6 +138,11 @@ export default async function ProjectDetailPage({
 
           {externalLinks.length > 0 ? (
             <div className={styles.actions} aria-label="Project resources">
+              {compactEvidence && project.media.length > 0 ? (
+                <a href="#project-gallery" className={styles.action}>
+                  <span>View product screenshots</span>
+                </a>
+              ) : null}
               {externalLinks.map((resource) => (
               <a
                 key={resource.url}
@@ -157,7 +163,7 @@ export default async function ProjectDetailPage({
           ) : null}
         </header>
 
-        {project.coverImage ? (
+        {project.coverImage && !compactEvidence ? (
           <figure className={styles.cover}>
             <Image
               src={project.coverImage}
@@ -214,7 +220,8 @@ export default async function ProjectDetailPage({
 
         <ProjectMediaGallery
           media={project.media}
-          coverImage={project.coverImage}
+          coverImage={compactEvidence ? undefined : project.coverImage}
+          compact={compactEvidence}
         />
 
         {relatedPosts.length > 0 ? (
