@@ -10,6 +10,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { VscCheck, VscClose, VscShield } from '@/components/UiIcons';
 
 import MetaPixel from '@/components/MetaPixel';
+import { CONTACT_SAVED_EVENT, reportContactLead } from '@/lib/contact-analytics';
 import styles from '@/styles/ConsentManager.module.css';
 
 type ConsentChoice = 'analytics' | 'essential';
@@ -286,6 +287,22 @@ export default function ConsentManager({
       send_to: gaId,
     });
   }, [pathname, choice, gaId, isAdminRoute]);
+
+  useEffect(() => {
+    // The form announces a real server-side save; this consent-aware owner
+    // decides whether Analytics may count it. No form values enter GA4.
+    const onContactSaved = () => {
+      reportContactLead({
+        choice,
+        gaId,
+        isAdminRoute,
+        gtag: (window as TrackingWindow).gtag,
+      });
+    };
+
+    window.addEventListener(CONTACT_SAVED_EVENT, onContactSaved);
+    return () => window.removeEventListener(CONTACT_SAVED_EVENT, onContactSaved);
+  }, [choice, gaId, isAdminRoute]);
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {

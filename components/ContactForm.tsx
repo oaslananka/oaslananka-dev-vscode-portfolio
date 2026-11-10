@@ -5,6 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { VscCheck, VscSend } from '@/components/UiIcons';
 
 import { submitContact, type ContactState } from '@/lib/contact-actions';
+import { CONTACT_SAVED_EVENT, isRecordedContactSuccess } from '@/lib/contact-analytics';
 import styles from '@/styles/ContactForm.module.css';
 
 const initialState: ContactState = { ok: false };
@@ -23,6 +24,13 @@ export default function ContactForm() {
   const [state, formAction] = useActionState(submitContact, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const errorId = state.message && !state.ok ? 'contact-form-error' : undefined;
+  const leadReported = useRef(false);
+
+  useEffect(() => {
+    if (leadReported.current || !isRecordedContactSuccess(state)) return;
+    leadReported.current = true;
+    window.dispatchEvent(new Event(CONTACT_SAVED_EVENT));
+  }, [state]);
 
   useEffect(() => {
     if (!state.field) return;
