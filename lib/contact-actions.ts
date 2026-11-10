@@ -20,6 +20,8 @@ import {
 
 export interface ContactState {
   ok: boolean;
+  /** True only after the message was actually persisted; honeypot success is a decoy. */
+  stored?: boolean;
   message?: string;
   field?: ContactField;
   validationRevision?: string;
@@ -144,7 +146,7 @@ export async function submitContact(
     });
   }
 
-  return { ok: true, message: 'Thanks — your message has been sent.' };
+  return { ok: true, stored: true, message: 'Thanks — your message has been sent.' };
 }
 
 export async function retryContactNotification(
