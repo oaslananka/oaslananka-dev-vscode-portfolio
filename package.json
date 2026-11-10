@@ -90,7 +90,11 @@
       "eslint": "$eslint"
     },
     "glob@^13.0.0": "^14.0.4",
-    "minimatch@^10.0.0": "^11.0.5"
+    "minimatch@^10.0.0": "^11.0.5",
+    "test-exclude": {
+      "glob": "^14.0.4",
+      "minimatch": "^11.0.5"
+    }
   },
   "packageManager": "npm@10.9.8",
   "engines": {
