@@ -1,0 +1,4 @@
+# Preserve exact migration SQL and YAML bytes across operating systems.
+lib/db/migrations/**/migration.sql text eol=lf
+.github/workflows/*.yml text eol=lf
+*.sh text eol=lf
