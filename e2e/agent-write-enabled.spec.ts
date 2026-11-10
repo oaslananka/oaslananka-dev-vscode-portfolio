@@ -104,6 +104,7 @@ test('pending owner review remains available long after creation', async ({ requ
     await expect(preview.getByText('Does not expire')).toBeVisible();
     await preview.getByLabel('I reviewed the exact changes above.').check();
     await preview.getByRole('button', { name: 'Approve this change' }).click();
+    await expect(preview).toHaveCount(0);
 
     const approved = await request.get('/api/agent/v1/proposals/' + key, {
       headers: { Authorization: agentKey },
@@ -282,7 +283,9 @@ test('a human can reject an agent proposal; rejection grants no token', async ({
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/\/admin$/);
     await page.goto('/admin/agent-approvals');
-    const section = page.locator('section').filter({ hasText: 'Rejected change' });
+    const section = page.locator('section')
+      .filter({ hasText: path })
+      .filter({ has: page.getByRole('button', { name: 'Reject' }) });
     await expect(section).toBeVisible();
     await section.getByRole('button', { name: 'Reject' }).click();
     await expect(section).toHaveCount(0);
