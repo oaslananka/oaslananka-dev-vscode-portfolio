@@ -1,28 +1,120 @@
 {
+  "type": "base",
+  "version": "9",
+  "dialect": "postgres",
   "id": "a064ed21-c396-46c5-b0ef-0378ea8379d8",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
-  "version": "8",
-  "dialect": "postgres",
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "posts"
+      ],
+      "writes": [
+        "s|tbl|public.posts",
+        "n|tbl|public.posts",
+        "e|tbl|public.posts",
+        "n|rel|public.posts",
+        "n|type|public.posts",
+        "n|rel|public.posts_pkey",
+        "n|rel|public.posts_slug_unique"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "profile"
+      ],
+      "writes": [
+        "s|tbl|public.profile",
+        "n|tbl|public.profile",
+        "e|tbl|public.profile",
+        "n|rel|public.profile",
+        "n|type|public.profile",
+        "n|rel|public.profile_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "projects"
+      ],
+      "writes": [
+        "s|tbl|public.projects",
+        "n|tbl|public.projects",
+        "e|tbl|public.projects",
+        "n|rel|public.projects",
+        "n|type|public.projects",
+        "n|rel|public.projects_pkey",
+        "n|rel|public.projects_slug_unique"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "site_settings"
+      ],
+      "writes": [
+        "s|tbl|public.site_settings",
+        "n|tbl|public.site_settings",
+        "e|tbl|public.site_settings",
+        "n|rel|public.site_settings",
+        "n|type|public.site_settings",
+        "n|rel|public.site_settings_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    }
+  ],
   "ddl": [
     {
-      "isRlsEnabled": false,
-      "name": "posts",
       "schema": "public",
+      "name": "posts",
+      "isRlsEnabled": false,
       "entityType": "tables"
     },
     {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "posts_pkey",
       "schema": "public",
-      "table": "posts",
-      "entityType": "pks"
+      "name": "profile",
+      "isRlsEnabled": false,
+      "entityType": "tables"
     },
     {
+      "schema": "public",
+      "name": "projects",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "site_settings",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
+      "name": "id",
       "type": "serial",
       "typeSchema": null,
       "notNull": true,
@@ -30,25 +122,12 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "id",
-      "schema": "public",
-      "table": "posts",
       "entityType": "columns"
     },
     {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "posts",
       "name": "slug",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -56,25 +135,25 @@
       "default": null,
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
       "name": "title",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": "''",
+      "default": null,
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
       "name": "excerpt",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -82,12 +161,12 @@
       "default": "''",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
       "name": "body",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -95,12 +174,25 @@
       "default": "''",
       "generated": null,
       "identity": null,
-      "name": "cover_image",
-      "schema": "public",
-      "table": "posts",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "posts",
+      "name": "cover_image",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "''",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
+      "name": "tags",
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -108,12 +200,12 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
-      "name": "tags",
-      "schema": "public",
-      "table": "posts",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "posts",
+      "name": "published",
       "type": "boolean",
       "typeSchema": null,
       "notNull": true,
@@ -121,25 +213,12 @@
       "default": "false",
       "generated": null,
       "identity": null,
-      "name": "published",
-      "schema": "public",
-      "table": "posts",
       "entityType": "columns"
     },
     {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "posts",
       "name": "published_at",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "columns"
-    },
-    {
       "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
@@ -147,12 +226,12 @@
       "default": "now()",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
       "name": "created_at",
-      "schema": "public",
-      "table": "posts",
-      "entityType": "columns"
-    },
-    {
       "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
@@ -160,39 +239,25 @@
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "updated_at",
-      "schema": "public",
-      "table": "posts",
       "entityType": "columns"
     },
     {
-      "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
-      "nullsNotDistinct": false,
-      "name": "posts_slug_unique",
       "schema": "public",
       "table": "posts",
-      "entityType": "uniques"
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
     },
     {
-      "isRlsEnabled": false,
-      "name": "profile",
-      "schema": "public",
-      "entityType": "tables"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "profile_pkey",
       "schema": "public",
       "table": "profile",
-      "entityType": "pks"
-    },
-    {
+      "name": "id",
       "type": "serial",
       "typeSchema": null,
       "notNull": true,
@@ -200,25 +265,12 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "id",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "profile",
       "name": "name",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -226,12 +278,12 @@
       "default": null,
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
       "name": "role",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -239,12 +291,25 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "tagline",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "profile",
+      "name": "tagline",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
+      "name": "greeting",
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -252,12 +317,12 @@
       "default": "'Hello, I''m'",
       "generated": null,
       "identity": null,
-      "name": "greeting",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "profile",
+      "name": "hero_description",
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -265,25 +330,12 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "hero_description",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "profile",
       "name": "location",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -291,12 +343,12 @@
       "default": "''",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
       "name": "email",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -304,12 +356,12 @@
       "default": "''",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
       "name": "avatar_url",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -317,12 +369,25 @@
       "default": "''",
       "generated": null,
       "identity": null,
-      "name": "resume_url",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "profile",
+      "name": "resume_url",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "''",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
+      "name": "available_for_work",
       "type": "boolean",
       "typeSchema": null,
       "notNull": true,
@@ -330,25 +395,12 @@
       "default": "true",
       "generated": null,
       "identity": null,
-      "name": "available_for_work",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'[]'",
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "profile",
       "name": "bio",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -356,12 +408,12 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
       "name": "socials",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -369,12 +421,12 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
       "name": "skills",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -382,12 +434,12 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
       "name": "experience",
-      "schema": "public",
-      "table": "profile",
-      "entityType": "columns"
-    },
-    {
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -395,12 +447,25 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
-      "name": "writing",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "profile",
+      "name": "writing",
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'[]'",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
+      "name": "updated_at",
       "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
@@ -408,28 +473,12 @@
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "updated_at",
-      "schema": "public",
-      "table": "profile",
       "entityType": "columns"
     },
     {
-      "isRlsEnabled": false,
-      "name": "projects",
-      "schema": "public",
-      "entityType": "tables"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "projects_pkey",
       "schema": "public",
       "table": "projects",
-      "entityType": "pks"
-    },
-    {
+      "name": "id",
       "type": "serial",
       "typeSchema": null,
       "notNull": true,
@@ -437,25 +486,12 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "id",
-      "schema": "public",
-      "table": "projects",
       "entityType": "columns"
     },
     {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "projects",
       "name": "slug",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -463,12 +499,12 @@
       "default": null,
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
       "name": "title",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -476,25 +512,25 @@
       "default": null,
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
       "name": "description",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": "''",
+      "default": null,
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
       "name": "long_description",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -502,12 +538,12 @@
       "default": "''",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
       "name": "logo",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -515,12 +551,12 @@
       "default": "''",
       "generated": null,
       "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
       "name": "link",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -528,12 +564,25 @@
       "default": "''",
       "generated": null,
       "identity": null,
-      "name": "repo",
-      "schema": "public",
-      "table": "projects",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "projects",
+      "name": "repo",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "''",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
+      "name": "tags",
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -541,12 +590,12 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
-      "name": "tags",
-      "schema": "public",
-      "table": "projects",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "projects",
+      "name": "featured",
       "type": "boolean",
       "typeSchema": null,
       "notNull": true,
@@ -554,12 +603,12 @@
       "default": "false",
       "generated": null,
       "identity": null,
-      "name": "featured",
-      "schema": "public",
-      "table": "projects",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "projects",
+      "name": "sort_order",
       "type": "integer",
       "typeSchema": null,
       "notNull": true,
@@ -567,25 +616,12 @@
       "default": "0",
       "generated": null,
       "identity": null,
-      "name": "sort_order",
-      "schema": "public",
-      "table": "projects",
       "entityType": "columns"
     },
     {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "projects",
       "name": "created_at",
-      "schema": "public",
-      "table": "projects",
-      "entityType": "columns"
-    },
-    {
       "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
@@ -593,39 +629,25 @@
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "updated_at",
-      "schema": "public",
-      "table": "projects",
       "entityType": "columns"
     },
     {
-      "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
-      "nullsNotDistinct": false,
-      "name": "projects_slug_unique",
       "schema": "public",
       "table": "projects",
-      "entityType": "uniques"
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
     },
     {
-      "isRlsEnabled": false,
-      "name": "site_settings",
-      "schema": "public",
-      "entityType": "tables"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "site_settings_pkey",
       "schema": "public",
       "table": "site_settings",
-      "entityType": "pks"
-    },
-    {
+      "name": "id",
       "type": "serial",
       "typeSchema": null,
       "notNull": true,
@@ -633,25 +655,12 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "id",
-      "schema": "public",
-      "table": "site_settings",
       "entityType": "columns"
     },
     {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
+      "schema": "public",
+      "table": "site_settings",
       "name": "site_title",
-      "schema": "public",
-      "table": "site_settings",
-      "entityType": "columns"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -659,12 +668,25 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "site_description",
-      "schema": "public",
-      "table": "site_settings",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "site_settings",
+      "name": "site_description",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "site_settings",
+      "name": "keywords",
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -672,12 +694,12 @@
       "default": "'[]'",
       "generated": null,
       "identity": null,
-      "name": "keywords",
-      "schema": "public",
-      "table": "site_settings",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "site_settings",
+      "name": "default_theme",
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -685,12 +707,12 @@
       "default": "'github-dark'",
       "generated": null,
       "identity": null,
-      "name": "default_theme",
-      "schema": "public",
-      "table": "site_settings",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "site_settings",
+      "name": "og_heading",
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -698,12 +720,12 @@
       "default": "''",
       "generated": null,
       "identity": null,
-      "name": "og_heading",
-      "schema": "public",
-      "table": "site_settings",
       "entityType": "columns"
     },
     {
+      "schema": "public",
+      "table": "site_settings",
+      "name": "updated_at",
       "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
@@ -711,11 +733,69 @@
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "updated_at",
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
+      "name": "posts_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "profile",
+      "name": "profile_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
+      "name": "projects_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
       "schema": "public",
       "table": "site_settings",
-      "entityType": "columns"
+      "name": "site_settings_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "posts",
+      "name": "posts_slug_unique",
+      "nameExplicit": false,
+      "columns": [
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "projects",
+      "name": "projects_slug_unique",
+      "nameExplicit": false,
+      "columns": [
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
     }
-  ],
-  "renames": []
+  ]
 }
