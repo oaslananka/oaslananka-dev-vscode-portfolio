@@ -9,6 +9,26 @@ This project uses Neon for production plus isolated preview and recovery branche
 
 Neither procedure changes the Vercel or Doppler production connection strings. Always identify the live branch from the approved production pin and PostgreSQL session, **not** from the Neon default branch.
 
+## Durable encrypted backup recovery (free route)
+
+Unlike the temporary logical restore drill below, the daily live-branch
+backup stores an authenticated `age` ciphertext on the existing backup
+host and mirrors it to a recovery machine. See
+[the current backup acceptance](./neon-live-backup-options.md).
+
+Always select an archive made **after** the independently held recovery
+recipients were added. Legacy files may require a no-longer-located
+SSH private identity. SHA-256 integrity alone is insufficient: verify
+full authenticated decryption before restore. Restore only into a
+disposable, network-isolated PostgreSQL instance; compare migrations,
+table counts and sanitized fingerprints against independently verified
+read-only live source evidence. Clean up the temporary instance and
+plaintext; do not attach it to the production application.
+
+The first full restore on 2026-11-10 passed. A later encrypted archive
+was independently decrypted on two physical devices, but a second
+full PostgreSQL restore remains NOT VERIFIED. No production connection
+string, branch or endpoint was changed.
 ## Automated logical restore drill
 
 Prerequisites:
