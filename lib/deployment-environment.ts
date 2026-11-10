@@ -108,3 +108,30 @@ export function allowsBundledDefaultContent(
   }
   return isEnvironmentFlagEnabled(env.ALLOW_DEFAULT_CONTENT);
 }
+
+/** Preview evidence is intentionally limited to what the running app can prove.
+ * A database URL is not evidence of Neon branch ancestry or live-data parity. */
+export function getPreviewSourceProvenance(
+  env: DeploymentEnvironmentVariables = process.env,
+): {
+  source: 'bundled-demo' | 'database-unverified';
+  branchAncestry: 'not-applicable' | 'not-verified';
+  liveDataParity: 'no' | 'not-verified';
+  notice: string;
+} | null {
+  if (!isPreviewDeployment(env)) return null;
+  if (allowsBundledDefaultContent(env)) {
+    return {
+      source: 'bundled-demo',
+      branchAncestry: 'not-applicable',
+      liveDataParity: 'no',
+      notice: 'PREVIEW — Demonstration content only; no production database is connected.',
+    };
+  }
+  return {
+    source: 'database-unverified',
+    branchAncestry: 'not-verified',
+    liveDataParity: 'not-verified',
+    notice: 'PREVIEW — Database source and live-data parity NOT VERIFIED.',
+  };
+}

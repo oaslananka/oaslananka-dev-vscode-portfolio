@@ -6,7 +6,7 @@ import AgentDiscoveryLink from '@/components/AgentDiscoveryLink';
 import ConsentManager from '@/components/ConsentManager';
 import JsonLd from '@/components/JsonLd';
 import { getProfile, getSettings } from '@/lib/content';
-import { allowsBundledDefaultContent, isPreviewDeployment } from '@/lib/deployment-environment';
+import { getPreviewSourceProvenance } from '@/lib/deployment-environment';
 import { buildRootMetadata, personJsonLd, websiteJsonLd } from '@/lib/seo';
 import { GA_ID, GTM_ID, META_PIXEL_ID } from '@/lib/site-config';
 import { DEFAULT_THEME, isThemeKey } from '@/lib/themes';
@@ -46,7 +46,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
-  const showPreviewFixtures = isPreviewDeployment() && allowsBundledDefaultContent();
+  const previewSource = getPreviewSourceProvenance();
   const defaultTheme = isThemeKey(settings.defaultTheme)
     ? settings.defaultTheme
     : DEFAULT_THEME;
@@ -65,10 +65,10 @@ export default async function RootLayout({
         <JsonLd data={websiteJsonLd(settings, profile)} />
       </head>
       <body>
-        {showPreviewFixtures ? (
+        {previewSource ? (
           <div
             role="status"
-            aria-label="Preview sample content notice"
+            aria-label="Preview content provenance notice"
             style={{
               position: 'relative',
               zIndex: 100,
@@ -80,7 +80,7 @@ export default async function RootLayout({
               fontWeight: 700,
             }}
           >
-            PREVIEW — Demonstration content only; no production database is connected.
+            {previewSource.notice}
           </div>
         ) : null}
         {children}

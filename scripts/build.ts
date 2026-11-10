@@ -1,10 +1,17 @@
 import { spawnSync } from 'node:child_process';
 
 import { buildScriptsForEnvironment } from '../lib/build-policy';
-import { resolveDeploymentEnvironment } from '../lib/deployment-environment';
+import { getPreviewSourceProvenance, resolveDeploymentEnvironment } from '../lib/deployment-environment';
 
 const deployment = resolveDeploymentEnvironment(process.env);
 const scripts = buildScriptsForEnvironment(process.env);
+
+const previewSource = getPreviewSourceProvenance(process.env);
+if (previewSource) {
+  console.log(
+    `[preview-provenance] source=${previewSource.source}; branch_ancestry=${previewSource.branchAncestry}; live_data_parity=${previewSource.liveDataParity}`,
+  );
+}
 
 if (!deployment.isProduction) {
   console.log(
