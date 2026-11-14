@@ -46,6 +46,20 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Vercel runs glibc Linux/x64. Keep its native Sharp/libvips binaries,
+  // but avoid tracing Alpine/musl and WASM fallbacks into every Function.
+  // Other build targets retain all fallbacks for portability.
+  ...(process.env.VERCEL === '1'
+    ? {
+        outputFileTracingExcludes: {
+          '/*': [
+            './node_modules/@img/sharp-libvips-linuxmusl-x64/**/*',
+            './node_modules/@img/sharp-linuxmusl-x64/**/*',
+            './node_modules/@img/sharp-wasm32/**/*',
+          ],
+        },
+      }
+    : {}),
   images: {
     remotePatterns: ALLOWED_REMOTE_IMAGE_HOSTNAMES.map((hostname) => ({
       protocol: 'https' as const,
